@@ -10,3 +10,43 @@ model HealthCheck {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 }
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+}
+
+model Permission {
+  id    String @id @default(cuid())
+  key   String @unique
+  label String
+  group String
+  roles Role[] @relation("RolePermissions")
+}
+
+model Role {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  isSystem    Boolean      @default(false)
+  permissions Permission[] @relation("RolePermissions")
+  users       User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  firstName    String
+  lastName     String
+  phone        String?
+  avatarUrl    String?
+  passwordHash String?
+  status       UserStatus @default(INVITED)
+  roleId       String
+  role         Role       @relation(fields: [roleId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
