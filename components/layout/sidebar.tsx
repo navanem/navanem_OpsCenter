@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 const items = [
-  { href: "/dashboard", label: "Tableau de bord" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/clients", label: "Clients" },
-  { href: "/settings", label: "Paramètres" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function Sidebar() {

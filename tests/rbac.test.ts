@@ -1,0 +1,30 @@
+import { describe, it, expect } from "vitest";
+import { can, type AuthUser } from "@/lib/rbac/can";
+import { PERMISSION_KEYS } from "@/lib/rbac/permissions";
+
+const user: AuthUser = {
+  id: "u1",
+  email: "a@b.c",
+  permissions: ["clients.read", "clients.manage"],
+};
+
+describe("can", () => {
+  it("returns false for a null user", () => {
+    expect(can(null, "clients.read")).toBe(false);
+  });
+
+  it("returns true when the user has the permission", () => {
+    expect(can(user, "clients.read")).toBe(true);
+  });
+
+  it("returns false when the user lacks the permission", () => {
+    expect(can(user, "settings.manage")).toBe(false);
+  });
+});
+
+describe("permission catalog", () => {
+  it("exposes the expected keys", () => {
+    expect(PERMISSION_KEYS).toContain("settings.manage");
+    expect(PERMISSION_KEYS.length).toBe(8);
+  });
+});
