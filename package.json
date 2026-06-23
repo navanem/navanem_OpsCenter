@@ -8,13 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
     "jose": "^6.2.3",
     "next": "16.2.9",
     "pg": "^8.22.0",
@@ -36,6 +38,7 @@
     "jsdom": "^29.1.1",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }
