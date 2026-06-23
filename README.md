@@ -1,36 +1,36 @@
 # OpsCenter
 
-Plateforme SaaS de gestion pour MSP (mono-tenant).
+SaaS management platform for MSPs (single-tenant).
 
 ## Stack
 
 Next.js (App Router, TypeScript) · PostgreSQL · Prisma · Tailwind CSS · Docker.
 
-## Prérequis
+## Prerequisites
 
 - Node.js 20
 - Docker Desktop
 
-## Démarrage (développement)
+## Development quickstart
 
 ```bash
-# 1. Installer les dépendances
+# 1. Install dependencies
 npm install
 
-# 2. Démarrer la base de données
+# 2. Start the database
 docker compose up -d db
 
-# 3. Copier les variables d'environnement
+# 3. Copy environment variables
 cp .env.example .env
 
-# 4. Appliquer les migrations
+# 4. Apply migrations
 npx prisma migrate dev
 
-# 5. Lancer l'application
+# 5. Start the application
 npm run dev
 ```
 
-L'application est disponible sur http://localhost:3000.
+The application is available at http://localhost:3000.
 
 ## Tests
 
@@ -40,5 +40,5 @@ npm run test
 
 ## Documentation
 
-- Spec de fondation : `docs/internal/specs/2026-06-23-opscenter-foundation-design.md`
-- Déploiement Docker : `docs/deploiement-docker.md`
+- Foundation spec: `docs/internal/specs/2026-06-23-opscenter-foundation-design.md`
+- Docker deployment: `docs/deployment-docker.md`
