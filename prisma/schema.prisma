@@ -37,16 +37,41 @@ model Role {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  firstName    String
-  lastName     String
-  phone        String?
-  avatarUrl    String?
-  passwordHash String?
-  status       UserStatus @default(INVITED)
-  roleId       String
-  role         Role       @relation(fields: [roleId], references: [id])
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id              String     @id @default(cuid())
+  email           String     @unique
+  firstName       String
+  lastName        String
+  phone           String?
+  avatarUrl       String?
+  passwordHash    String?
+  status          UserStatus @default(INVITED)
+  roleId          String
+  role            Role       @relation(fields: [roleId], references: [id])
+  assignedClients Client[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Client {
+  id                   String       @id @default(cuid())
+  companyName          String
+  domain               String?
+  contactName          String?
+  contactEmail         String?
+  contactPhone         String?
+  address              String?
+  city                 String?
+  postalCode           String?
+  country              String?
+  notes                String?
+  status               ClientStatus @default(ACTIVE)
+  assignedTechnicianId String?
+  assignedTechnician   User?        @relation(fields: [assignedTechnicianId], references: [id])
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
