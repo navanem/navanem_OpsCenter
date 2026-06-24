@@ -3,11 +3,7 @@ import { z } from "zod";
 const optionalText = z.string().trim().optional().or(z.literal(""));
 
 export const inviteUserSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1)
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email"),
+  email: z.string().trim().email("Invalid email"),
   firstName: z.string().trim().min(1, "First name is required"),
   lastName: z.string().trim().min(1, "Last name is required"),
   phone: optionalText,

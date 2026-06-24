@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { inviteUserSchema, acceptInviteSchema } from "@/lib/validation/user";
 
 describe("inviteUserSchema", () => {
-  const base = { email: "a@b.c", firstName: "A", lastName: "B", phone: "", roleId: "r1" };
+  const base = { email: "user@example.com", firstName: "A", lastName: "B", phone: "", roleId: "r1" };
   it("accepts a valid invite", () => {
     expect(inviteUserSchema.safeParse(base).success).toBe(true);
   });
