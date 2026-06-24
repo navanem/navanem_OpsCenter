@@ -20,7 +20,7 @@ export function GeneralForm({ companyName, hasLogo }: GeneralFormProps) {
   );
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="space-y-6">
+    <form action={formAction} className="space-y-6">
       <div className="flex flex-col gap-1">
         <label htmlFor="companyName" className="text-sm text-[var(--muted-foreground)]">
           Company name *
