@@ -87,10 +87,11 @@ export async function moveTicketAction(
 export async function updateStatusAction(formData: FormData): Promise<void> {
   const id = formData.get("id");
   const status = formData.get("status");
-  if (typeof id === "string" && typeof status === "string") {
-    await moveTicketAction(id, status);
+  if (typeof id !== "string" || typeof status !== "string") {
+    redirect("/tickets");
   }
-  redirect(`/tickets/${typeof id === "string" ? id : ""}`);
+  await moveTicketAction(id, status);
+  redirect(`/tickets/${id}`);
 }
 
 export async function updatePriorityAction(formData: FormData): Promise<void> {
@@ -99,6 +100,7 @@ export async function updatePriorityAction(formData: FormData): Promise<void> {
   const priority = formData.get("priority");
   if (
     typeof id === "string" &&
+    id.length > 0 &&
     typeof priority === "string" &&
     PRIORITIES.includes(priority as TicketPriority)
   ) {
@@ -132,7 +134,7 @@ export async function assignTicketAction(formData: FormData): Promise<void> {
     typeof assigneeRaw === "string" && assigneeRaw.length > 0
       ? assigneeRaw
       : null;
-  if (typeof id === "string") {
+  if (typeof id === "string" && id.length > 0) {
     const ticket = await prisma.ticket.findUnique({ where: { id } });
     if (ticket && ticket.assigneeId !== assigneeId) {
       await prisma.$transaction([
