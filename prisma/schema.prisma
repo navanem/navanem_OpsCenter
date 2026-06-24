@@ -32,24 +32,26 @@ model Role {
   isSystem    Boolean      @default(false)
   permissions Permission[] @relation("RolePermissions")
   users       User[]
+  invitations Invitation[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
 model User {
-  id              String     @id @default(cuid())
-  email           String     @unique
+  id              String       @id @default(cuid())
+  email           String       @unique
   firstName       String
   lastName        String
   phone           String?
   avatarUrl       String?
   passwordHash    String?
-  status          UserStatus @default(INVITED)
+  status          UserStatus   @default(INVITED)
   roleId          String
-  role            Role       @relation(fields: [roleId], references: [id])
+  role            Role         @relation(fields: [roleId], references: [id])
   assignedClients Client[]
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  invitations     Invitation[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 enum ClientStatus {
@@ -74,4 +76,24 @@ model Client {
   assignedTechnician   User?        @relation(fields: [assignedTechnicianId], references: [id])
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  email     String
+  roleId    String
+  role      Role             @relation(fields: [roleId], references: [id])
+  tokenHash String           @unique
+  expiresAt DateTime
+  status    InvitationStatus @default(PENDING)
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id])
+  createdAt DateTime         @default(now())
 }
