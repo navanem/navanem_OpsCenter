@@ -3,6 +3,14 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.5.0] - 2026-06-24
+
+### Added
+- Application settings: company name and logo (shown in the app shell).
+- SMTP configuration stored in the database with the password encrypted at rest (AES-256-GCM), plus a "send test email" action.
+- Nodemailer mailer using the stored SMTP settings.
+- Invitation emails: when SMTP is configured, the setup link is emailed to the invited user (the copyable link remains as a fallback).
+
 ## [0.4.0] - 2026-06-24
 
 ### Added
