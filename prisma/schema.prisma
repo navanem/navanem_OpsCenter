@@ -38,20 +38,24 @@ model Role {
 }
 
 model User {
-  id              String       @id @default(cuid())
-  email           String       @unique
-  firstName       String
-  lastName        String
-  phone           String?
-  avatarUrl       String?
-  passwordHash    String?
-  status          UserStatus   @default(INVITED)
-  roleId          String
-  role            Role         @relation(fields: [roleId], references: [id])
-  assignedClients Client[]
-  invitations     Invitation[]
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id               String           @id @default(cuid())
+  email            String           @unique
+  firstName        String
+  lastName         String
+  phone            String?
+  avatarUrl        String?
+  passwordHash     String?
+  status           UserStatus       @default(INVITED)
+  roleId           String
+  role             Role             @relation(fields: [roleId], references: [id])
+  assignedClients  Client[]
+  invitations      Invitation[]
+  assignedTickets  Ticket[]         @relation("TicketAssignee")
+  createdTickets   Ticket[]         @relation("TicketCreatedBy")
+  ticketComments   TicketComment[]  @relation("TicketCommentAuthor")
+  ticketActivities TicketActivity[] @relation("TicketActivityActor")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 enum ClientStatus {
@@ -74,6 +78,7 @@ model Client {
   status               ClientStatus @default(ACTIVE)
   assignedTechnicianId String?
   assignedTechnician   User?        @relation(fields: [assignedTechnicianId], references: [id])
+  tickets              Ticket[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -110,4 +115,79 @@ model AppSetting {
   smtpFrom        String?
   smtpSecure      Boolean  @default(false)
   updatedAt       DateTime @updatedAt
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  HARDWARE
+  SOFTWARE
+  NETWORK
+  ACCOUNT
+  OTHER
+}
+
+enum TicketActivityType {
+  CREATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  ASSIGNED
+  UNASSIGNED
+  COMMENTED
+}
+
+model Ticket {
+  id          String           @id @default(cuid())
+  number      Int              @unique @default(autoincrement())
+  subject     String
+  description String
+  status      TicketStatus     @default(OPEN)
+  priority    TicketPriority   @default(MEDIUM)
+  category    TicketCategory   @default(OTHER)
+  clientId    String
+  client      Client           @relation(fields: [clientId], references: [id])
+  assigneeId  String?
+  assignee    User?            @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  createdById String
+  createdBy   User             @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  comments    TicketComment[]
+  activities  TicketActivity[]
+  closedAt    DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model TicketComment {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("TicketCommentAuthor", fields: [authorId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model TicketActivity {
+  id        String             @id @default(cuid())
+  ticketId  String
+  ticket    Ticket             @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?              @relation("TicketActivityActor", fields: [actorId], references: [id])
+  type      TicketActivityType
+  fromValue String?
+  toValue   String?
+  createdAt DateTime           @default(now())
 }
