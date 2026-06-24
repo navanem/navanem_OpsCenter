@@ -3,6 +3,14 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.6.0] - 2026-06-24
+
+### Added
+- Ticketing: tickets linked to clients with status, priority, and category, and human-friendly reference numbers (TKT-####).
+- A filterable ticket list and a drag-and-drop Kanban board grouped by status.
+- Ticket detail with a threaded comment conversation and an automatic activity timeline (status, priority, assignment, comments).
+- New RBAC permissions: `tickets.read`, `tickets.manage`, `tickets.assign`.
+
 ## [0.5.0] - 2026-06-24
 
 ### Added
