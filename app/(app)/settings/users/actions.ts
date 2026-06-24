@@ -2,16 +2,20 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { inviteUserSchema, editUserSchema } from "@/lib/validation/user";
 import { generateInviteToken } from "@/lib/auth/invite-token";
 import { countActiveAdmins } from "@/lib/users/queries";
 import { wouldLockOutLastAdmin } from "@/lib/users/admin-guard";
+import { isSmtpConfigured, sendMail, invitationEmail } from "@/lib/mailer";
+import { getAppSettings } from "@/lib/settings/service";
 
 export interface InviteState {
   error?: string;
   token?: string;
+  emailed?: boolean;
 }
 
 export interface UserFormState {
@@ -61,8 +65,22 @@ export async function inviteUserAction(
       userId: user.id,
     },
   });
+  let emailed = false;
+  try {
+    if (await isSmtpConfigured()) {
+      const h = await headers();
+      const origin = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+      const link = `${origin}/invite/${token}`;
+      const settings = await getAppSettings();
+      const mail = invitationEmail({ link, companyName: settings.companyName });
+      await sendMail({ to: parsed.data.email, subject: mail.subject, html: mail.html, text: mail.text });
+      emailed = true;
+    }
+  } catch {
+    emailed = false;
+  }
   revalidatePath("/settings/users");
-  return { token };
+  return { token, emailed };
 }
 
 export async function updateUserAction(
