@@ -2,11 +2,24 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { Card } from "@/components/ui/card";
+import type { PermissionKey } from "@/lib/rbac/permissions";
 
 export default async function SettingsPage() {
   const user = await requireUser();
 
-  const sections: { title: string; description: string; href: string; permission: "users.read" | "roles.read" }[] = [
+  const sections: { title: string; description: string; href: string; permission: PermissionKey }[] = [
+    {
+      title: "General",
+      description: "Set your company name and logo.",
+      href: "/settings/general",
+      permission: "settings.manage",
+    },
+    {
+      title: "Email",
+      description: "Configure SMTP settings for outbound email.",
+      href: "/settings/email",
+      permission: "settings.manage",
+    },
     {
       title: "Users",
       description: "Manage user accounts, invite new users, and control access.",
