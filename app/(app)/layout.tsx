@@ -13,7 +13,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar permissions={user.permissions} />
       <div className="flex flex-1 flex-col">
         <Topbar name={`${user.firstName} ${user.lastName}`} roleName={user.roleName} />
         <main className="flex-1 p-8">{children}</main>

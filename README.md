@@ -50,6 +50,12 @@ Sign in at `/login` with the seeded admin account:
 - Email: `admin@opscenter.local` (or the value of `ADMIN_EMAIL` in `.env`)
 - Password: `ChangeMe123!` (or the value of `ADMIN_PASSWORD` in `.env`)
 
+## Features
+
+- **Authentication** — email/password login, signed-cookie sessions, route protection.
+- **RBAC** — role-based permission catalog with a `can()` helper and per-route permission guards.
+- **Clients** — RBAC-gated client management (`clients.read` to view, `clients.manage` to create/edit/delete); list with search and status/technician filters, create/edit form, and detail page.
+
 ## Tests
 
 ```bash

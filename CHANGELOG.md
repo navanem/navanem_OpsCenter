@@ -3,6 +3,13 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.3.0] - 2026-06-24
+
+### Added
+- Clients module: data model with a `domain` field (reserved for the future Tickets module) and an assigned-technician relation.
+- Clients list with search and status/technician filters, create/edit form, and detail page.
+- Reusable permission guards (`requireUser`, `requirePermission`) and a permission-aware sidebar.
+
 ## [0.2.0] - 2026-06-24
 
 ### Added
