@@ -56,6 +56,7 @@ Sign in at `/login` with the seeded admin account:
 - **RBAC** — role-based permission catalog with a `can()` helper and per-route permission guards.
 - **Clients** — RBAC-gated client management (`clients.read` to view, `clients.manage` to create/edit/delete); list with search and status/technician filters, create/edit form, and detail page.
 - **Users & Roles** — managed under Settings; invite users with a copyable setup link, edit or suspend accounts, and configure roles with a full permission matrix. RBAC-gated by `users.*` / `roles.*` permissions.
+- **Settings** — company identity (name and logo displayed in the app shell); SMTP configuration stored in the database with the password encrypted at rest (AES-256-GCM, key derived from `AUTH_SECRET`) and a "send test email" action; invitation emails sent automatically when SMTP is configured (copyable link remains as a fallback). Gated by `settings.manage`.
 
 ## Tests
 

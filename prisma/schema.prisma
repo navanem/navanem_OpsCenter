@@ -97,3 +97,17 @@ model Invitation {
   user      User?            @relation(fields: [userId], references: [id])
   createdAt DateTime         @default(now())
 }
+
+model AppSetting {
+  id              String   @id @default("singleton")
+  companyName     String   @default("OpsCenter")
+  logoData        Bytes?
+  logoMimeType    String?
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUser        String?
+  smtpPasswordEnc String?
+  smtpFrom        String?
+  smtpSecure      Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+}

@@ -22,6 +22,11 @@ export function InviteForm({ roles }: { roles: { id: string; name: string }[] })
       <div className="space-y-4">
         <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-4">
           <p className="mb-3 text-sm font-medium">User invited successfully.</p>
+          {state.emailed ? (
+            <p className="mb-3 text-sm text-[var(--muted-foreground)]">
+              An invitation email was sent to the user.
+            </p>
+          ) : null}
           <p className="mb-3 text-sm text-[var(--muted-foreground)]">
             Share this link with the user so they can set their password:
           </p>
