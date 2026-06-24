@@ -7,6 +7,9 @@ export const PERMISSIONS = {
   "clients.manage": { label: "Manage clients", group: "Clients" },
   "clients.assign": { label: "Assign client technician", group: "Clients" },
   "settings.manage": { label: "Manage settings", group: "Settings" },
+  "tickets.read": { label: "View tickets", group: "Tickets" },
+  "tickets.manage": { label: "Manage tickets", group: "Tickets" },
+  "tickets.assign": { label: "Assign tickets", group: "Tickets" },
 } as const;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

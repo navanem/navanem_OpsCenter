@@ -5,6 +5,7 @@ import type { PermissionKey } from "@/lib/rbac/permissions";
 const items: { href: string; label: string; permission?: PermissionKey }[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/clients", label: "Clients", permission: "clients.read" },
+  { href: "/tickets", label: "Tickets", permission: "tickets.read" },
   { href: "/settings", label: "Settings", permission: "settings.manage" },
 ];
 

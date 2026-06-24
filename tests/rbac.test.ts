@@ -25,6 +25,9 @@ describe("can", () => {
 describe("permission catalog", () => {
   it("exposes the expected keys", () => {
     expect(PERMISSION_KEYS).toContain("settings.manage");
-    expect(PERMISSION_KEYS.length).toBe(8);
+    expect(PERMISSION_KEYS).toContain("tickets.read");
+    expect(PERMISSION_KEYS).toContain("tickets.manage");
+    expect(PERMISSION_KEYS).toContain("tickets.assign");
+    expect(PERMISSION_KEYS.length).toBe(11);
   });
 });
