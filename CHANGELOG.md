@@ -3,6 +3,17 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.4.0] - 2026-06-24
+
+### Added
+- Roles management with a permission matrix (create, edit, delete roles; assign permissions per role).
+- User management (invite/edit/suspend) with a copyable setup link for onboarding new users.
+- Public accept-invitation flow: invited users set a password to activate their account.
+- Last-active-admin lockout protection (blocks suspend and role demotion that would remove the last admin).
+
+### Notes
+- Invite emails are deferred to v0.5.0 (SMTP); admins copy the setup link manually for now.
+
 ## [0.3.0] - 2026-06-24
 
 ### Added
