@@ -41,10 +41,10 @@ export default async function ClientsPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th className="px-6 py-3 font-medium">Company</th>
-                <th className="px-6 py-3 font-medium">Domain</th>
-                <th className="px-6 py-3 font-medium">Technician</th>
-                <th className="px-6 py-3 font-medium">Status</th>
+                <th scope="col" className="px-6 py-3 font-medium">Company</th>
+                <th scope="col" className="px-6 py-3 font-medium">Domain</th>
+                <th scope="col" className="px-6 py-3 font-medium">Technician</th>
+                <th scope="col" className="px-6 py-3 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>

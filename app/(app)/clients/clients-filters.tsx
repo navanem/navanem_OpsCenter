@@ -20,6 +20,7 @@ export function ClientsFilters({
   return (
     <div className="flex flex-wrap gap-3">
       <input
+        type="search"
         defaultValue={params.get("search") ?? ""}
         placeholder="Search clients…"
         onKeyDown={(e) => {
