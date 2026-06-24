@@ -16,9 +16,10 @@ interface EmailFormProps {
     smtpFrom: string;
     smtpSecure: boolean | null;
   };
+  hasPassword?: boolean;
 }
 
-export function EmailForm({ settings }: EmailFormProps) {
+export function EmailForm({ settings, hasPassword }: EmailFormProps) {
   const [smtpState, smtpFormAction, smtpPending] = useActionState<SmtpState, FormData>(
     updateSmtpAction,
     {},
@@ -89,6 +90,11 @@ export function EmailForm({ settings }: EmailFormProps) {
               placeholder="Leave blank to keep current"
               className={inputClass}
             />
+            {hasPassword && (
+              <p className="text-xs text-[var(--muted-foreground)]">
+                A password is currently stored. Leave blank to keep it.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1 sm:col-span-2">

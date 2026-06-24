@@ -23,6 +23,7 @@ export default async function EmailSettingsPage() {
               smtpFrom: settings.smtpFrom ?? "",
               smtpSecure: settings.smtpSecure,
             }}
+            hasPassword={Boolean(settings.smtpPasswordEnc)}
           />
         </CardContent>
       </Card>

@@ -42,7 +42,7 @@ export function GeneralForm({ companyName, hasLogo }: GeneralFormProps) {
         {hasLogo && (
           <div className="mb-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/api/logo" alt="Current logo" className="h-10 w-auto" />
+            <img src={state.ok ? `/api/logo?t=${Date.now()}` : "/api/logo"} alt="Current logo" className="h-10 w-auto" />
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">Current logo</p>
           </div>
         )}

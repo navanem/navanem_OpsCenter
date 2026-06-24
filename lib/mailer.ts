@@ -35,6 +35,10 @@ export async function sendMail(msg: MailMessage): Promise<void> {
   });
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 export function invitationEmail(opts: { link: string; companyName: string }): {
   subject: string;
   html: string;
@@ -42,6 +46,7 @@ export function invitationEmail(opts: { link: string; companyName: string }): {
 } {
   const subject = `You have been invited to ${opts.companyName}`;
   const text = `You have been invited to ${opts.companyName}. Set up your account: ${opts.link}`;
-  const html = `<p>You have been invited to <strong>${opts.companyName}</strong>.</p><p><a href="${opts.link}">Set up your account</a></p>`;
+  const safeName = escapeHtml(opts.companyName);
+  const html = `<p>You have been invited to <strong>${safeName}</strong>.</p><p><a href="${opts.link}">Set up your account</a></p>`;
   return { subject, html, text };
 }
