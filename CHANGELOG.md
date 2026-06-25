@@ -3,6 +3,15 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.10.0] - 2026-06-25
+
+### Added
+- Dashboard with KPIs (clients, open/total tickets, team), a tickets-by-status breakdown, and a recent-tickets list.
+
+### Changed
+- Premium visual refresh across the app: tighter corner radius, crisper borders, refined buttons/cards, and active-state sidebar navigation.
+- Settings → Taxonomies is now organized into tabs.
+
 ## [0.9.0] - 2026-06-25
 
 ### Added
