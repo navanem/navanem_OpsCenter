@@ -14,6 +14,7 @@ import {
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import {
   updateStatusAction,
   updatePriorityAction,
@@ -83,6 +84,7 @@ export default async function TicketDetailPage({
 
   return (
     <div className="space-y-6 p-6">
+      <Breadcrumbs items={[{ label: "Tickets", href: "/tickets" }, { label: formatTicketReference(ticket.number) }]} />
       {/* Header */}
       <div className="space-y-1">
         <p className="font-mono text-sm text-[var(--muted-foreground)]">

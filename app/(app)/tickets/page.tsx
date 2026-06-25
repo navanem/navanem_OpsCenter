@@ -7,6 +7,7 @@ import { listTechnicians } from "@/lib/users/queries";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { TicketsFilters } from "./tickets-filters";
 
@@ -28,6 +29,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Tickets" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
         <div className="flex gap-2">

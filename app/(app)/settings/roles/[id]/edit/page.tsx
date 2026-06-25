@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { getRole } from "@/lib/roles/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { RoleForm } from "../../role-form";
 import { updateRoleAction, deleteRoleAction } from "../../actions";
 
@@ -18,6 +19,7 @@ export default async function EditRolePage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Roles", href: "/settings/roles" }, { label: role.name }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Edit role</h1>
       <Card>
         <CardHeader>

@@ -1,6 +1,7 @@
 import { requirePermission } from "@/lib/auth/guard";
 import { getAppSettings } from "@/lib/settings/service";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { EmailForm } from "./email-form";
 
 export default async function EmailSettingsPage() {
@@ -9,6 +10,7 @@ export default async function EmailSettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Email" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Email (SMTP)</h1>
       <Card>
         <CardHeader>

@@ -5,6 +5,7 @@ import { can } from "@/lib/rbac/can";
 import { getClient } from "@/lib/clients/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { deleteClientAction } from "../actions";
 
 function Row({ label, value }: { label: string; value: string | null }) {
@@ -33,6 +34,7 @@ export default async function ClientDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <Breadcrumbs items={[{ label: "Clients", href: "/clients" }, { label: client.companyName }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{client.companyName}</h1>
         {manage ? (

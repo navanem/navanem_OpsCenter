@@ -4,6 +4,7 @@ import { can } from "@/lib/rbac/can";
 import { listUsers } from "@/lib/users/queries";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { setUserStatusAction } from "./actions";
 
 function StatusBadge({ status }: { status: string }) {
@@ -33,6 +34,7 @@ export default async function UsersPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Users" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
         {canManage ? (

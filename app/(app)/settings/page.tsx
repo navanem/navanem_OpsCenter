@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { Card } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import type { PermissionKey } from "@/lib/rbac/permissions";
 
 export default async function SettingsPage() {
@@ -38,6 +39,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Settings" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
 
       {visible.length === 0 ? (
