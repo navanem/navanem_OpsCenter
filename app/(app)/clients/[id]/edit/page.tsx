@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { getClient } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ClientForm } from "../../client-form";
 import { updateClientAction } from "../../actions";
 
@@ -18,6 +19,7 @@ export default async function EditClientPage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <Breadcrumbs items={[{ label: "Clients", href: "/clients" }, { label: client.companyName, href: `/clients/${client.id}` }, { label: "Edit" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Edit client</h1>
       <Card>
         <CardHeader>

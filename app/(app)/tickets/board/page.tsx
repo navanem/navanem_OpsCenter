@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { listTickets } from "@/lib/tickets/queries";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TicketBoard, type BoardTicket } from "./ticket-board";
 
 export default async function TicketBoardPage() {
@@ -20,6 +21,7 @@ export default async function TicketBoardPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Tickets", href: "/tickets" }, { label: "Board" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Tickets — Board</h1>
         <div className="flex gap-2">

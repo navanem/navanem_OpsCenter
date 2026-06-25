@@ -4,6 +4,7 @@ import { can } from "@/lib/rbac/can";
 import { listRoles } from "@/lib/roles/queries";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 
 export default async function RolesPage() {
   const user = await requirePermission("roles.read");
@@ -11,6 +12,7 @@ export default async function RolesPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Roles" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Roles</h1>
         {can(user, "roles.manage") ? (

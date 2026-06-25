@@ -14,6 +14,7 @@ import {
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import {
   updateStatusAction,
   updatePriorityAction,
@@ -83,11 +84,12 @@ export default async function TicketDetailPage({
 
   return (
     <div className="space-y-6 p-6">
+      <Breadcrumbs items={[{ label: "Tickets", href: "/tickets" }, { label: formatTicketReference(ticket.number) }]} />
       {/* Header */}
       <div className="space-y-1">
-        <p className="font-mono text-sm text-[var(--muted-foreground)]">
+        <span className="inline-flex rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-xs text-[var(--muted-foreground)]">
           {formatTicketReference(ticket.number)}
-        </p>
+        </span>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight flex-1 min-w-0">
             {ticket.subject}
@@ -129,21 +131,32 @@ export default async function TicketDetailPage({
                 <p className="text-sm text-[var(--muted-foreground)]">No comments yet.</p>
               ) : (
                 <div className="space-y-4">
-                  {ticket.comments.map((comment) => (
-                    <div key={comment.id} className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {comment.author.firstName} {comment.author.lastName}
-                        </span>
-                        <span className="text-xs text-[var(--muted-foreground)]">
-                          {comment.createdAt.toLocaleString()}
-                        </span>
+                  {ticket.comments.map((comment) => {
+                    const initials = (
+                      (comment.author.firstName?.[0] ?? "") +
+                      (comment.author.lastName?.[0] ?? "")
+                    ).toUpperCase();
+                    return (
+                      <div key={comment.id} className="flex gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--muted)] text-xs font-medium">
+                          {initials}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">
+                              {comment.author.firstName} {comment.author.lastName}
+                            </span>
+                            <span className="text-xs text-[var(--muted-foreground)]">
+                              {comment.createdAt.toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="whitespace-pre-wrap rounded-[var(--radius)] bg-[var(--muted)] p-3 text-sm leading-relaxed">
+                            {comment.body}
+                          </p>
+                        </div>
                       </div>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                        {comment.body}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
               {canManage && <CommentForm ticketId={ticket.id} />}
@@ -283,9 +296,10 @@ export default async function TicketDetailPage({
               {ticket.activities.length === 0 ? (
                 <p className="text-sm text-[var(--muted-foreground)]">No activity yet.</p>
               ) : (
-                <ol className="space-y-3">
+                <ol className="relative border-l border-[var(--border)] pl-4 space-y-4">
                   {ticket.activities.map((activity) => (
-                    <li key={activity.id} className="flex flex-col gap-0.5">
+                    <li key={activity.id} className="relative flex flex-col gap-0.5">
+                      <div className="absolute -left-[21px] top-[6px] h-2 w-2 rounded-full bg-[var(--muted-foreground)]" />
                       <span className="text-sm">{activitySentence(activity)}</span>
                       <span className="text-xs text-[var(--muted-foreground)]">
                         {activity.createdAt.toLocaleString()}

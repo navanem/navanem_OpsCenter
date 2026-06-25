@@ -5,6 +5,7 @@ import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ClientsFilters } from "./clients-filters";
 
 export default async function ClientsPage({
@@ -23,6 +24,7 @@ export default async function ClientsPage({
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Clients" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
         {can(user, "clients.manage") ? (

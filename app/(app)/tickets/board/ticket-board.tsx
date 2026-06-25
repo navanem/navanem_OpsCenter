@@ -48,16 +48,16 @@ export function TicketBoard({ initial, canManage }: { initial: BoardTicket[]; ca
           >
             <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
-              <span className="text-sm font-medium">{meta.label}</span>
+              <span className="text-sm font-bold">{meta.label}</span>
               <span className="ml-auto text-xs text-[var(--muted-foreground)]">{column.length}</span>
             </div>
-            <div className="flex flex-col gap-2 p-3">
+            <div className="flex min-h-24 flex-col gap-2 p-3">
               {column.map((t) => (
                 <div
                   key={t.id}
                   draggable={canManage}
                   onDragStart={() => setDragId(t.id)}
-                  className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-3 text-sm"
+                  className="cursor-grab rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-3 text-sm shadow-sm transition hover:border-[var(--ring)] active:cursor-grabbing"
                 >
                   <div className="mb-1 flex items-center justify-between">
                     <span className="font-mono text-xs text-[var(--muted-foreground)]">{formatTicketReference(t.number)}</span>

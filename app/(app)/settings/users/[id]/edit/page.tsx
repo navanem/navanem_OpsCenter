@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { getUser } from "@/lib/users/queries";
 import { listRoles } from "@/lib/roles/queries";
 import { Card } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { UserForm } from "../../user-form";
 
 export default async function EditUserPage({
@@ -19,6 +20,7 @@ export default async function EditUserPage({
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Users", href: "/settings/users" }, { label: `${user.firstName} ${user.lastName}` }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Edit user</h1>
 
       <div className="max-w-2xl">
