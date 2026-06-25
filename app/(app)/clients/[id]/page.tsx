@@ -4,6 +4,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getClient } from "@/lib/clients/queries";
 import { listTickets } from "@/lib/tickets/queries";
+import { listClientContacts } from "@/lib/contacts/queries";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { deleteClientAction } from "../actions";
+import { deleteContactAction } from "./contacts/actions";
 
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
@@ -51,6 +53,8 @@ export default async function ClientDetailPage({
       ["RESOLVED", "CLOSED"].includes(t.status)
     );
   }
+
+  const contacts = await listClientContacts(id);
 
   const detailsCard = (
     <Card>
@@ -187,6 +191,104 @@ export default async function ClientDetailPage({
       ) : (
         detailsCard
       )}
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              Contacts{" "}
+              <span className="text-[var(--muted-foreground)] font-normal text-sm">
+                ({contacts.length})
+              </span>
+            </CardTitle>
+            {manage && (
+              <Link href={`/clients/${id}/contacts/new`}>
+                <Button variant="outline">Add contact</Button>
+              </Link>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {contacts.length === 0 ? (
+            <p className="text-sm text-[var(--muted-foreground)]">No contacts yet.</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {contacts.map((c) => {
+                const hasPhoto = Boolean(c.photoData);
+                return (
+                  <div
+                    key={c.id}
+                    className="flex flex-col gap-2 rounded-[var(--radius)] border border-[var(--border)] p-4 text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      {hasPhoto ? (
+                        <img
+                          src={`/api/contacts/${c.id}/photo`}
+                          alt={`${c.firstName} ${c.lastName}`}
+                          className="h-12 w-12 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-full bg-[var(--muted)] flex items-center justify-center shrink-0 text-sm font-medium text-[var(--muted-foreground)]">
+                          {(c.firstName[0] + c.lastName[0]).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium truncate">
+                            {c.firstName} {c.lastName}
+                          </span>
+                          {c.isVip && (
+                            <span className="bg-[#f59e0b22] text-[#f59e0b] rounded-full px-2 py-0.5 text-xs shrink-0">
+                              VIP
+                            </span>
+                          )}
+                        </div>
+                        {c.jobTitle && (
+                          <p className="text-[var(--muted-foreground)] truncate">{c.jobTitle}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      {c.email && (
+                        <p className="text-[var(--muted-foreground)] truncate">
+                          <a href={`mailto:${c.email}`} className="hover:underline">
+                            {c.email}
+                          </a>
+                        </p>
+                      )}
+                      {c.phone && (
+                        <p className="text-[var(--muted-foreground)]">{c.phone}</p>
+                      )}
+                    </div>
+
+                    {manage && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <Link
+                          href={`/clients/${id}/contacts/${c.id}/edit`}
+                          className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                        >
+                          Edit
+                        </Link>
+                        <form action={deleteContactAction}>
+                          <input type="hidden" name="id" value={c.id} />
+                          <input type="hidden" name="clientId" value={id} />
+                          <button
+                            type="submit"
+                            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
