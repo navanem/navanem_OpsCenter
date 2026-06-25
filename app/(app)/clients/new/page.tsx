@@ -1,5 +1,6 @@
 import { requirePermission } from "@/lib/auth/guard";
 import { listTechnicians } from "@/lib/users/queries";
+import { listClientIndustries } from "@/lib/taxonomies/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ClientForm } from "../client-form";
@@ -7,7 +8,10 @@ import { createClientAction } from "../actions";
 
 export default async function NewClientPage() {
   await requirePermission("clients.manage");
-  const technicians = await listTechnicians();
+  const [technicians, industries] = await Promise.all([
+    listTechnicians(),
+    listClientIndustries({ activeOnly: true }),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -18,7 +22,7 @@ export default async function NewClientPage() {
           <CardTitle>Client details</CardTitle>
         </CardHeader>
         <CardContent>
-          <ClientForm action={createClientAction} technicians={technicians} submitLabel="Create client" />
+          <ClientForm action={createClientAction} technicians={technicians} industries={industries} submitLabel="Create client" />
         </CardContent>
       </Card>
     </div>

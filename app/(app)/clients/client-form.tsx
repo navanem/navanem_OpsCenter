@@ -20,6 +20,7 @@ export interface ClientDefaults {
   status?: "ACTIVE" | "INACTIVE";
   assignedTechnicianId?: string | null;
   notes?: string | null;
+  industryId?: string | null;
 }
 
 const inputClass =
@@ -59,11 +60,13 @@ function Field({
 export function ClientForm({
   action,
   technicians,
+  industries,
   defaults,
   submitLabel,
 }: {
   action: Action;
   technicians: { id: string; firstName: string; lastName: string }[];
+  industries: { id: string; name: string }[];
   defaults?: ClientDefaults;
   submitLabel: string;
 }) {
@@ -104,6 +107,23 @@ export function ClientForm({
             {technicians.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.firstName} {t.lastName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="industryId" className="text-sm text-[var(--muted-foreground)]">Industry</label>
+          <select
+            id="industryId"
+            name="industryId"
+            defaultValue={defaults?.industryId ?? ""}
+            className={inputClass}
+          >
+            <option value="">None</option>
+            {industries.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.name}
               </option>
             ))}
           </select>

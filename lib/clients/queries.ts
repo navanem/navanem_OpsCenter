@@ -12,6 +12,6 @@ export function listClients(filters: ClientFilters) {
 export function getClient(id: string) {
   return prisma.client.findUnique({
     where: { id },
-    include: { assignedTechnician: true },
+    include: { assignedTechnician: true, industry: true },
   });
 }

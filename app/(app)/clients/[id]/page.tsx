@@ -59,6 +59,7 @@ export default async function ClientDetailPage({
       </CardHeader>
       <CardContent className="text-sm">
         <Row label="Status" value={client.status === "ACTIVE" ? "Active" : "Inactive"} />
+        <Row label="Industry" value={client.industry?.name ?? "—"} />
         <Row label="Domain" value={client.domain} />
         <Row label="Assigned technician" value={technician} />
         <Row label="Contact name" value={client.contactName} />
