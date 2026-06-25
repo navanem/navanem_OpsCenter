@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.9.0] - 2026-06-25
+
+### Added
+- Client contacts: manage the people at each client (name, job title, email, phone) with an optional photo and a VIP flag, shown on the client detail page.
+
 ## [0.8.0] - 2026-06-25
 
 ### Added
