@@ -5,7 +5,7 @@ import {
   listClientIndustries,
 } from "@/lib/taxonomies/queries";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { TaxonomyManager } from "./taxonomy-manager";
+import { TaxonomyTabs } from "./taxonomy-tabs";
 
 export default async function TaxonomiesPage() {
   await requirePermission("settings.manage");
@@ -23,11 +23,7 @@ export default async function TaxonomiesPage() {
       />
       <h1 className="text-2xl font-semibold tracking-tight">Taxonomies</h1>
 
-      <div className="space-y-6">
-        <TaxonomyManager kind="category" title="Ticket categories" items={categories} />
-        <TaxonomyManager kind="priority" title="Ticket priorities" items={priorities} />
-        <TaxonomyManager kind="industry" title="Client industries" items={industries} />
-      </div>
+      <TaxonomyTabs categories={categories} priorities={priorities} industries={industries} />
     </div>
   );
 }
