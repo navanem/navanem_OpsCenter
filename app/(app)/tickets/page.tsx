@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
-import { listTickets } from "@/lib/tickets/queries";
+import { listTickets, getTicketStats } from "@/lib/tickets/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { listTicketCategories, listTicketPriorities } from "@/lib/taxonomies/queries";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { TicketsFilters } from "./tickets-filters";
@@ -21,7 +21,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const status = STATUSES.includes(sp.status ?? "") ? (sp.status as never) : undefined;
 
-  const [tickets, clients, technicians, priorities, categories] = await Promise.all([
+  const [tickets, clients, technicians, priorities, categories, ticketStats] = await Promise.all([
     listTickets({
       search: sp.search,
       status,
@@ -34,7 +34,15 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
     listTechnicians(),
     listTicketPriorities({ activeOnly: true }),
     listTicketCategories({ activeOnly: true }),
+    getTicketStats(),
   ]);
+
+  const kpis = [
+    { label: "Open", value: ticketStats.open },
+    { label: "In progress", value: ticketStats.inProgress },
+    { label: "Unassigned (open)", value: ticketStats.unassignedOpen },
+    { label: "Total tickets", value: ticketStats.total },
+  ];
 
   return (
     <div className="space-y-6">
@@ -45,6 +53,17 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
           <Link href="/tickets/board"><Button variant="outline">Board view</Button></Link>
           {can(user, "tickets.manage") ? <Link href="/tickets/new"><Button>New ticket</Button></Link> : null}
         </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((k) => (
+          <Card key={k.label}>
+            <CardContent>
+              <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
+              <p className="mt-1 text-3xl font-semibold">{k.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <TicketsFilters

@@ -8,7 +8,7 @@ export default async function NewRolePage() {
   await requirePermission("roles.manage");
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Roles", href: "/settings/roles" }, { label: "New role" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">New role</h1>
       <Card>

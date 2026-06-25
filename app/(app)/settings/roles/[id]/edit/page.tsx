@@ -18,7 +18,7 @@ export default async function EditRolePage({
   if (!role) notFound();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Roles", href: "/settings/roles" }, { label: role.name }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Edit role</h1>
       <Card>
