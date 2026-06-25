@@ -109,26 +109,26 @@ function ItemRow({ item, kind }: { item: TaxonomyItem; kind: Kind }) {
         <Button type="submit" variant="outline" className="px-3 py-1 text-xs" disabled={editPending}>
           {editPending ? "Saving…" : "Save"}
         </Button>
+      </form>
 
-        {/* Delete form */}
-        <form
-          action={deleteTaxonomyAction}
-          onSubmit={(e) => {
-            if (!confirm(`Delete "${item.name}"? If it is in use, deactivate it instead.`)) {
-              e.preventDefault();
-            }
-          }}
+      {/* Delete form — sibling of the edit form, NOT nested inside it */}
+      <form
+        action={deleteTaxonomyAction}
+        onSubmit={(e) => {
+          if (!confirm(`Delete "${item.name}"? If it is in use, deactivate it instead.`)) {
+            e.preventDefault();
+          }
+        }}
+      >
+        <input type="hidden" name="kind" value={kind} />
+        <input type="hidden" name="id" value={item.id} />
+        <Button
+          type="submit"
+          variant="outline"
+          className="px-3 py-1 text-xs text-[var(--destructive)] hover:bg-red-50 dark:hover:bg-red-950/20"
         >
-          <input type="hidden" name="kind" value={kind} />
-          <input type="hidden" name="id" value={item.id} />
-          <Button
-            type="submit"
-            variant="outline"
-            className="px-3 py-1 text-xs text-[var(--destructive)] hover:bg-red-50 dark:hover:bg-red-950/20"
-          >
-            Delete
-          </Button>
-        </form>
+          Delete
+        </Button>
       </form>
 
       {editState.error ? (
