@@ -22,6 +22,12 @@ export default async function SettingsPage() {
       permission: "settings.manage",
     },
     {
+      title: "Taxonomies",
+      description: "Ticket categories, priorities, and client industries.",
+      href: "/settings/taxonomies",
+      permission: "settings.manage",
+    },
+    {
       title: "Users",
       description: "Manage user accounts, invite new users, and control access.",
       href: "/settings/users",
