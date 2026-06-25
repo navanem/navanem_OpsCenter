@@ -34,3 +34,19 @@ export function getTicketPriority(id: string) {
 export function getClientIndustry(id: string) {
   return prisma.clientIndustry.findUnique({ where: { id } });
 }
+
+export function listProjectStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.projectStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listProjectTaskStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.projectTaskStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function getProjectStatus(id: string) {
+  return prisma.projectStatus.findUnique({ where: { id } });
+}
+
+export function getProjectTaskStatus(id: string) {
+  return prisma.projectTaskStatus.findUnique({ where: { id } });
+}
