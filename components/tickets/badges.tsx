@@ -1,4 +1,4 @@
-import { TICKET_STATUS_META, TICKET_PRIORITY_META } from "@/lib/tickets/meta";
+import { TICKET_STATUS_META } from "@/lib/tickets/meta";
 
 export function StatusBadge({ status }: { status: keyof typeof TICKET_STATUS_META }) {
   const m = TICKET_STATUS_META[status];
@@ -13,14 +13,24 @@ export function StatusBadge({ status }: { status: keyof typeof TICKET_STATUS_MET
   );
 }
 
-export function PriorityBadge({ priority }: { priority: keyof typeof TICKET_PRIORITY_META }) {
-  const m = TICKET_PRIORITY_META[priority];
+export function PriorityBadge({ name, color }: { name: string; color: string }) {
   return (
     <span
       className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-      style={{ backgroundColor: `${m.color}22`, color: m.color }}
+      style={{ backgroundColor: `${color}22`, color }}
     >
-      {m.label}
+      {name}
+    </span>
+  );
+}
+
+export function CategoryBadge({ name, color }: { name: string; color: string }) {
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+      style={{ backgroundColor: `${color}22`, color }}
+    >
+      {name}
     </span>
   );
 }
