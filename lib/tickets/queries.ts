@@ -15,6 +15,25 @@ export function listTickets(filters: TicketFilters) {
   });
 }
 
+export async function getTicketStats() {
+  const [byStatus, unassignedOpen, total] = await Promise.all([
+    prisma.ticket.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.ticket.count({
+      where: { assigneeId: null, status: { in: ["OPEN", "IN_PROGRESS", "PENDING"] } },
+    }),
+    prisma.ticket.count(),
+  ]);
+  const map: Record<string, number> = {};
+  for (const g of byStatus) map[g.status] = g._count._all;
+  const open = (map.OPEN ?? 0) + (map.IN_PROGRESS ?? 0) + (map.PENDING ?? 0);
+  return {
+    open,
+    inProgress: map.IN_PROGRESS ?? 0,
+    unassignedOpen,
+    total,
+  };
+}
+
 export function getTicket(id: string) {
   return prisma.ticket.findUnique({
     where: { id },

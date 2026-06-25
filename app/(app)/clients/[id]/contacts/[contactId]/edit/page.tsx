@@ -20,7 +20,7 @@ export default async function EditContactPage({
   if (!client) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs
         items={[
           { label: "Clients", href: "/clients" },

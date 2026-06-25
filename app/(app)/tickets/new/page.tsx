@@ -16,7 +16,7 @@ export default async function NewTicketPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Tickets", href: "/tickets" }, { label: "New ticket" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">New ticket</h1>
       <Card>
