@@ -9,7 +9,7 @@ export default async function EmailSettingsPage() {
   const settings = await getAppSettings();
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Email" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">Email (SMTP)</h1>
       <Card>

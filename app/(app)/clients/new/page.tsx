@@ -14,7 +14,7 @@ export default async function NewClientPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Clients", href: "/clients" }, { label: "New client" }]} />
       <h1 className="text-2xl font-semibold tracking-tight">New client</h1>
       <Card>

@@ -76,7 +76,7 @@ export default async function TicketDetailPage({
   const canAssign = can(user, "tickets.assign");
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Tickets", href: "/tickets" }, { label: formatTicketReference(ticket.number) }]} />
       {/* Header */}
       <div className="space-y-1">
