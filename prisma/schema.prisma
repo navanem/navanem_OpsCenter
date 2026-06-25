@@ -81,6 +81,7 @@ model Client {
   assignedTechnicianId String?
   assignedTechnician   User?        @relation(fields: [assignedTechnicianId], references: [id])
   tickets              Ticket[]
+  contacts             ClientContact[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -201,6 +202,22 @@ model TicketPriority {
   tickets   Ticket[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ClientContact {
+  id            String   @id @default(cuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  firstName     String
+  lastName      String
+  jobTitle      String?
+  email         String?
+  phone         String?
+  isVip         Boolean  @default(false)
+  photoData     Bytes?
+  photoMimeType String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model ClientIndustry {
