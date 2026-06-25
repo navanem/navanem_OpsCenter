@@ -95,7 +95,7 @@ export async function deleteTaxonomyAction(formData: FormData): Promise<void> {
       else if (kind === "task-status") await prisma.projectTaskStatus.delete({ where: { id } });
       else await prisma.clientIndustry.delete({ where: { id } });
     } catch {
-      // A category/priority still referenced by tickets cannot be deleted (FK RESTRICT).
+      // A taxonomy item still referenced by tickets/projects cannot be deleted (FK RESTRICT).
       // The UI advises deactivating instead. Swallow to avoid a crash.
     }
   }

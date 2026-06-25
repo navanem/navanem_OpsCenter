@@ -228,7 +228,7 @@ export function TaxonomyManager({ kind, title, items }: TaxonomyManagerProps) {
         )}
 
         <p className="text-xs text-[var(--muted-foreground)]">
-          Items in use by tickets cannot be deleted — deactivate them instead.
+          Items in use cannot be deleted — deactivate them instead.
         </p>
 
         <div className="border-t border-[var(--border)] pt-2">
