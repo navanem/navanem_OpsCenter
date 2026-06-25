@@ -3,6 +3,15 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.8.0] - 2026-06-25
+
+### Added
+- Configurable taxonomies managed in Settings: ticket categories, ticket priorities (label, color, sort order, active flag), and client industries.
+- Clients can be assigned a configurable industry.
+
+### Changed
+- Ticket categories and priorities are now database-backed and editable instead of fixed values (existing tickets were migrated to the defaults).
+
 ## [0.7.0] - 2026-06-25
 
 ### Added

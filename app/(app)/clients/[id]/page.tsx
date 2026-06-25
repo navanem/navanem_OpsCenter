@@ -5,7 +5,7 @@ import { can } from "@/lib/rbac/can";
 import { getClient } from "@/lib/clients/queries";
 import { listTickets } from "@/lib/tickets/queries";
 import { formatTicketReference } from "@/lib/tickets/meta";
-import type { TicketStatusKey, TicketPriorityKey } from "@/lib/tickets/meta";
+import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -59,6 +59,7 @@ export default async function ClientDetailPage({
       </CardHeader>
       <CardContent className="text-sm">
         <Row label="Status" value={client.status === "ACTIVE" ? "Active" : "Inactive"} />
+        <Row label="Industry" value={client.industry?.name ?? "—"} />
         <Row label="Domain" value={client.domain} />
         <Row label="Assigned technician" value={technician} />
         <Row label="Contact name" value={client.contactName} />
@@ -137,7 +138,7 @@ export default async function ClientDetailPage({
                             </Link>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 ml-4">
-                            <PriorityBadge priority={t.priority as TicketPriorityKey} />
+                            <PriorityBadge name={t.priority.name} color={t.priority.color} />
                             <StatusBadge status={t.status as TicketStatusKey} />
                           </div>
                         </div>
@@ -171,7 +172,7 @@ export default async function ClientDetailPage({
                             </Link>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 ml-4">
-                            <PriorityBadge priority={t.priority as TicketPriorityKey} />
+                            <PriorityBadge name={t.priority.name} color={t.priority.color} />
                             <StatusBadge status={t.status as TicketStatusKey} />
                           </div>
                         </div>

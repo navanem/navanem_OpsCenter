@@ -1,15 +1,18 @@
 import { requirePermission } from "@/lib/auth/guard";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
+import { listTicketCategories, listTicketPriorities } from "@/lib/taxonomies/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TicketForm } from "../ticket-form";
 
 export default async function NewTicketPage() {
   await requirePermission("tickets.manage");
-  const [clients, technicians] = await Promise.all([
+  const [clients, technicians, categories, priorities] = await Promise.all([
     listClients({}),
     listTechnicians(),
+    listTicketCategories({ activeOnly: true }),
+    listTicketPriorities({ activeOnly: true }),
   ]);
 
   return (
@@ -21,7 +24,12 @@ export default async function NewTicketPage() {
           <CardTitle>Ticket details</CardTitle>
         </CardHeader>
         <CardContent>
-          <TicketForm clients={clients} technicians={technicians} />
+          <TicketForm
+            clients={clients}
+            technicians={technicians}
+            categories={categories}
+            priorities={priorities}
+          />
         </CardContent>
       </Card>
     </div>

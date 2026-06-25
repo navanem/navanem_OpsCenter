@@ -20,6 +20,7 @@ export const clientSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE"]),
   assignedTechnicianId: optionalText,
   notes: optionalText,
+  industryId: z.string().trim().optional().or(z.literal("")),
 });
 
 export type ClientInput = z.infer<typeof clientSchema>;
@@ -42,5 +43,6 @@ export function normalizeClientInput(input: ClientInput) {
     status: input.status,
     assignedTechnicianId: orNull(input.assignedTechnicianId),
     notes: orNull(input.notes),
+    industryId: orNull(input.industryId),
   };
 }

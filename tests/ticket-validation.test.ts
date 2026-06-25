@@ -5,8 +5,8 @@ const base = {
   subject: "Printer offline",
   description: "The 3rd floor printer is unreachable.",
   clientId: "c1",
-  priority: "HIGH",
-  category: "HARDWARE",
+  categoryId: "tcat_hardware",
+  priorityId: "tpri_high",
   assigneeId: "",
 };
 
@@ -23,8 +23,11 @@ describe("ticketSchema", () => {
   it("requires a client", () => {
     expect(ticketSchema.safeParse({ ...base, clientId: "" }).success).toBe(false);
   });
-  it("rejects an invalid priority", () => {
-    expect(ticketSchema.safeParse({ ...base, priority: "NOPE" }).success).toBe(false);
+  it("requires a categoryId", () => {
+    expect(ticketSchema.safeParse({ ...base, categoryId: "" }).success).toBe(false);
+  });
+  it("requires a priorityId", () => {
+    expect(ticketSchema.safeParse({ ...base, priorityId: "" }).success).toBe(false);
   });
 });
 

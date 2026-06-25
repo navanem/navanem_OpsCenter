@@ -3,15 +3,13 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getTicket } from "@/lib/tickets/queries";
 import { listTechnicians } from "@/lib/users/queries";
+import { listTicketPriorities } from "@/lib/taxonomies/queries";
 import {
   TICKET_STATUS_META,
   TICKET_STATUSES,
-  TICKET_PRIORITY_META,
-  TICKET_PRIORITIES,
-  TICKET_CATEGORY_META,
   formatTicketReference,
 } from "@/lib/tickets/meta";
-import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
+import { StatusBadge, PriorityBadge, CategoryBadge } from "@/components/tickets/badges";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -42,20 +40,13 @@ function activitySentence(activity: {
       : v;
   };
 
-  const priorityLabel = (v: string | null): string => {
-    if (!v) return "Unknown";
-    return v in TICKET_PRIORITY_META
-      ? TICKET_PRIORITY_META[v as keyof typeof TICKET_PRIORITY_META].label
-      : v;
-  };
-
   switch (activity.type) {
     case "CREATED":
       return `${actor} created the ticket`;
     case "STATUS_CHANGED":
       return `${actor} changed status from ${statusLabel(activity.fromValue)} to ${statusLabel(activity.toValue)}`;
     case "PRIORITY_CHANGED":
-      return `${actor} changed priority from ${priorityLabel(activity.fromValue)} to ${priorityLabel(activity.toValue)}`;
+      return `${actor} changed priority from ${activity.fromValue ?? "Unknown"} to ${activity.toValue ?? "Unknown"}`;
     case "ASSIGNED":
       return `${actor} assigned the ticket`;
     case "UNASSIGNED":
@@ -74,10 +65,12 @@ export default async function TicketDetailPage({
 }) {
   const user = await requirePermission("tickets.read");
   const { id } = await params;
-  const ticket = await getTicket(id);
+  const [ticket, technicians, priorities] = await Promise.all([
+    getTicket(id),
+    listTechnicians(),
+    listTicketPriorities({ activeOnly: true }),
+  ]);
   if (!ticket) notFound();
-
-  const technicians = await listTechnicians();
 
   const canManage = can(user, "tickets.manage");
   const canAssign = can(user, "tickets.assign");
@@ -96,7 +89,7 @@ export default async function TicketDetailPage({
           </h1>
           <div className="flex items-center gap-2 shrink-0">
             <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} />
-            <PriorityBadge priority={ticket.priority as keyof typeof TICKET_PRIORITY_META} />
+            <PriorityBadge name={ticket.priority.name} color={ticket.priority.color} />
           </div>
         </div>
       </div>
@@ -179,11 +172,7 @@ export default async function TicketDetailPage({
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[var(--muted-foreground)]">Category</span>
-                  <span className="font-medium">
-                    {ticket.category in TICKET_CATEGORY_META
-                      ? TICKET_CATEGORY_META[ticket.category as keyof typeof TICKET_CATEGORY_META].label
-                      : ticket.category}
-                  </span>
+                  <CategoryBadge name={ticket.category.name} color={ticket.category.color} />
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[var(--muted-foreground)]">Created by</span>
@@ -242,13 +231,13 @@ export default async function TicketDetailPage({
                       Priority
                     </label>
                     <select
-                      name="priority"
-                      defaultValue={ticket.priority}
+                      name="priorityId"
+                      defaultValue={ticket.priorityId}
                       className={selectClass}
                     >
-                      {TICKET_PRIORITIES.map((p) => (
-                        <option key={p} value={p}>
-                          {TICKET_PRIORITY_META[p].label}
+                      {priorities.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
                         </option>
                       ))}
                     </select>

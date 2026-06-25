@@ -24,6 +24,7 @@ function parseForm(formData: FormData) {
     status: formData.get("status"),
     assignedTechnicianId: formData.get("assignedTechnicianId"),
     notes: formData.get("notes"),
+    industryId: formData.get("industryId"),
   });
 }
 

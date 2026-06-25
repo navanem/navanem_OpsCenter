@@ -5,10 +5,19 @@ describe("buildTicketWhere", () => {
   it("is empty with no filters", () => {
     expect(buildTicketWhere({})).toEqual({});
   });
-  it("filters by status, priority, client, assignee", () => {
-    expect(buildTicketWhere({ status: "OPEN", priority: "HIGH", clientId: "c1", assigneeId: "u1" })).toEqual({
+  it("filters by status, priorityId, categoryId, clientId, assigneeId", () => {
+    expect(
+      buildTicketWhere({
+        status: "OPEN",
+        priorityId: "tpri_high",
+        categoryId: "tcat_hardware",
+        clientId: "c1",
+        assigneeId: "u1",
+      })
+    ).toEqual({
       status: "OPEN",
-      priority: "HIGH",
+      priorityId: "tpri_high",
+      categoryId: "tcat_hardware",
       clientId: "c1",
       assigneeId: "u1",
     });

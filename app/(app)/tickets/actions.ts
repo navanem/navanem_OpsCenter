@@ -7,9 +7,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { ticketSchema, commentSchema } from "@/lib/validation/ticket";
 
 type TicketStatus = "OPEN" | "IN_PROGRESS" | "PENDING" | "RESOLVED" | "CLOSED";
-type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 const STATUSES: TicketStatus[] = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
-const PRIORITIES: TicketPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
 export interface TicketFormState {
   error?: string;
@@ -27,12 +25,19 @@ export async function createTicketAction(
     subject: formData.get("subject"),
     description: formData.get("description"),
     clientId: formData.get("clientId"),
-    priority: formData.get("priority"),
-    category: formData.get("category"),
+    categoryId: formData.get("categoryId"),
+    priorityId: formData.get("priorityId"),
     assigneeId: formData.get("assigneeId"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+  }
+  const [category, priority] = await Promise.all([
+    prisma.ticketCategory.findUnique({ where: { id: parsed.data.categoryId } }),
+    prisma.ticketPriority.findUnique({ where: { id: parsed.data.priorityId } }),
+  ]);
+  if (!category || !priority) {
+    return { error: "Selected category or priority no longer exists." };
   }
   const assigneeId =
     parsed.data.assigneeId && parsed.data.assigneeId.length > 0
@@ -43,8 +48,8 @@ export async function createTicketAction(
       subject: parsed.data.subject,
       description: parsed.data.description,
       clientId: parsed.data.clientId,
-      priority: parsed.data.priority,
-      category: parsed.data.category,
+      categoryId: parsed.data.categoryId,
+      priorityId: parsed.data.priorityId,
       assigneeId,
       createdById: user.id,
       activities: { create: { type: "CREATED", actorId: user.id } },
@@ -97,30 +102,38 @@ export async function updateStatusAction(formData: FormData): Promise<void> {
 export async function updatePriorityAction(formData: FormData): Promise<void> {
   const user = await requirePermission("tickets.manage");
   const id = formData.get("id");
-  const priority = formData.get("priority");
+  const priorityId = formData.get("priorityId");
   if (
     typeof id === "string" &&
     id.length > 0 &&
-    typeof priority === "string" &&
-    PRIORITIES.includes(priority as TicketPriority)
+    typeof priorityId === "string" &&
+    priorityId.length > 0
   ) {
     const ticket = await prisma.ticket.findUnique({ where: { id } });
-    if (ticket && ticket.priority !== priority) {
-      await prisma.$transaction([
-        prisma.ticket.update({
-          where: { id },
-          data: { priority: priority as TicketPriority },
-        }),
-        prisma.ticketActivity.create({
-          data: {
-            ticketId: id,
-            actorId: user.id,
-            type: "PRIORITY_CHANGED",
-            fromValue: ticket.priority,
-            toValue: priority,
-          },
-        }),
+    if (ticket && ticket.priorityId !== priorityId) {
+      const [oldPriority, newPriority] = await Promise.all([
+        ticket.priorityId
+          ? prisma.ticketPriority.findUnique({ where: { id: ticket.priorityId } })
+          : Promise.resolve(null),
+        prisma.ticketPriority.findUnique({ where: { id: priorityId } }),
       ]);
+      if (newPriority) {
+        await prisma.$transaction([
+          prisma.ticket.update({
+            where: { id },
+            data: { priorityId },
+          }),
+          prisma.ticketActivity.create({
+            data: {
+              ticketId: id,
+              actorId: user.id,
+              type: "PRIORITY_CHANGED",
+              fromValue: oldPriority?.name ?? null,
+              toValue: newPriority.name,
+            },
+          }),
+        ]);
+      }
     }
   }
   redirect(`/tickets/${typeof id === "string" ? id : ""}`);

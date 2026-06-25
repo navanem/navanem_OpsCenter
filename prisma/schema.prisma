@@ -75,6 +75,8 @@ model Client {
   postalCode           String?
   country              String?
   notes                String?
+  industryId           String?
+  industry             ClientIndustry? @relation(fields: [industryId], references: [id])
   status               ClientStatus @default(ACTIVE)
   assignedTechnicianId String?
   assignedTechnician   User?        @relation(fields: [assignedTechnicianId], references: [id])
@@ -125,21 +127,6 @@ enum TicketStatus {
   CLOSED
 }
 
-enum TicketPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum TicketCategory {
-  HARDWARE
-  SOFTWARE
-  NETWORK
-  ACCOUNT
-  OTHER
-}
-
 enum TicketActivityType {
   CREATED
   STATUS_CHANGED
@@ -155,8 +142,10 @@ model Ticket {
   subject     String
   description String
   status      TicketStatus     @default(OPEN)
-  priority    TicketPriority   @default(MEDIUM)
-  category    TicketCategory   @default(OTHER)
+  categoryId  String
+  category    TicketCategory   @relation(fields: [categoryId], references: [id])
+  priorityId  String
+  priority    TicketPriority   @relation(fields: [priorityId], references: [id])
   clientId    String
   client      Client           @relation(fields: [clientId], references: [id])
   assigneeId  String?
@@ -190,4 +179,36 @@ model TicketActivity {
   fromValue String?
   toValue   String?
   createdAt DateTime           @default(now())
+}
+
+model TicketCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#6b7280")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TicketPriority {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#6b7280")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClientIndustry {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  clients   Client[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
