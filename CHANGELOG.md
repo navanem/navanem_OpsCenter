@@ -3,6 +3,15 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.7.0] - 2026-06-25
+
+### Added
+- Breadcrumbs across the application for clearer navigation.
+- The client detail page now uses the full width and lists the client's open and closed tickets.
+
+### Changed
+- Premium visual pass on the ticket list, Kanban board, and detail views.
+
 ## [0.6.0] - 2026-06-24
 
 ### Added
