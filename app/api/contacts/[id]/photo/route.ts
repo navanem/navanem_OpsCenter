@@ -1,9 +1,11 @@
+import { requireUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  await requireUser();
   const { id } = await params;
   const contact = await prisma.clientContact.findUnique({ where: { id } });
   if (!contact?.photoData || !contact.photoMimeType) {
