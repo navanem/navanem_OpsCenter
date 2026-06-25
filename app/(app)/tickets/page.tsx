@@ -4,27 +4,36 @@ import { can } from "@/lib/rbac/can";
 import { listTickets } from "@/lib/tickets/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
+import { listTicketCategories, listTicketPriorities } from "@/lib/taxonomies/queries";
 import { formatTicketReference } from "@/lib/tickets/meta";
+import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { TicketsFilters } from "./tickets-filters";
 
-type SP = { search?: string; status?: string; priority?: string; clientId?: string; assigneeId?: string };
+type SP = { search?: string; status?: string; priorityId?: string; categoryId?: string; clientId?: string; assigneeId?: string };
 const STATUSES = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
-const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
 export default async function TicketsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("tickets.read");
   const sp = await searchParams;
   const status = STATUSES.includes(sp.status ?? "") ? (sp.status as never) : undefined;
-  const priority = PRIORITIES.includes(sp.priority ?? "") ? (sp.priority as never) : undefined;
 
-  const [tickets, clients, technicians] = await Promise.all([
-    listTickets({ search: sp.search, status, priority, clientId: sp.clientId, assigneeId: sp.assigneeId }),
+  const [tickets, clients, technicians, priorities, categories] = await Promise.all([
+    listTickets({
+      search: sp.search,
+      status,
+      priorityId: sp.priorityId,
+      categoryId: sp.categoryId,
+      clientId: sp.clientId,
+      assigneeId: sp.assigneeId,
+    }),
     listClients({}),
     listTechnicians(),
+    listTicketPriorities({ activeOnly: true }),
+    listTicketCategories({ activeOnly: true }),
   ]);
 
   return (
@@ -41,6 +50,8 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
       <TicketsFilters
         clients={clients.map((c) => ({ id: c.id, companyName: c.companyName }))}
         technicians={technicians}
+        priorities={priorities}
+        categories={categories}
       />
 
       <Card>
@@ -68,8 +79,8 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
                     <Link href={`/tickets/${t.id}`} className="font-medium text-[var(--foreground)] hover:underline">{t.subject}</Link>
                   </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">{t.client.companyName}</td>
-                  <td className="px-6 py-3"><PriorityBadge priority={t.priority} /></td>
-                  <td className="px-6 py-3"><StatusBadge status={t.status} /></td>
+                  <td className="px-6 py-3"><PriorityBadge name={t.priority.name} color={t.priority.color} /></td>
+                  <td className="px-6 py-3"><StatusBadge status={t.status as TicketStatusKey} /></td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">
                     {t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : "Unassigned"}
                   </td>

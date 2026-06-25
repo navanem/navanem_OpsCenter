@@ -5,9 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 export function TicketsFilters({
   clients,
   technicians,
+  priorities,
+  categories,
 }: {
   clients: { id: string; companyName: string }[];
   technicians: { id: string; firstName: string; lastName: string }[];
+  priorities: { id: string; name: string }[];
+  categories: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -43,15 +47,28 @@ export function TicketsFilters({
         <option value="CLOSED">Closed</option>
       </select>
       <select
-        defaultValue={params.get("priority") ?? ""}
-        onChange={(e) => update("priority", e.target.value)}
+        defaultValue={params.get("priorityId") ?? ""}
+        onChange={(e) => update("priorityId", e.target.value)}
         className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm"
       >
         <option value="">All priorities</option>
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-        <option value="URGENT">Urgent</option>
+        {priorities.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
+        ))}
+      </select>
+      <select
+        defaultValue={params.get("categoryId") ?? ""}
+        onChange={(e) => update("categoryId", e.target.value)}
+        className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm"
+      >
+        <option value="">All categories</option>
+        {categories.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
       </select>
       <select
         defaultValue={params.get("clientId") ?? ""}

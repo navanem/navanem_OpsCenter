@@ -12,7 +12,8 @@ export interface BoardTicket {
   number: number;
   subject: string;
   status: string;
-  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  priorityName: string;
+  priorityColor: string;
   clientName: string;
   assigneeName: string | null;
 }
@@ -61,7 +62,7 @@ export function TicketBoard({ initial, canManage }: { initial: BoardTicket[]; ca
                 >
                   <div className="mb-1 flex items-center justify-between">
                     <span className="font-mono text-xs text-[var(--muted-foreground)]">{formatTicketReference(t.number)}</span>
-                    <PriorityBadge priority={t.priority} />
+                    <PriorityBadge name={t.priorityName} color={t.priorityColor} />
                   </div>
                   <Link href={`/tickets/${t.id}`} className="font-medium hover:underline">{t.subject}</Link>
                   <div className="mt-1 text-xs text-[var(--muted-foreground)]">{t.clientName}</div>

@@ -14,7 +14,8 @@ export default async function TicketBoardPage() {
     number: t.number,
     subject: t.subject,
     status: t.status,
-    priority: t.priority,
+    priorityName: t.priority.name,
+    priorityColor: t.priority.color,
     clientName: t.client.companyName,
     assigneeName: t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : null,
   }));
