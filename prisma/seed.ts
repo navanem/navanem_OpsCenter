@@ -80,6 +80,29 @@ async function main() {
     for (const name of clientIndustries) {
       await prisma.clientIndustry.upsert({ where: { name }, update: {}, create: { name, sortOrder: order++ } });
     }
+
+    // 7. Default project statuses
+    const projectStatuses = [
+      { name: "Planning", color: "#6b7280", sortOrder: 1 },
+      { name: "Active", color: "#3b82f6", sortOrder: 2 },
+      { name: "On hold", color: "#f59e0b", sortOrder: 3 },
+      { name: "Completed", color: "#10b981", sortOrder: 4 },
+      { name: "Cancelled", color: "#ef4444", sortOrder: 5 },
+    ];
+    for (const s of projectStatuses) {
+      await prisma.projectStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
+
+    // 8. Default project task statuses
+    const taskStatuses = [
+      { name: "To do", color: "#6b7280", sortOrder: 1 },
+      { name: "In progress", color: "#3b82f6", sortOrder: 2 },
+      { name: "Blocked", color: "#ef4444", sortOrder: 3 },
+      { name: "Done", color: "#10b981", sortOrder: 4 },
+    ];
+    for (const s of taskStatuses) {
+      await prisma.projectTaskStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }
