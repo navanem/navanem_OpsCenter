@@ -50,20 +50,22 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-6 py-3 font-medium">Ref</th>
-                <th scope="col" className="px-6 py-3 font-medium">Subject</th>
-                <th scope="col" className="px-6 py-3 font-medium">Client</th>
-                <th scope="col" className="px-6 py-3 font-medium">Priority</th>
-                <th scope="col" className="px-6 py-3 font-medium">Status</th>
-                <th scope="col" className="px-6 py-3 font-medium">Assignee</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Subject</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Priority</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Assignee</th>
               </tr>
             </thead>
             <tbody>
               {tickets.map((t) => (
-                <tr key={t.id} className="border-b border-[var(--border)] last:border-0">
-                  <td className="px-6 py-3 font-mono text-xs text-[var(--muted-foreground)]">{formatTicketReference(t.number)}</td>
+                <tr key={t.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--muted)]/40">
                   <td className="px-6 py-3">
-                    <Link href={`/tickets/${t.id}`} className="hover:underline">{t.subject}</Link>
+                    <span className="inline-flex rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-xs">{formatTicketReference(t.number)}</span>
+                  </td>
+                  <td className="px-6 py-3">
+                    <Link href={`/tickets/${t.id}`} className="font-medium text-[var(--foreground)] hover:underline">{t.subject}</Link>
                   </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">{t.client.companyName}</td>
                   <td className="px-6 py-3"><PriorityBadge priority={t.priority} /></td>
