@@ -2,8 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getDashboardStats } from "@/lib/dashboard/queries";
-import { TICKET_STATUS_META } from "@/lib/tickets/meta";
-import { formatTicketReference } from "@/lib/tickets/meta";
+import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PriorityBadge } from "@/components/tickets/badges";
 
