@@ -50,6 +50,36 @@ async function main() {
     } else {
       console.log(`Admin user already exists: ${email}`);
     }
+
+    // 4. Default ticket categories
+    const ticketCategories = [
+      { name: "Hardware", color: "#3b82f6", sortOrder: 1 },
+      { name: "Software", color: "#8b5cf6", sortOrder: 2 },
+      { name: "Network", color: "#06b6d4", sortOrder: 3 },
+      { name: "Account", color: "#f59e0b", sortOrder: 4 },
+      { name: "Other", color: "#6b7280", sortOrder: 5 },
+    ];
+    for (const c of ticketCategories) {
+      await prisma.ticketCategory.upsert({ where: { name: c.name }, update: {}, create: c });
+    }
+
+    // 5. Default ticket priorities
+    const ticketPriorities = [
+      { name: "Low", color: "#6b7280", sortOrder: 1 },
+      { name: "Medium", color: "#3b82f6", sortOrder: 2 },
+      { name: "High", color: "#f59e0b", sortOrder: 3 },
+      { name: "Urgent", color: "#ef4444", sortOrder: 4 },
+    ];
+    for (const p of ticketPriorities) {
+      await prisma.ticketPriority.upsert({ where: { name: p.name }, update: {}, create: p });
+    }
+
+    // 6. Default client industries
+    const clientIndustries = ["Technology","Healthcare","Finance","Retail","Manufacturing","Education","Legal","Hospitality","Non-profit","Other"];
+    let order = 1;
+    for (const name of clientIndustries) {
+      await prisma.clientIndustry.upsert({ where: { name }, update: {}, create: { name, sortOrder: order++ } });
+    }
   } finally {
     await prisma.$disconnect();
   }
