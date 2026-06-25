@@ -3,9 +3,13 @@ import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getClient } from "@/lib/clients/queries";
+import { listTickets } from "@/lib/tickets/queries";
+import { formatTicketReference } from "@/lib/tickets/meta";
+import type { TicketStatusKey, TicketPriorityKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { deleteClientAction } from "../actions";
 
 function Row({ label, value }: { label: string; value: string | null }) {
@@ -28,12 +32,49 @@ export default async function ClientDetailPage({
   if (!client) notFound();
 
   const manage = can(user, "clients.manage");
+  const canReadTickets = can(user, "tickets.read");
+  const canManageTickets = can(user, "tickets.manage");
+
   const technician = client.assignedTechnician
     ? `${client.assignedTechnician.firstName} ${client.assignedTechnician.lastName}`
     : "Unassigned";
 
+  let open: Awaited<ReturnType<typeof listTickets>> = [];
+  let closed: Awaited<ReturnType<typeof listTickets>> = [];
+
+  if (canReadTickets) {
+    const tickets = await listTickets({ clientId: id });
+    open = tickets.filter((t) =>
+      ["OPEN", "IN_PROGRESS", "PENDING"].includes(t.status)
+    );
+    closed = tickets.filter((t) =>
+      ["RESOLVED", "CLOSED"].includes(t.status)
+    );
+  }
+
+  const detailsCard = (
+    <Card>
+      <CardHeader>
+        <CardTitle>Details</CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm">
+        <Row label="Status" value={client.status === "ACTIVE" ? "Active" : "Inactive"} />
+        <Row label="Domain" value={client.domain} />
+        <Row label="Assigned technician" value={technician} />
+        <Row label="Contact name" value={client.contactName} />
+        <Row label="Contact email" value={client.contactEmail} />
+        <Row label="Contact phone" value={client.contactPhone} />
+        <Row label="Address" value={client.address} />
+        <Row label="City" value={client.city} />
+        <Row label="Postal code" value={client.postalCode} />
+        <Row label="Country" value={client.country} />
+        <Row label="Notes" value={client.notes} />
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Clients", href: "/clients" }, { label: client.companyName }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{client.companyName}</h1>
@@ -50,24 +91,101 @@ export default async function ClientDetailPage({
         ) : null}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Details</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm">
-          <Row label="Status" value={client.status === "ACTIVE" ? "Active" : "Inactive"} />
-          <Row label="Domain" value={client.domain} />
-          <Row label="Assigned technician" value={technician} />
-          <Row label="Contact name" value={client.contactName} />
-          <Row label="Contact email" value={client.contactEmail} />
-          <Row label="Contact phone" value={client.contactPhone} />
-          <Row label="Address" value={client.address} />
-          <Row label="City" value={client.city} />
-          <Row label="Postal code" value={client.postalCode} />
-          <Row label="Country" value={client.country} />
-          <Row label="Notes" value={client.notes} />
-        </CardContent>
-      </Card>
+      {canReadTickets ? (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-1">{detailsCard}</div>
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>
+                    Tickets{" "}
+                    <span className="text-[var(--muted-foreground)] font-normal text-sm">
+                      ({open.length + closed.length})
+                    </span>
+                  </CardTitle>
+                  {canManageTickets && (
+                    <Link href="/tickets/new">
+                      <Button variant="outline">New ticket</Button>
+                    </Link>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="text-sm space-y-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] mb-2">
+                    Open ({open.length})
+                  </p>
+                  {open.length === 0 ? (
+                    <p className="text-[var(--muted-foreground)]">No open tickets.</p>
+                  ) : (
+                    <div>
+                      {open.map((t) => (
+                        <div
+                          key={t.id}
+                          className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">
+                              {formatTicketReference(t.number)}
+                            </span>
+                            <Link
+                              href={`/tickets/${t.id}`}
+                              className="font-medium hover:underline truncate"
+                            >
+                              {t.subject}
+                            </Link>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0 ml-4">
+                            <PriorityBadge priority={t.priority as TicketPriorityKey} />
+                            <StatusBadge status={t.status as TicketStatusKey} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] mb-2">
+                    Closed ({closed.length})
+                  </p>
+                  {closed.length === 0 ? (
+                    <p className="text-[var(--muted-foreground)]">No closed tickets.</p>
+                  ) : (
+                    <div>
+                      {closed.map((t) => (
+                        <div
+                          key={t.id}
+                          className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">
+                              {formatTicketReference(t.number)}
+                            </span>
+                            <Link
+                              href={`/tickets/${t.id}`}
+                              className="font-medium hover:underline truncate"
+                            >
+                              {t.subject}
+                            </Link>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0 ml-4">
+                            <PriorityBadge priority={t.priority as TicketPriorityKey} />
+                            <StatusBadge status={t.status as TicketStatusKey} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      ) : (
+        detailsCard
+      )}
     </div>
   );
 }
