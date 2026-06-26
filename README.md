@@ -52,7 +52,7 @@ Sign in at `/login` with the seeded admin account:
 
 ## Features
 
-- **Authentication** — email/password login, signed-cookie sessions, route protection.
+- **Authentication** — email/password login, signed-cookie sessions, route protection, and self-service password reset (emailed, time-limited, single-use hashed tokens).
 - **RBAC** — role-based permission catalog with a `can()` helper and per-route permission guards.
 - **Clients** — RBAC-gated client management (`clients.read` to view, `clients.manage` to create/edit/delete); list with search and status/technician filters, create/edit form, and detail page.
 - **Client contacts** — manage the people at each client (name, job title, email, phone) with an optional photo and a VIP flag; contacts are shown on the client detail page and gated by `clients.manage`.

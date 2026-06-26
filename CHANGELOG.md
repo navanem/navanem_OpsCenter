@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.18.0] - 2026-06-26
+
+### Added
+- Self-service **password reset**: a "Forgot password?" link on sign-in leads to a request form that emails a time-limited (1 hour) reset link; the reset page sets a new password. Tokens are single-use and sha256-hashed at rest, the request form never reveals whether an email exists, and outstanding tokens are invalidated on use. When SMTP is not configured, the reset link is logged to the server console (dev fallback). Honors `APP_URL` for the link host.
+
 ## [0.17.0] - 2026-06-26
 
 ### Added
