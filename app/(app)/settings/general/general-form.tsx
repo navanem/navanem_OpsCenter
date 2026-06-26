@@ -11,9 +11,10 @@ const inputClass =
 interface GeneralFormProps {
   companyName: string;
   hasLogo: boolean;
+  timesheetingEnabled: boolean;
 }
 
-export function GeneralForm({ companyName, hasLogo }: GeneralFormProps) {
+export function GeneralForm({ companyName, hasLogo, timesheetingEnabled }: GeneralFormProps) {
   const [state, formAction, pending] = useActionState<GeneralState, FormData>(
     updateGeneralAction,
     {},
@@ -55,6 +56,23 @@ export function GeneralForm({ companyName, hasLogo }: GeneralFormProps) {
         />
         <p className="text-xs text-[var(--muted-foreground)]">
           PNG, JPEG, WebP, or SVG. Max 1 MB.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-1 border-t border-[var(--border)] pt-6">
+        <span className="text-sm font-medium">Modules</span>
+        <label className="mt-2 flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="timesheetingEnabled"
+            value="true"
+            defaultChecked={timesheetingEnabled}
+            className="h-4 w-4 cursor-pointer"
+          />
+          Enable timesheeting
+        </label>
+        <p className="text-xs text-[var(--muted-foreground)]">
+          Adds time tracking across tickets, project tasks, and visits, with submit/approve workflow. When disabled, the module is hidden everywhere.
         </p>
       </div>
 

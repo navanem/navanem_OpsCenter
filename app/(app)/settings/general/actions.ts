@@ -24,8 +24,14 @@ export async function updateGeneralAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
   }
 
-  const data: { companyName: string; logoData?: Uint8Array<ArrayBuffer>; logoMimeType?: string } = {
+  const data: {
+    companyName: string;
+    timesheetingEnabled: boolean;
+    logoData?: Uint8Array<ArrayBuffer>;
+    logoMimeType?: string;
+  } = {
     companyName: parsed.data.companyName,
+    timesheetingEnabled: formData.get("timesheetingEnabled") === "true",
   };
 
   const logo = formData.get("logo");
