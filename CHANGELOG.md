@@ -3,6 +3,15 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.31.0] - 2026-06-26
+
+### Added
+- Module linkage: a ticket can be linked to a device (the asset it concerns), chosen from the ticket's client devices on the ticket detail; the device page lists its related tickets.
+- The dashboard now shows an "Across your modules" KPI row (projects, visits this week, monthly recurring contract value, devices, knowledge articles) — each card appears only for enabled modules the user can access.
+
+### Changed
+- Premium navigation: the sidebar now has icons and a refined active state.
+
 ## [0.30.0] - 2026-06-26
 
 ### Added
