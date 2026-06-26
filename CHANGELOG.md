@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.47.0] - 2026-06-27
+
+### Changed
+- Rewrote the README with a feature-by-feature overview and product screenshots.
+
 ## [0.46.0] - 2026-06-27
 
 ### Added
