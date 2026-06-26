@@ -10,4 +10,9 @@ export function getAppSettings() {
   });
 }
 
+export async function isTimesheetingEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.timesheetingEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;
