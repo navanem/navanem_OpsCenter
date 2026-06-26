@@ -3,6 +3,12 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.16.0] - 2026-06-26
+
+### Added
+- Project Kanban board now supports drag-to-reorder tasks within a column (and still across columns), with the order persisted.
+- A task can be deleted from its edit page.
+
 ## [0.15.0] - 2026-06-26
 
 ### Added
