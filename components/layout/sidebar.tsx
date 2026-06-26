@@ -2,12 +2,13 @@ import { can } from "@/lib/rbac/can";
 import type { PermissionKey } from "@/lib/rbac/permissions";
 import { SidebarNav } from "./sidebar-nav";
 
-const items: { href: string; label: string; permission?: PermissionKey }[] = [
+const items: { href: string; label: string; permission?: PermissionKey; flag?: "timesheeting" }[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/clients", label: "Clients", permission: "clients.read" },
   { href: "/tickets", label: "Tickets", permission: "tickets.read" },
   { href: "/projects", label: "Projects", permission: "projects.read" },
   { href: "/planning", label: "Planning", permission: "visits.read" },
+  { href: "/timesheets", label: "Timesheets", permission: "timesheets.read", flag: "timesheeting" },
   { href: "/settings", label: "Settings", permission: "settings.manage" },
 ];
 
@@ -15,11 +16,16 @@ interface SidebarProps {
   permissions: string[];
   brandName: string;
   hasLogo: boolean;
+  timesheetingEnabled: boolean;
 }
 
-export function Sidebar({ permissions, brandName, hasLogo }: SidebarProps) {
+export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled }: SidebarProps) {
   const user = { id: "", email: "", permissions };
-  const visible = items.filter((i) => !i.permission || can(user, i.permission));
+  const visible = items.filter(
+    (i) =>
+      (!i.permission || can(user, i.permission)) &&
+      (i.flag !== "timesheeting" || timesheetingEnabled),
+  );
   return (
     <aside className="w-60 shrink-0 border-r border-[var(--border)] bg-[var(--card)] p-4">
       <div className="pb-4 mb-2 border-b border-[var(--border)] px-2">
