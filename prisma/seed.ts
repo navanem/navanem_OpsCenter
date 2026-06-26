@@ -161,6 +161,31 @@ async function main() {
     for (const c of knowledgeCategories) {
       await prisma.knowledgeCategory.upsert({ where: { name: c.name }, update: {}, create: c });
     }
+
+    // 14. Default device types
+    const deviceTypes = [
+      { name: "Laptop", color: "#3b82f6", sortOrder: 1 },
+      { name: "Desktop", color: "#6366f1", sortOrder: 2 },
+      { name: "Server", color: "#8b5cf6", sortOrder: 3 },
+      { name: "Network device", color: "#06b6d4", sortOrder: 4 },
+      { name: "Printer", color: "#f59e0b", sortOrder: 5 },
+      { name: "Mobile", color: "#10b981", sortOrder: 6 },
+      { name: "Other", color: "#6b7280", sortOrder: 7 },
+    ];
+    for (const t of deviceTypes) {
+      await prisma.deviceType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
+
+    // 15. Default device statuses
+    const deviceStatuses = [
+      { name: "Active", color: "#10b981", sortOrder: 1 },
+      { name: "Spare", color: "#3b82f6", sortOrder: 2 },
+      { name: "In repair", color: "#f59e0b", sortOrder: 3 },
+      { name: "Retired", color: "#6b7280", sortOrder: 4 },
+    ];
+    for (const s of deviceStatuses) {
+      await prisma.deviceStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }

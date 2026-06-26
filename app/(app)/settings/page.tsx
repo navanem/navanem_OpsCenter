@@ -40,6 +40,12 @@ export default async function SettingsPage() {
       permission: "settings.manage",
     },
     {
+      title: "Devices",
+      description: "Enable device management and manage device types and statuses.",
+      href: "/settings/devices",
+      permission: "settings.manage",
+    },
+    {
       title: "Users",
       description: "Manage user accounts, invite new users, and control access.",
       href: "/settings/users",

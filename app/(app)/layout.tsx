@@ -20,6 +20,7 @@ export default async function AppLayout({
         hasLogo={Boolean(settings.logoData)}
         timesheetingEnabled={settings.timesheetingEnabled}
         contractsEnabled={settings.contractsEnabled}
+        devicesEnabled={settings.devicesEnabled}
       />
       <div className="flex flex-1 flex-col">
         <Topbar name={`${user.firstName} ${user.lastName}`} roleName={user.roleName} />

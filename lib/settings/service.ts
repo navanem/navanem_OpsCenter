@@ -20,4 +20,9 @@ export async function isContractsEnabled(): Promise<boolean> {
   return settings.contractsEnabled;
 }
 
+export async function isDevicesEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.devicesEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;

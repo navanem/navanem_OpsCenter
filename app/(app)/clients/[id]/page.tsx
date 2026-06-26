@@ -7,8 +7,11 @@ import { listTickets } from "@/lib/tickets/queries";
 import { listProjects } from "@/lib/projects/queries";
 import { listClientVisits } from "@/lib/planning/queries";
 import { listContracts } from "@/lib/contracts/queries";
+import { listClientDevices } from "@/lib/devices/queries";
 import { listClientContacts } from "@/lib/contacts/queries";
-import { isContractsEnabled } from "@/lib/settings/service";
+import { isContractsEnabled, isDevicesEnabled } from "@/lib/settings/service";
+import { DeviceBadge } from "@/components/devices/badges";
+import { formatDeviceReference } from "@/lib/devices/meta";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { formatProjectReference } from "@/lib/projects/meta";
@@ -48,6 +51,7 @@ export default async function ClientDetailPage({
   const canReadProjects = can(user, "projects.read");
   const canReadVisits = can(user, "visits.read");
   const canReadContracts = can(user, "contracts.read") && (await isContractsEnabled());
+  const canReadDevices = can(user, "devices.read") && (await isDevicesEnabled());
 
   const technician = client.assignedTechnician
     ? `${client.assignedTechnician.firstName} ${client.assignedTechnician.lastName}`
@@ -68,10 +72,11 @@ export default async function ClientDetailPage({
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const [projects, upcomingVisits, contracts, contacts] = await Promise.all([
+  const [projects, upcomingVisits, contracts, devices, contacts] = await Promise.all([
     canReadProjects ? listProjects({ clientId: id }) : Promise.resolve([]),
     canReadVisits ? listClientVisits(id, { from: today, take: 10 }) : Promise.resolve([]),
     canReadContracts ? listContracts({ clientId: id }) : Promise.resolve([]),
+    canReadDevices ? listClientDevices(id) : Promise.resolve([]),
     listClientContacts(id),
   ]);
 
@@ -354,6 +359,46 @@ export default async function ClientDetailPage({
                       </span>
                       <ContractBadge name={c.status.name} color={c.status.color} />
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {canReadDevices ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                Devices{" "}
+                <span className="text-[var(--muted-foreground)] font-normal text-sm">
+                  ({devices.length})
+                </span>
+              </CardTitle>
+              {can(user, "devices.manage") && (
+                <Link href="/devices/new">
+                  <Button variant="outline">New device</Button>
+                </Link>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {devices.length === 0 ? (
+              <p className="text-[var(--muted-foreground)]">No devices.</p>
+            ) : (
+              <div>
+                {devices.map((d) => (
+                  <div key={d.id} className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Link href={`/devices/${d.id}/edit`} className="font-mono text-xs text-[var(--muted-foreground)] shrink-0 hover:underline">
+                        {formatDeviceReference(d.number)}
+                      </Link>
+                      <span className="font-medium truncate">{d.name}</span>
+                      <DeviceBadge name={d.type.name} color={d.type.color} />
+                    </div>
+                    <DeviceBadge name={d.status.name} color={d.status.color} />
                   </div>
                 ))}
               </div>

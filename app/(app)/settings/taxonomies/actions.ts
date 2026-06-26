@@ -10,7 +10,7 @@ export interface TaxonomyState {
   ok?: boolean;
 }
 
-type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status";
 
 function isKind(v: FormDataEntryValue | null): v is Kind {
   return (
@@ -22,7 +22,9 @@ function isKind(v: FormDataEntryValue | null): v is Kind {
     v === "visit-type" ||
     v === "contract-status" ||
     v === "tag" ||
-    v === "knowledge-category"
+    v === "knowledge-category" ||
+    v === "device-type" ||
+    v === "device-status"
   );
 }
 
@@ -87,6 +89,12 @@ export async function saveTaxonomyAction(
     } else if (kind === "knowledge-category") {
       if (editing) await prisma.knowledgeCategory.update({ where: { id: id as string }, data });
       else await prisma.knowledgeCategory.create({ data });
+    } else if (kind === "device-type") {
+      if (editing) await prisma.deviceType.update({ where: { id: id as string }, data });
+      else await prisma.deviceType.create({ data });
+    } else if (kind === "device-status") {
+      if (editing) await prisma.deviceStatus.update({ where: { id: id as string }, data });
+      else await prisma.deviceStatus.create({ data });
     } else {
       if (editing) await prisma.projectTaskStatus.update({ where: { id: id as string }, data });
       else await prisma.projectTaskStatus.create({ data });
@@ -113,6 +121,8 @@ export async function deleteTaxonomyAction(formData: FormData): Promise<void> {
       else if (kind === "contract-status") await prisma.contractStatus.delete({ where: { id } });
       else if (kind === "tag") await prisma.ticketTag.delete({ where: { id } });
       else if (kind === "knowledge-category") await prisma.knowledgeCategory.delete({ where: { id } });
+      else if (kind === "device-type") await prisma.deviceType.delete({ where: { id } });
+      else if (kind === "device-status") await prisma.deviceStatus.delete({ where: { id } });
       else await prisma.clientIndustry.delete({ where: { id } });
     } catch {
       // A taxonomy item still referenced by tickets/projects cannot be deleted (FK RESTRICT).
