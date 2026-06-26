@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TaxonomyManager } from "./taxonomy-manager";
+import { ContractTypeManager } from "../contract-types/contract-type-manager";
 
 type Item = { id: string; name: string; color?: string | null; sortOrder: number; isActive: boolean };
 
@@ -12,6 +13,7 @@ const TABS = [
   { key: "project-status", label: "Project statuses" },
   { key: "task-status", label: "Task statuses" },
   { key: "visit-type", label: "Visit types" },
+  { key: "contract-type", label: "Contract types" },
   { key: "contract-status", label: "Contract statuses" },
   { key: "tag", label: "Ticket tags" },
 ] as const;
@@ -25,6 +27,7 @@ export function TaxonomyTabs({
   projectStatuses,
   taskStatuses,
   visitTypes,
+  contractTypes,
   contractStatuses,
   tags,
 }: {
@@ -34,13 +37,14 @@ export function TaxonomyTabs({
   projectStatuses: Item[];
   taskStatuses: Item[];
   visitTypes: Item[];
+  contractTypes: { id: string; name: string; color: string; sortOrder: number; isActive: boolean; defaultHourlyRateCents: number | null }[];
   contractStatuses: Item[];
   tags: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
     <div className="space-y-6">
-      <div className="flex gap-1 border-b border-[var(--border)]">
+      <div className="flex flex-wrap gap-1 border-b border-[var(--border)]">
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -74,6 +78,9 @@ export function TaxonomyTabs({
       ) : null}
       {tab === "visit-type" ? (
         <TaxonomyManager kind="visit-type" title="Visit types" items={visitTypes} />
+      ) : null}
+      {tab === "contract-type" ? (
+        <ContractTypeManager items={contractTypes} />
       ) : null}
       {tab === "contract-status" ? (
         <TaxonomyManager kind="contract-status" title="Contract statuses" items={contractStatuses} />

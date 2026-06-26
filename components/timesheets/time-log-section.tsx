@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { isTimesheetingEnabled } from "@/lib/settings/service";
@@ -81,6 +82,12 @@ export async function TimeLogSection({
                     <TimeEntryStatusBadge status={e.status} />
                     {editable ? (
                       <>
+                        <Link
+                          href={`/timesheets/${e.id}/edit?from=${encodeURIComponent(redirectTo)}`}
+                          className="text-xs hover:underline"
+                        >
+                          Edit
+                        </Link>
                         <form action={submitTimeEntryAction}>
                           <input type="hidden" name="id" value={e.id} />
                           <input type="hidden" name="redirectTo" value={redirectTo} />

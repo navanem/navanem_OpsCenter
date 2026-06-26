@@ -33,3 +33,39 @@ export async function getDashboardStats() {
     recentTickets,
   };
 }
+
+// Personal queue for the signed-in user: open tickets, upcoming tasks, upcoming visits.
+export async function getMyWork(userId: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [myTickets, myTasks, myVisits] = await Promise.all([
+    prisma.ticket.findMany({
+      where: { assigneeId: userId, status: { in: ["OPEN", "IN_PROGRESS", "PENDING"] } },
+      include: {
+        client: { select: { companyName: true } },
+        priority: { select: { name: true, color: true } },
+      },
+      orderBy: [{ dueAt: { sort: "asc", nulls: "last" } }, { updatedAt: "desc" }],
+      take: 8,
+    }),
+    prisma.projectTask.findMany({
+      where: { assigneeId: userId, status: { name: { not: "Done" } } },
+      include: {
+        project: { select: { id: true, name: true } },
+        status: { select: { name: true, color: true } },
+      },
+      orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { createdAt: "desc" }],
+      take: 8,
+    }),
+    prisma.visit.findMany({
+      where: { assigneeId: userId, status: "SCHEDULED", scheduledAt: { gte: today } },
+      include: {
+        type: { select: { name: true, color: true } },
+        client: { select: { companyName: true } },
+      },
+      orderBy: { scheduledAt: "asc" },
+      take: 6,
+    }),
+  ]);
+  return { myTickets, myTasks, myVisits };
+}
