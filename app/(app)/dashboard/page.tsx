@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
-import { getDashboardStats } from "@/lib/dashboard/queries";
+import { getDashboardStats, getMyWork } from "@/lib/dashboard/queries";
 import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -9,7 +9,9 @@ import { PriorityBadge } from "@/components/tickets/badges";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const stats = await getDashboardStats();
+  const [stats, myWork] = await Promise.all([getDashboardStats(), getMyWork(user.id)]);
+  const hasMyWork = myWork.myTickets.length + myWork.myTasks.length + myWork.myVisits.length > 0;
+  const timeFmt: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
 
   const canClients = can(user, "clients.read");
   const canTickets = can(user, "tickets.read");
@@ -47,6 +49,103 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+
+      {/* My work */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+          My work
+        </h2>
+        {!hasMyWork ? (
+          <Card>
+            <CardContent>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Nothing assigned to you right now. Assigned tickets, upcoming tasks, and visits will appear here.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>My tickets ({myWork.myTickets.length})</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm">
+                {myWork.myTickets.length === 0 ? (
+                  <p className="text-[var(--muted-foreground)]">No open tickets.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {myWork.myTickets.map((t) => (
+                      <li key={t.id} className="flex items-center justify-between gap-2">
+                        <Link href={`/tickets/${t.id}`} className="min-w-0 flex items-center gap-2 hover:underline">
+                          <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">{formatTicketReference(t.number)}</span>
+                          <span className="truncate">{t.subject}</span>
+                        </Link>
+                        <span className="shrink-0">
+                          {t.dueAt ? (
+                            <span className="text-xs text-[var(--muted-foreground)]">{new Date(t.dueAt).toLocaleDateString()}</span>
+                          ) : (
+                            <PriorityBadge name={t.priority.name} color={t.priority.color} />
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>My tasks ({myWork.myTasks.length})</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm">
+                {myWork.myTasks.length === 0 ? (
+                  <p className="text-[var(--muted-foreground)]">No open tasks.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {myWork.myTasks.map((t) => (
+                      <li key={t.id} className="flex items-center justify-between gap-2">
+                        <Link href={`/projects/${t.project.id}/tasks/${t.id}/edit`} className="min-w-0 flex items-center gap-2 hover:underline">
+                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: t.status.color }} />
+                          <span className="truncate">{t.title}</span>
+                        </Link>
+                        <span className="shrink-0 text-xs text-[var(--muted-foreground)]">
+                          {t.dueDate ? new Date(t.dueDate).toLocaleDateString() : t.project.name}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Upcoming visits ({myWork.myVisits.length})</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm">
+                {myWork.myVisits.length === 0 ? (
+                  <p className="text-[var(--muted-foreground)]">No upcoming visits.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {myWork.myVisits.map((v) => (
+                      <li key={v.id} className="flex items-center justify-between gap-2">
+                        <Link href={`/planning/visits/${v.id}/edit`} className="min-w-0 flex items-center gap-2 hover:underline">
+                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: v.type.color ?? "#6b7280" }} />
+                          <span className="truncate">{v.title}</span>
+                        </Link>
+                        <span className="shrink-0 text-xs text-[var(--muted-foreground)]">
+                          {new Date(v.scheduledAt).toLocaleDateString()} {new Date(v.scheduledAt).toLocaleTimeString([], timeFmt)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </section>
 
       {!hasAny ? (
         <Card>

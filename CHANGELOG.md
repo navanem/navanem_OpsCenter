@@ -3,6 +3,16 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.24.0] - 2026-06-26
+
+### Added
+- Dashboard now opens with a "My work" section for the signed-in user: their open tickets, upcoming tasks, and upcoming visits.
+
+### Changed
+- Contract types are now managed as a tab in Settings → Taxonomies (consistent with the other taxonomies).
+- Time entries can be edited directly from the time-tracking panel on tickets/tasks/visits (and editing returns you to where you started).
+- The time-tracking panel on the ticket detail sits in the right column above the ticket properties (no longer full-width).
+
 ## [0.23.0] - 2026-06-26
 
 ### Added

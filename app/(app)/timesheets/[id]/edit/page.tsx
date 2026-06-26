@@ -9,10 +9,18 @@ import { TimeEntryForm } from "@/components/timesheets/time-entry-form";
 import { relationLabel } from "@/components/timesheets/entry-context";
 import { updateTimeEntryAction, submitTimeEntryAction, deleteTimeEntryAction } from "../../actions";
 
-export default async function EditTimeEntryPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditTimeEntryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
+}) {
   const user = await requirePermission("timesheets.read");
   if (!(await isTimesheetingEnabled())) notFound();
   const { id } = await params;
+  const { from } = await searchParams;
+  const redirectTo = from && from.startsWith("/") ? from : "/timesheets";
   const entry = await getTimeEntry(id);
   if (!entry || entry.userId !== user.id) notFound();
 
@@ -42,7 +50,7 @@ export default async function EditTimeEntryPage({ params }: { params: Promise<{ 
             <TimeEntryForm
               action={updateTimeEntryAction}
               submitLabel="Save changes"
-              redirectTo="/timesheets"
+              redirectTo={redirectTo}
               defaults={{
                 id: entry.id,
                 date: dateStr,
@@ -72,12 +80,12 @@ export default async function EditTimeEntryPage({ params }: { params: Promise<{ 
           <CardContent className="flex flex-wrap gap-2">
             <form action={submitTimeEntryAction}>
               <input type="hidden" name="id" value={entry.id} />
-              <input type="hidden" name="redirectTo" value="/timesheets" />
+              <input type="hidden" name="redirectTo" value={redirectTo} />
               <Button type="submit">Submit for approval</Button>
             </form>
             <form action={deleteTimeEntryAction}>
               <input type="hidden" name="id" value={entry.id} />
-              <input type="hidden" name="redirectTo" value="/timesheets" />
+              <input type="hidden" name="redirectTo" value={redirectTo} />
               <Button type="submit" variant="destructive">Delete</Button>
             </form>
           </CardContent>
