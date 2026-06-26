@@ -7,11 +7,18 @@ export async function isSmtpConfigured(): Promise<boolean> {
   return Boolean(s.smtpHost && s.smtpPort && s.smtpFrom);
 }
 
+export interface MailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+}
+
 export interface MailMessage {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  attachments?: MailAttachment[];
 }
 
 export async function sendMail(msg: MailMessage): Promise<void> {
@@ -32,6 +39,7 @@ export async function sendMail(msg: MailMessage): Promise<void> {
     subject: msg.subject,
     html: msg.html,
     text: msg.text,
+    attachments: msg.attachments,
   });
 }
 

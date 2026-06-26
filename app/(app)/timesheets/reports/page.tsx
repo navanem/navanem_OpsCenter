@@ -59,6 +59,7 @@ export default async function TimesheetReportPage({ searchParams }: { searchPara
             clients={clients.map((c) => ({ id: c.id, companyName: c.companyName }))}
             clientId={clientId}
             month={monthStr}
+            defaultEmail={client?.contactEmail ?? ""}
           />
         </CardContent>
       </Card>
