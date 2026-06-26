@@ -4,50 +4,46 @@ import { can } from "@/lib/rbac/can";
 import { listVisitsInRange } from "@/lib/planning/queries";
 import { listVisitTypes } from "@/lib/taxonomies/queries";
 import { listTechnicians } from "@/lib/users/queries";
+import { getLocale } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { VisitStatusBadge, TypeDot } from "@/components/planning/badges";
-import { QuickAssign } from "@/components/ui/quick-assign";
 import { PlanningFilters } from "./planning-filters";
-import { assignVisitAction } from "./actions";
 
-type SP = { week?: string; assigneeId?: string; typeId?: string };
+type SP = { month?: string; assigneeId?: string; typeId?: string };
 
-function isoDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = `${d.getMonth() + 1}`.padStart(2, "0");
-  const day = `${d.getDate()}`.padStart(2, "0");
-  return `${y}-${m}-${day}`;
+const TIME_FMT: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
+
+function sameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-// Snap any date to the Monday 00:00 of its week (Mon–Sun layout).
+// Monday on or before the given date.
 function mondayOf(d: Date): Date {
-  const m = new Date(d);
-  m.setHours(0, 0, 0, 0);
+  const m = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const day = m.getDay(); // 0=Sun..6=Sat
-  const diff = day === 0 ? -6 : 1 - day; // back to Monday
-  m.setDate(m.getDate() + diff);
+  m.setDate(m.getDate() + (day === 0 ? -6 : 1 - day));
   return m;
 }
 
-const TIME_FMT: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
-const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
 export default async function PlanningPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("visits.read");
-  const sp = await searchParams;
+  const [sp, locale] = await Promise.all([searchParams, getLocale()]);
+  const tag = locale === "fr" ? "fr-FR" : "en-US";
 
-  const base = sp.week ? new Date(sp.week + "T00:00:00") : new Date();
-  const monday = mondayOf(isNaN(base.getTime()) ? new Date() : base);
-  const from = new Date(monday);
-  const to = new Date(monday);
-  to.setDate(to.getDate() + 7);
+  const now = new Date();
+  const parsed = sp.month && /^\d{4}-\d{2}$/.test(sp.month) ? sp.month.split("-").map(Number) : null;
+  const monthStart = parsed ? new Date(parsed[0], parsed[1] - 1, 1) : new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthKey = `${monthStart.getFullYear()}-${`${monthStart.getMonth() + 1}`.padStart(2, "0")}`;
+
+  // 6-week grid starting on the Monday on/before the 1st.
+  const gridStart = mondayOf(monthStart);
+  const gridEnd = new Date(gridStart);
+  gridEnd.setDate(gridEnd.getDate() + 42);
 
   const [visits, technicians, types] = await Promise.all([
     listVisitsInRange({
-      from,
-      to,
+      from: gridStart,
+      to: gridEnd,
       assigneeId: sp.assigneeId || undefined,
       typeId: sp.typeId || undefined,
     }),
@@ -55,22 +51,26 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
     listVisitTypes({ activeOnly: true }),
   ]);
 
-  // One column per day Mon–Sun.
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(d.getDate() + i);
+  const cells = Array.from({ length: 42 }, (_, i) => {
+    const date = new Date(gridStart);
+    date.setDate(date.getDate() + i);
     const dayVisits = visits
-      .filter((v) => {
-        const s = new Date(v.scheduledAt);
-        return s.getFullYear() === d.getFullYear() && s.getMonth() === d.getMonth() && s.getDate() === d.getDate();
-      })
+      .filter((v) => sameDay(new Date(v.scheduledAt), date))
       .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
-    return { date: d, label: DAY_LABELS[i], visits: dayVisits };
+    return {
+      date,
+      inMonth: date.getMonth() === monthStart.getMonth(),
+      isToday: sameDay(date, now),
+      visits: dayVisits,
+    };
   });
 
+  const weekdayLabels = Array.from({ length: 7 }, (_, i) =>
+    new Intl.DateTimeFormat(tag, { weekday: "short" }).format(cells[i].date),
+  );
+  const monthTitle = new Intl.DateTimeFormat(tag, { month: "long", year: "numeric" }).format(monthStart);
   const canManage = can(user, "visits.manage");
-  const canAssign = can(user, "visits.assign");
-  const technicianOptions = technicians.map((t) => ({ id: t.id, label: `${t.firstName} ${t.lastName}` }));
+  const MAX_CHIPS = 3;
 
   return (
     <div className="space-y-6">
@@ -79,74 +79,81 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
         <h1 className="text-2xl font-semibold tracking-tight">Planning</h1>
         {canManage ? (
           <div className="flex gap-2">
-            <Link href="/planning/recurring">
-              <Button variant="outline">Recurring visits</Button>
-            </Link>
-            <Link href="/planning/visits/new">
-              <Button>New visit</Button>
-            </Link>
+            <Link href="/planning/recurring"><Button variant="outline">Recurring visits</Button></Link>
+            <Link href="/planning/visits/new"><Button>New visit</Button></Link>
           </div>
         ) : null}
       </div>
 
-      <PlanningFilters
-        monday={isoDate(monday)}
-        technicians={technicians}
-        types={types.map((t) => ({ id: t.id, name: t.name }))}
-      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold capitalize tracking-tight">{monthTitle}</h2>
+        <PlanningFilters month={monthKey} technicians={technicians} types={types.map((t) => ({ id: t.id, name: t.name }))} />
+      </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-7">
-        {days.map((day) => (
-          <div key={day.label} className="space-y-2">
-            <div className="flex items-baseline justify-between border-b border-[var(--border)] pb-2">
-              <span className="text-sm font-medium">{day.label}</span>
-              <span className="text-xs text-[var(--muted-foreground)]">
-                {day.date.getDate()}/{day.date.getMonth() + 1}
-              </span>
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)]">
+        {/* Weekday header */}
+        <div className="grid grid-cols-7 border-b border-[var(--border)] bg-[var(--muted)]/40">
+          {weekdayLabels.map((d) => (
+            <div key={d} className="px-2 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+              {d}
             </div>
-            {day.visits.length === 0 ? (
-              <p className="px-1 py-2 text-xs text-[var(--muted-foreground)]">—</p>
-            ) : (
-              day.visits.map((v) => (
-                <Card
-                  key={v.id}
-                  className={`p-3 ${v.status === "CANCELLED" ? "opacity-50" : ""}`}
-                >
-                  <div className="space-y-1.5">
-                    <div className="text-xs font-medium text-[var(--muted-foreground)]">
-                      {new Date(v.scheduledAt).toLocaleTimeString([], TIME_FMT)}
-                    </div>
-                    <Link
-                      href={`/planning/visits/${v.id}/edit`}
-                      className="flex items-center gap-1.5 text-sm font-medium hover:underline"
-                    >
-                      <TypeDot color={v.type.color ?? "#6b7280"} />
-                      <span className="truncate">{v.title}</span>
-                    </Link>
-                    {v.client ? (
-                      <div className="truncate text-xs text-[var(--muted-foreground)]">
-                        {v.client.companyName}
-                      </div>
-                    ) : null}
-                    {canAssign ? (
-                      <QuickAssign
-                        action={assignVisitAction}
-                        hidden={{ id: v.id, redirectTo: "/planning" }}
-                        currentId={v.assignee?.id ?? ""}
-                        options={technicianOptions}
-                      />
-                    ) : (
-                      <div className="truncate text-xs text-[var(--muted-foreground)]">
-                        {v.assignee ? `${v.assignee.firstName} ${v.assignee.lastName}` : "Unassigned"}
-                      </div>
-                    )}
-                    <VisitStatusBadge status={v.status} />
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
+        {/* Day cells */}
+        <div className="grid grid-cols-7">
+          {cells.map((cell, i) => {
+            const extra = cell.visits.length - MAX_CHIPS;
+            return (
+              <div
+                key={i}
+                className={
+                  "min-h-[7rem] border-b border-r border-[var(--border)] p-1.5 [&:nth-child(7n)]:border-r-0 " +
+                  (i >= 35 ? "border-b-0 " : "") +
+                  (cell.inMonth ? "" : "bg-[var(--muted)]/20 ")
+                }
+              >
+                <div className="mb-1 flex justify-end">
+                  <span
+                    className={
+                      "inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs " +
+                      (cell.isToday
+                        ? "bg-[var(--primary)] font-semibold text-[var(--primary-foreground)]"
+                        : cell.inMonth
+                          ? "text-[var(--foreground)]"
+                          : "text-[var(--muted-foreground)]")
+                    }
+                  >
+                    {cell.date.getDate()}
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {cell.visits.slice(0, MAX_CHIPS).map((v) => {
+                    const color = v.type.color ?? "#6b7280";
+                    const cancelled = v.status === "CANCELLED";
+                    return (
+                      <Link
+                        key={v.id}
+                        href={`/planning/visits/${v.id}/edit`}
+                        title={`${new Date(v.scheduledAt).toLocaleTimeString(tag, TIME_FMT)} · ${v.title}${v.client ? ` · ${v.client.companyName}` : ""}`}
+                        className={
+                          "block truncate rounded-[var(--radius-sm)] px-1.5 py-0.5 text-xs font-medium text-white transition-opacity hover:opacity-90 " +
+                          (cancelled ? "line-through opacity-50" : "")
+                        }
+                        style={{ backgroundColor: color }}
+                      >
+                        <span className="tabular-nums opacity-90">{new Date(v.scheduledAt).toLocaleTimeString(tag, TIME_FMT)}</span>{" "}
+                        {v.title}
+                      </Link>
+                    );
+                  })}
+                  {extra > 0 ? (
+                    <div className="px-1 text-[11px] font-medium text-[var(--muted-foreground)]">+{extra} more</div>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

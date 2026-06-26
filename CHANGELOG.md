@@ -3,6 +3,12 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.45.0] - 2026-06-27
+
+### Changed
+- Planning is now a full month calendar (previous/next month, Today, localized month and weekday names) with colored event chips per visit type, today highlighted, and a "+N more" overflow — replacing the week strip.
+- Refreshed the Clients list: each row shows a colored initials avatar with company name and domain, a status pill, and view/edit action icons, with row hover.
+
 ## [0.44.0] - 2026-06-26
 
 ### Added
