@@ -1,18 +1,18 @@
 import { can } from "@/lib/rbac/can";
 import type { PermissionKey } from "@/lib/rbac/permissions";
-import { SidebarNav } from "./sidebar-nav";
+import { SidebarNav, type IconName } from "./sidebar-nav";
 
-const items: { href: string; label: string; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" }[] = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/clients", label: "Clients", permission: "clients.read" },
-  { href: "/tickets", label: "Tickets", permission: "tickets.read" },
-  { href: "/projects", label: "Projects", permission: "projects.read" },
-  { href: "/planning", label: "Planning", permission: "visits.read" },
-  { href: "/contracts", label: "Contracts", permission: "contracts.read", flag: "contracts" },
-  { href: "/devices", label: "Devices", permission: "devices.read", flag: "devices" },
-  { href: "/knowledge", label: "Knowledge", permission: "knowledge.read" },
-  { href: "/timesheets", label: "Timesheets", permission: "timesheets.read", flag: "timesheeting" },
-  { href: "/settings", label: "Settings", permission: "settings.manage" },
+const items: { href: string; label: string; icon: IconName; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" }[] = [
+  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/clients", label: "Clients", icon: "clients", permission: "clients.read" },
+  { href: "/tickets", label: "Tickets", icon: "tickets", permission: "tickets.read" },
+  { href: "/projects", label: "Projects", icon: "projects", permission: "projects.read" },
+  { href: "/planning", label: "Planning", icon: "planning", permission: "visits.read" },
+  { href: "/contracts", label: "Contracts", icon: "contracts", permission: "contracts.read", flag: "contracts" },
+  { href: "/devices", label: "Devices", icon: "devices", permission: "devices.read", flag: "devices" },
+  { href: "/knowledge", label: "Knowledge", icon: "knowledge", permission: "knowledge.read" },
+  { href: "/timesheets", label: "Timesheets", icon: "timesheets", permission: "timesheets.read", flag: "timesheeting" },
+  { href: "/settings", label: "Settings", icon: "settings", permission: "settings.manage" },
 ];
 
 interface SidebarProps {
@@ -42,7 +42,7 @@ export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, 
           <span className="text-lg font-semibold tracking-tight">{brandName}</span>
         )}
       </div>
-      <SidebarNav items={visible.map(({ href, label }) => ({ href, label }))} />
+      <SidebarNav items={visible.map(({ href, label, icon }) => ({ href, label, icon }))} />
     </aside>
   );
 }

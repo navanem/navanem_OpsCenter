@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
-import { getDashboardStats, getMyWork } from "@/lib/dashboard/queries";
+import { getDashboardStats, getMyWork, getModuleCounts } from "@/lib/dashboard/queries";
+import { getAppSettings } from "@/lib/settings/service";
+import { formatMoneyCents } from "@/lib/contracts/meta";
 import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -9,7 +11,19 @@ import { PriorityBadge } from "@/components/tickets/badges";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const [stats, myWork] = await Promise.all([getDashboardStats(), getMyWork(user.id)]);
+  const [stats, myWork, moduleCounts, settings] = await Promise.all([
+    getDashboardStats(),
+    getMyWork(user.id),
+    getModuleCounts(),
+    getAppSettings(),
+  ]);
+
+  const moduleCards: { label: string; value: string | number; color: string }[] = [];
+  if (can(user, "projects.read")) moduleCards.push({ label: "Projects", value: moduleCounts.projects, color: "#3b82f6" });
+  if (can(user, "visits.read")) moduleCards.push({ label: "Visits this week", value: moduleCounts.visitsThisWeek, color: "#8b5cf6" });
+  if (can(user, "contracts.read") && settings.contractsEnabled) moduleCards.push({ label: "Monthly recurring", value: formatMoneyCents(moduleCounts.contractsMrrCents), color: "#10b981" });
+  if (can(user, "devices.read") && settings.devicesEnabled) moduleCards.push({ label: "Devices", value: moduleCounts.devices, color: "#f59e0b" });
+  if (can(user, "knowledge.read")) moduleCards.push({ label: "KB articles", value: moduleCounts.kbPublished, color: "#6d5efc" });
   const hasMyWork = myWork.myTickets.length + myWork.myTasks.length + myWork.myVisits.length > 0;
   const timeFmt: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
 
@@ -146,6 +160,17 @@ export default async function DashboardPage() {
           </div>
         )}
       </section>
+
+      {moduleCards.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">Across your modules</h2>
+          <StatGrid>
+            {moduleCards.map((c) => (
+              <StatCard key={c.label} label={c.label} value={c.value} color={c.color} />
+            ))}
+          </StatGrid>
+        </section>
+      ) : null}
 
       {!hasAny ? (
         <Card>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { monthlyEquivalentCents, type BillingCycleKey } from "@/lib/contracts/meta";
 
 export async function getDashboardStats() {
   const [clientsTotal, clientsActive, usersTotal, statusGroups, recentTickets] =
@@ -32,6 +33,27 @@ export async function getDashboardStats() {
     byStatus,
     recentTickets,
   };
+}
+
+// Headline counts across the optional modules (rendered per permission/enabled flag).
+export async function getModuleCounts() {
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7)); // Monday
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+
+  const [projects, visitsThisWeek, contracts, devices, kbPublished] = await Promise.all([
+    prisma.project.count(),
+    prisma.visit.count({ where: { scheduledAt: { gte: weekStart, lt: weekEnd }, status: "SCHEDULED" } }),
+    prisma.contract.findMany({ select: { valueCents: true, billingCycle: true } }),
+    prisma.device.count(),
+    prisma.knowledgeArticle.count({ where: { status: "PUBLISHED" } }),
+  ]);
+  let contractsMrrCents = 0;
+  for (const c of contracts) contractsMrrCents += monthlyEquivalentCents(c.valueCents, c.billingCycle as BillingCycleKey);
+
+  return { projects, visitsThisWeek, contractsMrrCents, devices, kbPublished };
 }
 
 // Personal queue for the signed-in user: open tickets, upcoming tasks, upcoming visits.

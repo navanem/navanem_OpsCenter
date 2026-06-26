@@ -50,6 +50,7 @@ export function getTicket(id: string) {
       category: { select: { id: true, name: true, color: true } },
       priority: { select: { id: true, name: true, color: true } },
       tags: { select: { id: true, name: true, color: true } },
+      device: { select: { id: true, name: true, number: true } },
       comments: {
         include: {
           author: { select: { id: true, firstName: true, lastName: true } },

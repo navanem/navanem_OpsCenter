@@ -164,6 +164,24 @@ export async function updateDueDateAction(formData: FormData): Promise<void> {
   redirect(`/tickets/${typeof id === "string" ? id : ""}`);
 }
 
+export async function updateTicketDeviceAction(formData: FormData): Promise<void> {
+  await requirePermission("tickets.manage");
+  const id = formData.get("id");
+  const deviceRaw = formData.get("deviceId");
+  if (typeof id === "string" && id.length > 0) {
+    const ticket = await prisma.ticket.findUnique({ where: { id } });
+    let deviceId: string | null = null;
+    if (typeof deviceRaw === "string" && deviceRaw.length > 0 && ticket) {
+      // Only allow linking a device belonging to the ticket's client.
+      const device = await prisma.device.findUnique({ where: { id: deviceRaw } });
+      if (device && device.clientId === ticket.clientId) deviceId = device.id;
+    }
+    await prisma.ticket.update({ where: { id }, data: { deviceId } });
+    revalidatePath(`/tickets/${id}`);
+  }
+  redirect(`/tickets/${typeof id === "string" ? id : ""}`);
+}
+
 export async function updateTicketTagsAction(formData: FormData): Promise<void> {
   await requirePermission("tickets.manage");
   const id = formData.get("id");
