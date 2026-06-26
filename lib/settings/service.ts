@@ -15,4 +15,9 @@ export async function isTimesheetingEnabled(): Promise<boolean> {
   return settings.timesheetingEnabled;
 }
 
+export async function isContractsEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.contractsEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;
