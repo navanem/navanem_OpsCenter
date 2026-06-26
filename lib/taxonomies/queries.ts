@@ -50,3 +50,11 @@ export function getProjectStatus(id: string) {
 export function getProjectTaskStatus(id: string) {
   return prisma.projectTaskStatus.findUnique({ where: { id } });
 }
+
+export function listVisitTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.visitType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function getVisitType(id: string) {
+  return prisma.visitType.findUnique({ where: { id } });
+}
