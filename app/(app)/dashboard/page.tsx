@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
-import { getDashboardStats, getMyWork, getModuleCounts } from "@/lib/dashboard/queries";
+import { getDashboardStats, getMyWork, getModuleCounts, getExpiringSoon } from "@/lib/dashboard/queries";
 import { getAppSettings } from "@/lib/settings/service";
-import { formatMoneyCents } from "@/lib/contracts/meta";
+import { formatMoneyCents, formatContractReference } from "@/lib/contracts/meta";
+import { formatDeviceReference } from "@/lib/devices/meta";
 import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -17,6 +18,14 @@ export default async function DashboardPage() {
     getModuleCounts(),
     getAppSettings(),
   ]);
+
+  const showContracts = can(user, "contracts.read") && settings.contractsEnabled;
+  const showDevices = can(user, "devices.read") && settings.devicesEnabled;
+  const expiring = showContracts || showDevices ? await getExpiringSoon() : { contracts: [], devices: [] };
+  const expiringContracts = showContracts ? expiring.contracts : [];
+  const expiringDevices = showDevices ? expiring.devices : [];
+  const hasAttention = expiringContracts.length + expiringDevices.length > 0;
+  const dateFmt = (d: Date) => new Date(d).toLocaleDateString();
 
   const moduleCards: { label: string; value: string | number; color: string }[] = [];
   if (can(user, "projects.read")) moduleCards.push({ label: "Projects", value: moduleCounts.projects, color: "#3b82f6" });
@@ -169,6 +178,63 @@ export default async function DashboardPage() {
               <StatCard key={c.label} label={c.label} value={c.value} color={c.color} />
             ))}
           </StatGrid>
+        </section>
+      ) : null}
+
+      {hasAttention ? (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">Attention needed</h2>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {showContracts ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contracts ending soon ({expiringContracts.length})</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  {expiringContracts.length === 0 ? (
+                    <p className="text-[var(--muted-foreground)]">No contracts ending in the next 30 days.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {expiringContracts.map((c) => (
+                        <li key={c.id} className="flex items-center justify-between gap-2">
+                          <Link href={`/contracts/${c.id}/edit`} className="min-w-0 flex items-center gap-2 hover:underline">
+                            <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">{formatContractReference(c.number)}</span>
+                            <span className="truncate">{c.client.companyName}{c.type ? ` · ${c.type.name}` : ""}</span>
+                          </Link>
+                          {c.endDate ? <span className="shrink-0 text-xs font-medium text-[#f59e0b]">{dateFmt(c.endDate)}</span> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {showDevices ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Warranties expiring ({expiringDevices.length})</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  {expiringDevices.length === 0 ? (
+                    <p className="text-[var(--muted-foreground)]">No warranties expiring in the next 60 days.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {expiringDevices.map((d) => (
+                        <li key={d.id} className="flex items-center justify-between gap-2">
+                          <Link href={`/devices/${d.id}/edit`} className="min-w-0 flex items-center gap-2 hover:underline">
+                            <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">{formatDeviceReference(d.number)}</span>
+                            <span className="truncate">{d.name}{d.client ? ` · ${d.client.companyName}` : ""}</span>
+                          </Link>
+                          {d.warrantyExpiry ? <span className="shrink-0 text-xs font-medium text-[#f59e0b]">{dateFmt(d.warrantyExpiry)}</span> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            ) : null}
+          </div>
         </section>
       ) : null}
 

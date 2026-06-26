@@ -56,6 +56,44 @@ export async function getModuleCounts() {
   return { projects, visitsThisWeek, contractsMrrCents, devices, kbPublished };
 }
 
+// Items needing attention: contracts ending within 30d, device warranties expiring within 60d.
+export async function getExpiringSoon() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const in30 = new Date(today);
+  in30.setDate(in30.getDate() + 30);
+  const in60 = new Date(today);
+  in60.setDate(in60.getDate() + 60);
+
+  const [contracts, devices] = await Promise.all([
+    prisma.contract.findMany({
+      where: { endDate: { gte: today, lte: in30 } },
+      select: {
+        id: true,
+        number: true,
+        endDate: true,
+        client: { select: { companyName: true } },
+        type: { select: { name: true } },
+      },
+      orderBy: { endDate: "asc" },
+      take: 8,
+    }),
+    prisma.device.findMany({
+      where: { warrantyExpiry: { gte: today, lte: in60 } },
+      select: {
+        id: true,
+        number: true,
+        name: true,
+        warrantyExpiry: true,
+        client: { select: { companyName: true } },
+      },
+      orderBy: { warrantyExpiry: "asc" },
+      take: 8,
+    }),
+  ]);
+  return { contracts, devices };
+}
+
 // Personal queue for the signed-in user: open tickets, upcoming tasks, upcoming visits.
 export async function getMyWork(userId: string) {
   const today = new Date();
