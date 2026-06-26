@@ -32,6 +32,25 @@ function hoursToMinutes(v?: string): number | null {
   return Math.round(n * 60);
 }
 
+export const contractTypeSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  color: optional,
+  sortOrder: z.coerce.number().int().min(0).optional().default(0),
+  isActive: optional, // "true" when checked
+  defaultHourlyRate: optional,
+});
+export type ContractTypeInput = z.infer<typeof contractTypeSchema>;
+
+export function normalizeContractTypeInput(input: ContractTypeInput) {
+  return {
+    name: input.name,
+    color: input.color && input.color.length > 0 ? input.color : "#6b7280",
+    sortOrder: input.sortOrder,
+    isActive: input.isActive === "true",
+    defaultHourlyRateCents: moneyToCents(input.defaultHourlyRate),
+  };
+}
+
 export function normalizeContractInput(input: ContractInput) {
   return {
     name: orNull(input.name),

@@ -20,7 +20,6 @@ export default async function GeneralSettingsPage() {
           <GeneralForm
             companyName={settings.companyName}
             hasLogo={Boolean(settings.logoData)}
-            timesheetingEnabled={settings.timesheetingEnabled}
           />
         </CardContent>
       </Card>
