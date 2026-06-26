@@ -23,7 +23,9 @@ export default async function PortalHome() {
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Your tickets</h1>
-        <Link href="/portal/tickets/new"><Button>New ticket</Button></Link>
+        {contact.canCreate ? (
+          <Link href="/portal/tickets/new"><Button>New ticket</Button></Link>
+        ) : null}
       </div>
 
       <Card>

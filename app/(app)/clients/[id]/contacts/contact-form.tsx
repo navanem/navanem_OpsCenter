@@ -15,6 +15,8 @@ export interface ContactDefaults {
   phone?: string | null;
   isVip?: boolean;
   hasPhoto?: boolean;
+  portalCanCreate?: boolean;
+  portalCanComment?: boolean;
 }
 
 const inputClass =
@@ -88,6 +90,19 @@ export function ContactForm({
           />
           <label htmlFor="isVip" className="text-sm text-[var(--muted-foreground)]">
             VIP contact
+          </label>
+        </div>
+
+        <div className="flex flex-col gap-2 rounded-[var(--radius)] border border-[var(--border)] p-3">
+          <span className="text-sm font-medium">Portal capabilities</span>
+          <p className="text-xs text-[var(--muted-foreground)]">Apply when this contact has portal access (granted from the client page).</p>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="portalCanCreate" value="true" defaultChecked={defaults?.portalCanCreate ?? true} className="h-4 w-4 accent-[var(--primary)]" />
+            Can create tickets
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="portalCanComment" value="true" defaultChecked={defaults?.portalCanComment ?? true} className="h-4 w-4 accent-[var(--primary)]" />
+            Can reply on tickets
           </label>
         </div>
 

@@ -22,6 +22,7 @@ export async function createPortalTicketAction(
   formData: FormData,
 ): Promise<PortalTicketState> {
   const contact = await requireContact();
+  if (!contact.canCreate) return { error: "You do not have permission to create tickets." };
   const parsed = ticketSchema.safeParse({
     subject: formData.get("subject"),
     description: formData.get("description"),
@@ -56,6 +57,7 @@ export async function addPortalCommentAction(
   formData: FormData,
 ): Promise<PortalTicketState> {
   const contact = await requireContact();
+  if (!contact.canComment) return { error: "You do not have permission to reply." };
   const ticketId = formData.get("ticketId");
   const body = formData.get("body");
   if (typeof ticketId !== "string" || ticketId.length === 0) return { error: "Missing ticket." };

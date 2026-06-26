@@ -66,9 +66,11 @@ export default async function PortalTicketDetail({ params }: { params: Promise<{
               );
             })
           )}
-          <div className="border-t border-[var(--border)] pt-4">
-            <PortalCommentForm ticketId={ticket.id} />
-          </div>
+          {contact.canComment ? (
+            <div className="border-t border-[var(--border)] pt-4">
+              <PortalCommentForm ticketId={ticket.id} />
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </>

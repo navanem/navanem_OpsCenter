@@ -10,6 +10,8 @@ export interface CurrentContact {
   firstName: string;
   lastName: string;
   email: string | null;
+  canCreate: boolean;
+  canComment: boolean;
 }
 
 export async function getCurrentContact(): Promise<CurrentContact | null> {
@@ -33,6 +35,8 @@ export async function getCurrentContact(): Promise<CurrentContact | null> {
     firstName: contact.firstName,
     lastName: contact.lastName,
     email: contact.email,
+    canCreate: contact.portalCanCreate,
+    canComment: contact.portalCanComment,
   };
 }
 
