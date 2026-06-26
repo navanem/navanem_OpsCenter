@@ -94,6 +94,7 @@ model Client {
   recurringVisits      RecurringVisit[]
   timeEntries          TimeEntry[]
   timeTimers           TimeTimer[]
+  contracts            Contract[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -130,6 +131,8 @@ model AppSetting {
   smtpFrom        String?
   smtpSecure      Boolean  @default(false)
   timesheetingEnabled Boolean @default(false)
+  defaultHourlyRateCents Int?
+  contractsEnabled    Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -432,4 +435,57 @@ model TimeTimer {
   clientId    String?
   client      Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
   startedAt   DateTime     @default(now())
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  ONE_OFF
+}
+
+model ContractType {
+  id                     String     @id @default(cuid())
+  name                   String     @unique
+  color                  String     @default("#6b7280")
+  sortOrder              Int        @default(0)
+  isActive               Boolean    @default(true)
+  defaultHourlyRateCents Int?
+  contracts              Contract[]
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+}
+
+model ContractStatus {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  color     String     @default("#6b7280")
+  sortOrder Int        @default(0)
+  isActive  Boolean    @default(true)
+  contracts Contract[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Contract {
+  id                      String         @id @default(cuid())
+  number                  Int            @unique @default(autoincrement())
+  name                    String?
+  clientId                String
+  client                  Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  typeId                  String
+  type                    ContractType   @relation(fields: [typeId], references: [id])
+  statusId                String
+  status                  ContractStatus @relation(fields: [statusId], references: [id])
+  startDate               DateTime
+  endDate                 DateTime?
+  valueCents              Int?
+  billingCycle            BillingCycle   @default(MONTHLY)
+  includedMinutesPerPeriod Int?
+  notes                   String?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+
+  @@index([clientId])
+  @@index([statusId])
 }
