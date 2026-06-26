@@ -5,17 +5,19 @@ import { listUsers } from "@/lib/users/queries";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { setUserStatusAction } from "./actions";
+import { setUserStatusAction, resendInviteAction, revokeInviteAction } from "./actions";
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
     INVITED: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    EXPIRED: "bg-[var(--muted)] text-[var(--muted-foreground)]",
     SUSPENDED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   };
   const labels: Record<string, string> = {
     ACTIVE: "Active",
     INVITED: "Invited",
+    EXPIRED: "Invite expired",
     SUSPENDED: "Suspended",
   };
   return (
@@ -67,6 +69,10 @@ export default async function UsersPage() {
                 const isSelf = user.id === row.id;
                 const toggleStatus = row.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
                 const toggleLabel = row.status === "ACTIVE" ? "Suspend" : "Reactivate";
+                const invite = row.invitations[0];
+                const inviteExpired =
+                  row.status === "INVITED" && invite && invite.status === "PENDING" && new Date(invite.expiresAt) < new Date();
+                const displayStatus = inviteExpired ? "EXPIRED" : row.status;
 
                 return (
                   <tr key={row.id} className="border-b border-[var(--border)] last:border-0">
@@ -87,11 +93,26 @@ export default async function UsersPage() {
                     <td className="px-6 py-3 text-[var(--muted-foreground)]">{row.email}</td>
                     <td className="px-6 py-3 text-[var(--muted-foreground)]">{row.role.name}</td>
                     <td className="px-6 py-3">
-                      <StatusBadge status={row.status} />
+                      <StatusBadge status={displayStatus} />
                     </td>
                     {canManage ? (
                       <td className="px-6 py-3">
-                        {!isSelf && row.status !== "INVITED" ? (
+                        {row.status === "INVITED" ? (
+                          <div className="flex items-center gap-3">
+                            <form action={resendInviteAction}>
+                              <input type="hidden" name="id" value={row.id} />
+                              <button type="submit" className="text-sm text-[var(--primary)] hover:underline">
+                                Resend
+                              </button>
+                            </form>
+                            <form action={revokeInviteAction}>
+                              <input type="hidden" name="id" value={row.id} />
+                              <button type="submit" className="text-sm text-[var(--muted-foreground)] hover:text-[var(--destructive)] hover:underline">
+                                Revoke
+                              </button>
+                            </form>
+                          </div>
+                        ) : !isSelf ? (
                           <form action={setUserStatusAction}>
                             <input type="hidden" name="id" value={row.id} />
                             <input type="hidden" name="status" value={toggleStatus} />

@@ -131,6 +131,62 @@ export async function updateUserAction(
   redirect("/settings/users");
 }
 
+export async function resendInviteAction(formData: FormData): Promise<void> {
+  await requirePermission("users.manage");
+  const id = formData.get("id");
+  if (typeof id === "string" && id.length > 0) {
+    const target = await prisma.user.findUnique({ where: { id } });
+    if (target && target.status === "INVITED") {
+      const { token, tokenHash } = generateInviteToken();
+      await prisma.$transaction([
+        prisma.invitation.updateMany({ where: { userId: id, status: "PENDING" }, data: { status: "REVOKED" } }),
+        prisma.invitation.create({
+          data: {
+            email: target.email,
+            roleId: target.roleId,
+            tokenHash,
+            expiresAt: new Date(Date.now() + INVITE_TTL_MS),
+            userId: id,
+          },
+        }),
+      ]);
+      const h = await headers();
+      const origin = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+      const link = `${origin}/invite/${token}`;
+      try {
+        if (await isSmtpConfigured()) {
+          const settings = await getAppSettings();
+          const mail = invitationEmail({ link, companyName: settings.companyName });
+          await sendMail({ to: target.email, subject: mail.subject, html: mail.html, text: mail.text });
+        } else {
+          console.log(`[invite-resend] ${target.email}: ${link}`);
+        }
+      } catch (e) {
+        console.error("invite resend failed", e);
+      }
+    }
+  }
+  revalidatePath("/settings/users");
+  redirect("/settings/users");
+}
+
+export async function revokeInviteAction(formData: FormData): Promise<void> {
+  await requirePermission("users.manage");
+  const id = formData.get("id");
+  if (typeof id === "string" && id.length > 0) {
+    const target = await prisma.user.findUnique({ where: { id } });
+    // Only ever applies to users who have not accepted (placeholder accounts).
+    if (target && target.status === "INVITED") {
+      await prisma.$transaction([
+        prisma.invitation.updateMany({ where: { userId: id }, data: { status: "REVOKED", userId: null } }),
+        prisma.user.delete({ where: { id } }),
+      ]);
+    }
+  }
+  revalidatePath("/settings/users");
+  redirect("/settings/users");
+}
+
 export async function setUserStatusAction(formData: FormData): Promise<void> {
   await requirePermission("users.manage");
   const id = formData.get("id");
