@@ -82,6 +82,15 @@ export function listClientReportEntries(clientId: string, from: Date, to: Date) 
   });
 }
 
+// Total logged minutes for a client in a window (excludes rejected entries). For contract quota usage.
+export async function sumClientMinutes(clientId: string, from: Date, to: Date): Promise<number> {
+  const agg = await prisma.timeEntry.aggregate({
+    where: { clientId, status: { not: "REJECTED" }, date: { gte: from, lt: to } },
+    _sum: { minutes: true },
+  });
+  return agg._sum.minutes ?? 0;
+}
+
 export function getRunningTimer(userId: string) {
   return prisma.timeTimer.findUnique({
     where: { userId },
