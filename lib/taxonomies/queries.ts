@@ -90,3 +90,11 @@ export function listKnowledgeCategories(opts?: { activeOnly?: boolean }) {
 export function getKnowledgeCategory(id: string) {
   return prisma.knowledgeCategory.findUnique({ where: { id } });
 }
+
+export function listDeviceTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.deviceType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listDeviceStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.deviceStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}

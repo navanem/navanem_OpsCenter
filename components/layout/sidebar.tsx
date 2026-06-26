@@ -2,13 +2,14 @@ import { can } from "@/lib/rbac/can";
 import type { PermissionKey } from "@/lib/rbac/permissions";
 import { SidebarNav } from "./sidebar-nav";
 
-const items: { href: string; label: string; permission?: PermissionKey; flag?: "timesheeting" | "contracts" }[] = [
+const items: { href: string; label: string; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" }[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/clients", label: "Clients", permission: "clients.read" },
   { href: "/tickets", label: "Tickets", permission: "tickets.read" },
   { href: "/projects", label: "Projects", permission: "projects.read" },
   { href: "/planning", label: "Planning", permission: "visits.read" },
   { href: "/contracts", label: "Contracts", permission: "contracts.read", flag: "contracts" },
+  { href: "/devices", label: "Devices", permission: "devices.read", flag: "devices" },
   { href: "/knowledge", label: "Knowledge", permission: "knowledge.read" },
   { href: "/timesheets", label: "Timesheets", permission: "timesheets.read", flag: "timesheeting" },
   { href: "/settings", label: "Settings", permission: "settings.manage" },
@@ -20,11 +21,12 @@ interface SidebarProps {
   hasLogo: boolean;
   timesheetingEnabled: boolean;
   contractsEnabled: boolean;
+  devicesEnabled: boolean;
 }
 
-export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled }: SidebarProps) {
+export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled }: SidebarProps) {
   const user = { id: "", email: "", permissions };
-  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled };
+  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled };
   const visible = items.filter(
     (i) =>
       (!i.permission || can(user, i.permission)) &&

@@ -100,6 +100,7 @@ model Client {
   timeEntries          TimeEntry[]
   timeTimers           TimeTimer[]
   contracts            Contract[]
+  devices              Device[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -148,6 +149,7 @@ model AppSetting {
   timesheetingEnabled Boolean @default(false)
   defaultHourlyRateCents Int?
   contractsEnabled    Boolean @default(false)
+  devicesEnabled      Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -570,4 +572,50 @@ model KnowledgeArticle {
 
   @@index([status])
   @@index([categoryId])
+}
+
+model DeviceType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#6b7280")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  devices   Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeviceStatus {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#6b7280")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  devices   Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Device {
+  id             String       @id @default(cuid())
+  number         Int          @unique @default(autoincrement())
+  name           String
+  typeId         String
+  type           DeviceType   @relation(fields: [typeId], references: [id])
+  statusId       String
+  status         DeviceStatus @relation(fields: [statusId], references: [id])
+  clientId       String?
+  client         Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  serialNumber   String?
+  manufacturer   String?
+  model          String?
+  hostname       String?
+  purchaseDate   DateTime?
+  warrantyExpiry DateTime?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([clientId])
+  @@index([statusId])
 }
