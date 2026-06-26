@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.36.0] - 2026-06-26
+
+### Added
+- Knowledge base in the client portal: staff can flag a published article "Visible in client portal", and clients can then browse and read those articles (with search) from a new Knowledge base tab in their portal. Drafts and unflagged articles are never exposed.
+
 ## [0.35.0] - 2026-06-26
 
 ### Added

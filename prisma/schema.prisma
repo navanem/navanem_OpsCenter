@@ -566,6 +566,7 @@ model KnowledgeArticle {
   body       String
   excerpt    String?
   status     KnowledgeStatus    @default(DRAFT)
+  visibleToPortal Boolean       @default(false)
   categoryId String?
   category   KnowledgeCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   authorId   String?

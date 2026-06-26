@@ -8,6 +8,7 @@ export const articleSchema = z.object({
   excerpt: optional,
   categoryId: optional,
   status: z.enum(["DRAFT", "PUBLISHED"]).optional().default("DRAFT"),
+  visibleToPortal: z.boolean().optional().default(false),
 });
 export type ArticleInput = z.infer<typeof articleSchema>;
 
@@ -22,5 +23,7 @@ export function normalizeArticleInput(input: ArticleInput) {
     excerpt: orNull(input.excerpt),
     categoryId: orNull(input.categoryId),
     status: input.status,
+    // Only published articles can be portal-visible.
+    visibleToPortal: input.status === "PUBLISHED" ? input.visibleToPortal : false,
   };
 }

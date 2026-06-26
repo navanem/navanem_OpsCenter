@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireContact } from "@/lib/portal/current-contact";
 import { getAppSettings } from "@/lib/settings/service";
 import { portalSignOutAction } from "./actions";
@@ -23,6 +24,10 @@ export default async function PortalDashboardLayout({ children }: { children: Re
             </form>
           </div>
         </div>
+        <nav className="mx-auto flex max-w-4xl gap-4 px-6 pb-2 text-sm">
+          <Link href="/portal" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Tickets</Link>
+          <Link href="/portal/knowledge" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Knowledge base</Link>
+        </nav>
       </header>
       <main className="mx-auto max-w-4xl space-y-6 p-6">{children}</main>
     </div>

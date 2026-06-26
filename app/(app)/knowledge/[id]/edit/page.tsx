@@ -35,6 +35,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
               excerpt: article.excerpt,
               categoryId: article.categoryId,
               status: article.status,
+              visibleToPortal: article.visibleToPortal,
             }}
             submitLabel="Save changes"
           />

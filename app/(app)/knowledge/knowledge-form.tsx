@@ -13,6 +13,7 @@ export interface ArticleDefaults {
   excerpt?: string | null;
   categoryId?: string | null;
   status?: "DRAFT" | "PUBLISHED";
+  visibleToPortal?: boolean;
 }
 
 const inputClass =
@@ -63,6 +64,14 @@ export function KnowledgeForm({
         <label htmlFor="excerpt" className="text-sm text-[var(--muted-foreground)]">Summary</label>
         <input id="excerpt" name="excerpt" type="text" defaultValue={defaults?.excerpt ?? ""} placeholder="One-line description shown in the list" className={inputClass} />
       </div>
+
+      <label className="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="visibleToPortal" value="on" defaultChecked={defaults?.visibleToPortal ?? false} className="mt-0.5 h-4 w-4 cursor-pointer" />
+        <span>
+          Visible in client portal
+          <span className="block text-xs text-[var(--muted-foreground)]">Published articles with this on are readable by clients in their portal. Drafts are never shown.</span>
+        </span>
+      </label>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="body" className="text-sm text-[var(--muted-foreground)]">Content *</label>

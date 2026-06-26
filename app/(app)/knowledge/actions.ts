@@ -17,6 +17,7 @@ function parseForm(formData: FormData) {
     excerpt: formData.get("excerpt"),
     categoryId: formData.get("categoryId"),
     status: formData.get("status"),
+    visibleToPortal: formData.get("visibleToPortal") === "on",
   });
 }
 

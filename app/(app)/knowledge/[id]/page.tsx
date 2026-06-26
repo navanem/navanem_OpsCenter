@@ -34,6 +34,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
             {article.status === "DRAFT" ? (
               <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]">Draft</span>
             ) : null}
+            {article.visibleToPortal ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#10b98122] px-2 py-0.5 text-xs font-medium text-[#10b981]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#10b981]" /> Portal
+              </span>
+            ) : null}
           </div>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
             {article.author ? `${article.author.firstName} ${article.author.lastName} · ` : ""}
