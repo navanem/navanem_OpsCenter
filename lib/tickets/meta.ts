@@ -12,3 +12,16 @@ export const TICKET_STATUSES = Object.keys(TICKET_STATUS_META) as TicketStatusKe
 export function formatTicketReference(n: number): string {
   return `TKT-${1000 + n}`;
 }
+
+const OPEN_STATUSES = ["OPEN", "IN_PROGRESS", "PENDING"];
+
+// A ticket is overdue when it has a past due date and is still in an open state.
+export function isTicketOverdue(
+  dueAt: Date | string | null | undefined,
+  status: string,
+  now: Date = new Date(),
+): boolean {
+  if (!dueAt) return false;
+  if (!OPEN_STATUSES.includes(status)) return false;
+  return new Date(dueAt).getTime() < now.getTime();
+}
