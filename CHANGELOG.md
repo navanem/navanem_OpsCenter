@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.30.0] - 2026-06-26
+
+### Added
+- Device / asset management module (toggle on/off in Settings → Devices): track managed devices (laptops, servers, network gear, printers…) with configurable type and status, serial number, manufacturer/model, hostname, purchase and warranty dates, and client assignment. List with KPIs (total, assigned, unassigned, warranty expiring within 60 days), filters, a devices section on the client detail, and warranty highlighting. RBAC-gated by `devices.*` permissions.
+
 ## [0.29.0] - 2026-06-26
 
 ### Added
