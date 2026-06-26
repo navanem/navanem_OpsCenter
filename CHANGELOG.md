@@ -3,6 +3,15 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.32.0] - 2026-06-26
+
+### Added
+- Clients list now shows KPIs (total, active, unassigned, open tickets) and a per-client open-ticket count column.
+- "New ticket for this device" on the device page pre-fills the client and links the device on the new ticket.
+
+### Changed
+- Premium client detail header: initials avatar, status, and quick stats (open tickets, projects, devices, contacts).
+
 ## [0.31.0] - 2026-06-26
 
 ### Added
