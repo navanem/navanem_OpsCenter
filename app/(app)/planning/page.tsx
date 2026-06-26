@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { VisitStatusBadge, TypeDot } from "@/components/planning/badges";
+import { QuickAssign } from "@/components/ui/quick-assign";
 import { PlanningFilters } from "./planning-filters";
+import { assignVisitAction } from "./actions";
 
 type SP = { week?: string; assigneeId?: string; typeId?: string };
 
@@ -67,6 +69,8 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
   });
 
   const canManage = can(user, "visits.manage");
+  const canAssign = can(user, "visits.assign");
+  const technicianOptions = technicians.map((t) => ({ id: t.id, label: `${t.firstName} ${t.lastName}` }));
 
   return (
     <div className="space-y-6">
@@ -124,9 +128,18 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
                         {v.client.companyName}
                       </div>
                     ) : null}
-                    <div className="truncate text-xs text-[var(--muted-foreground)]">
-                      {v.assignee ? `${v.assignee.firstName} ${v.assignee.lastName}` : "Unassigned"}
-                    </div>
+                    {canAssign ? (
+                      <QuickAssign
+                        action={assignVisitAction}
+                        hidden={{ id: v.id, redirectTo: "/planning" }}
+                        currentId={v.assignee?.id ?? ""}
+                        options={technicianOptions}
+                      />
+                    ) : (
+                      <div className="truncate text-xs text-[var(--muted-foreground)]">
+                        {v.assignee ? `${v.assignee.firstName} ${v.assignee.lastName}` : "Unassigned"}
+                      </div>
+                    )}
                     <VisitStatusBadge status={v.status} />
                   </div>
                 </Card>

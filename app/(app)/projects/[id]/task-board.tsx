@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TaskPriorityBadge } from "@/components/projects/badges";
-import { reorderTasksAction } from "../actions";
+import { reorderTasksAction, setTaskAssigneeAction } from "../actions";
 import type { TaskPriorityKey } from "@/lib/projects/meta";
 
 export interface BoardTask {
@@ -12,6 +12,7 @@ export interface BoardTask {
   title: string;
   statusId: string;
   priority: TaskPriorityKey;
+  assigneeId: string | null;
   assignee: { firstName: string; lastName: string } | null;
 }
 
@@ -24,11 +25,13 @@ interface TaskStatus {
 interface Props {
   projectId: string;
   statuses: TaskStatus[];
+  technicians: { id: string; firstName: string; lastName: string }[];
   tasks: BoardTask[];
   canManage: boolean;
+  canAssign: boolean;
 }
 
-export function TaskBoard({ projectId, statuses, tasks, canManage }: Props) {
+export function TaskBoard({ projectId, statuses, technicians, tasks, canManage, canAssign }: Props) {
   const [items, setItems] = useState(tasks);
   const [dragId, setDragId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -55,6 +58,27 @@ export function TaskBoard({ projectId, statuses, tasks, canManage }: Props) {
 
     startTransition(async () => {
       await reorderTasksAction(id, statusId, orderedIds);
+      router.refresh();
+    });
+  }
+
+  const techById = new Map(technicians.map((t) => [t.id, t]));
+
+  function assign(taskId: string, assigneeId: string) {
+    const tech = assigneeId ? techById.get(assigneeId) : null;
+    setItems((prev) =>
+      prev.map((t) =>
+        t.id === taskId
+          ? {
+              ...t,
+              assigneeId: assigneeId || null,
+              assignee: tech ? { firstName: tech.firstName, lastName: tech.lastName } : null,
+            }
+          : t,
+      ),
+    );
+    startTransition(async () => {
+      await setTaskAssigneeAction(taskId, assigneeId || null);
       router.refresh();
     });
   }
@@ -107,11 +131,28 @@ export function TaskBoard({ projectId, statuses, tasks, canManage }: Props) {
                   >
                     {task.title}
                   </Link>
-                  <div className="mt-1 text-xs text-[var(--muted-foreground)]">
-                    {task.assignee
-                      ? `${task.assignee.firstName} ${task.assignee.lastName}`
-                      : "Unassigned"}
-                  </div>
+                  {canAssign ? (
+                    <select
+                      value={task.assigneeId ?? ""}
+                      onChange={(e) => assign(task.id, e.target.value)}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-1.5 w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)] px-1.5 py-1 text-xs"
+                    >
+                      <option value="">Unassigned</option>
+                      {technicians.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.firstName} {t.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="mt-1 text-xs text-[var(--muted-foreground)]">
+                      {task.assignee
+                        ? `${task.assignee.firstName} ${task.assignee.lastName}`
+                        : "Unassigned"}
+                    </div>
+                  )}
                 </div>
               ))}
               {column.length === 0 ? (

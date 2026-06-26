@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.19.0] - 2026-06-26
+
+### Added
+- Quick-assign a technician directly from the project Kanban task cards and from the planning week calendar visit cards, gated by the `projects.assign` / `visits.assign` permissions.
+
 ## [0.18.0] - 2026-06-26
 
 ### Added
