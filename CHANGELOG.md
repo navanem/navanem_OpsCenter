@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.20.0] - 2026-06-26
+
+### Added
+- The monthly client timesheet report can now be **downloaded as a server-generated PDF** (`pdf-lib`) and **emailed as a PDF attachment** to a recipient (defaulting to the client's contact email) when SMTP is configured. The browser "Print" option remains available.
+
 ## [0.19.0] - 2026-06-26
 
 ### Added

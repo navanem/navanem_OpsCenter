@@ -1,6 +1,6 @@
 {
   "name": "opscenter",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -20,6 +20,7 @@
     "jose": "^6.2.3",
     "next": "16.2.9",
     "nodemailer": "^9.0.1",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
