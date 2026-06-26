@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.28.0] - 2026-06-26
+
+### Added
+- Two-factor authentication now issues 10 one-time backup codes when you enable it (shown once, stored hashed). At sign-in you can enter a backup code instead of an authenticator code if you lose your device, and each is consumed on use. Backup codes can be regenerated from Settings → Security with a current code.
+
 ## [0.27.0] - 2026-06-26
 
 ### Added
