@@ -9,6 +9,7 @@ import {
   listContractTypes,
   listContractStatuses,
   listTicketTags,
+  listKnowledgeCategories,
 } from "@/lib/taxonomies/queries";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TaxonomyTabs } from "./taxonomy-tabs";
@@ -16,7 +17,7 @@ import { TaxonomyTabs } from "./taxonomy-tabs";
 export default async function TaxonomiesPage() {
   await requirePermission("settings.manage");
 
-  const [categories, priorities, industries, projectStatuses, taskStatuses, visitTypes, contractTypes, contractStatuses, tags] =
+  const [categories, priorities, industries, projectStatuses, taskStatuses, visitTypes, contractTypes, contractStatuses, tags, knowledgeCategories] =
     await Promise.all([
       listTicketCategories(),
       listTicketPriorities(),
@@ -27,6 +28,7 @@ export default async function TaxonomiesPage() {
       listContractTypes(),
       listContractStatuses(),
       listTicketTags(),
+      listKnowledgeCategories(),
     ]);
 
   return (
@@ -53,6 +55,7 @@ export default async function TaxonomiesPage() {
         }))}
         contractStatuses={contractStatuses}
         tags={tags}
+        knowledgeCategories={knowledgeCategories}
       />
     </div>
   );

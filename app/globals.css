@@ -30,6 +30,50 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Rendered markdown (knowledge base articles). */
+.markdown {
+  font-size: 0.925rem;
+  line-height: 1.65;
+  color: var(--foreground);
+}
+.markdown > :first-child { margin-top: 0; }
+.markdown h1 { font-size: 1.5rem; font-weight: 600; margin: 1.4em 0 0.5em; letter-spacing: -0.01em; }
+.markdown h2 { font-size: 1.25rem; font-weight: 600; margin: 1.3em 0 0.5em; }
+.markdown h3 { font-size: 1.05rem; font-weight: 600; margin: 1.2em 0 0.4em; }
+.markdown p { margin: 0.7em 0; }
+.markdown ul, .markdown ol { margin: 0.7em 0; padding-left: 1.4em; }
+.markdown ul { list-style: disc; }
+.markdown ol { list-style: decimal; }
+.markdown li { margin: 0.25em 0; }
+.markdown a { color: var(--primary); text-decoration: underline; }
+.markdown code {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--muted);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+}
+.markdown pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9em 1em;
+  overflow-x: auto;
+  margin: 0.9em 0;
+}
+.markdown pre code { background: transparent; padding: 0; font-size: 0.85em; }
+.markdown blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1em;
+  margin: 0.9em 0;
+  color: var(--muted-foreground);
+}
+.markdown table { width: 100%; border-collapse: collapse; margin: 0.9em 0; font-size: 0.9em; }
+.markdown th, .markdown td { border: 1px solid var(--border); padding: 0.45em 0.7em; text-align: left; }
+.markdown th { background: var(--muted); font-weight: 600; }
+.markdown hr { border: 0; border-top: 1px solid var(--border); margin: 1.4em 0; }
+.markdown img { max-width: 100%; border-radius: var(--radius); }
+
 /* Print: render only the report area in black-on-white (Save as PDF). */
 @media print {
   body * {

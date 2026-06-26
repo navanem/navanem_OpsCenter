@@ -82,3 +82,11 @@ export function listTicketTags(opts?: { activeOnly?: boolean }) {
 export function getTicketTag(id: string) {
   return prisma.ticketTag.findUnique({ where: { id } });
 }
+
+export function listKnowledgeCategories(opts?: { activeOnly?: boolean }) {
+  return prisma.knowledgeCategory.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function getKnowledgeCategory(id: string) {
+  return prisma.knowledgeCategory.findUnique({ where: { id } });
+}
