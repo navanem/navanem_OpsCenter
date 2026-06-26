@@ -150,6 +150,7 @@ model AppSetting {
   defaultHourlyRateCents Int?
   contractsEnabled    Boolean @default(false)
   devicesEnabled      Boolean @default(false)
+  enforce2fa          Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 

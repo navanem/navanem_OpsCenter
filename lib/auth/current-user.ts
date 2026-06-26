@@ -7,6 +7,7 @@ export interface CurrentUser extends AuthUser {
   firstName: string;
   lastName: string;
   roleName: string;
+  totpEnabled: boolean;
 }
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -29,6 +30,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     firstName: user.firstName,
     lastName: user.lastName,
     roleName: user.role.name,
+    totpEnabled: user.totpEnabled,
     permissions: user.role.permissions.map((p) => p.key),
   };
 }
