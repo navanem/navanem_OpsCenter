@@ -33,9 +33,16 @@ export default async function AppLayout({
           devicesEnabled={settings.devicesEnabled}
           subscriptionsEnabled={settings.subscriptionsEnabled}
           nav={dict.nav}
+          navGroups={dict.navGroups}
         />
         <div className="flex flex-1 flex-col">
-          <Topbar name={`${user.firstName} ${user.lastName}`} roleName={user.roleName} t={dict.topbar} />
+          <Topbar
+            name={`${user.firstName} ${user.lastName}`}
+            email={user.email}
+            roleName={user.roleName}
+            locale={user.locale}
+            dict={dict}
+          />
           <main className="flex-1 p-8">{children}</main>
         </div>
       </div>

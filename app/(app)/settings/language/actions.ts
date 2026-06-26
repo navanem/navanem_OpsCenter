@@ -15,6 +15,14 @@ export async function updateMyLocaleAction(formData: FormData): Promise<void> {
   redirect("/settings/language");
 }
 
+// Same as above but stays on the current page (used by the top-bar user menu).
+export async function setMyLocaleAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const locale = normalizeLocale(formData.get("locale"));
+  await prisma.user.update({ where: { id: user.id }, data: { locale } });
+  revalidatePath("/", "layout");
+}
+
 export async function updateDefaultLocaleAction(formData: FormData): Promise<void> {
   await requirePermission("settings.manage");
   const locale = normalizeLocale(formData.get("locale"));

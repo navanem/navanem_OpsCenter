@@ -1,37 +1,40 @@
-import Link from "next/link";
 import { logoutAction } from "@/app/(auth)/login/actions";
-import { Button } from "@/components/ui/button";
+import { setMyLocaleAction } from "@/app/(app)/settings/language/actions";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
-import { ThemeToggle } from "./theme-toggle";
+import { UserMenu } from "./user-menu";
 
 export function Topbar({
   name,
+  email,
   roleName,
-  t,
+  locale,
+  dict,
 }: {
   name: string;
+  email: string;
   roleName: string;
-  t: Dictionary["topbar"];
+  locale: string;
+  dict: Dictionary;
 }) {
   return (
-    <header className="flex items-center justify-between border-b border-[var(--border)] px-6 py-3">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-[var(--foreground)]">{name}</span>
-        <span className="rounded-full border border-[var(--border)] bg-[var(--muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">
-          {roleName}
-        </span>
-      </div>
-      <div className="flex items-center gap-3">
-        <ThemeToggle labels={{ toLight: t.switchToLight, toDark: t.switchToDark }} />
-        <Link href="/settings/security" className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-          {t.security}
-        </Link>
-        <form action={logoutAction}>
-          <Button variant="outline" type="submit">
-            {t.signOut}
-          </Button>
-        </form>
-      </div>
+    <header className="flex items-center justify-end border-b border-[var(--border)] px-6 py-3">
+      <UserMenu
+        name={name}
+        email={email}
+        roleName={roleName}
+        locale={locale}
+        labels={{
+          account: dict.userMenu.account,
+          language: dict.userMenu.language,
+          theme: dict.userMenu.theme,
+          light: dict.userMenu.light,
+          dark: dict.userMenu.dark,
+          security: dict.topbar.security,
+          signOut: dict.topbar.signOut,
+        }}
+        setLocaleAction={setMyLocaleAction}
+        logoutAction={logoutAction}
+      />
     </header>
   );
 }

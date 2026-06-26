@@ -3,6 +3,15 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.46.0] - 2026-06-27
+
+### Added
+- Starter roles seeded out of the box: Manager (runs operations and the team, no system configuration) and Technician (day-to-day operations, no access to settings) — alongside the full-access Admin.
+- User menu in the top bar: click your avatar to switch language and light/dark theme, open security settings, or sign out.
+
+### Changed
+- Sidebar navigation is now grouped into logical sections (Operations, Customers, System).
+
 ## [0.45.0] - 2026-06-27
 
 ### Changed

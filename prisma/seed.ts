@@ -31,6 +31,51 @@ async function main() {
       },
     });
 
+    // 2b. Starter roles (editable; not system-locked). Created once, then left alone.
+    const byKey = (keys: string[]) =>
+      allPermissions.filter((p) => keys.includes(p.key)).map((p) => ({ id: p.id }));
+
+    const technicianKeys = [
+      "clients.read",
+      "tickets.read", "tickets.manage", "tickets.assign",
+      "projects.read", "projects.manage", "projects.assign",
+      "visits.read", "visits.manage", "visits.assign",
+      "timesheets.read",
+      "contracts.read",
+      "knowledge.read", "knowledge.manage",
+      "devices.read", "devices.manage",
+      "subscriptions.read",
+    ];
+    const managerKeys = [
+      ...technicianKeys,
+      "clients.manage", "clients.assign",
+      "users.read", "users.manage",
+      "roles.read",
+      "timesheets.read.all", "timesheets.approve",
+      "contracts.manage",
+      "subscriptions.manage",
+    ];
+
+    for (const role of [
+      { name: "Manager", description: "Runs operations and the team — no system configuration", keys: managerKeys },
+      { name: "Technician", description: "Day-to-day operations — no access to settings", keys: technicianKeys },
+    ]) {
+      const existingRole = await prisma.role.findUnique({ where: { name: role.name } });
+      if (!existingRole) {
+        await prisma.role.create({
+          data: {
+            name: role.name,
+            description: role.description,
+            isSystem: false,
+            permissions: { connect: byKey(role.keys) },
+          },
+        });
+        console.log(`Created role: ${role.name}`);
+      } else {
+        console.log(`Role already exists: ${role.name}`);
+      }
+    }
+
     // 3. Bootstrap admin user
     const email = process.env.ADMIN_EMAIL ?? "admin@opscenter.local";
     const password = process.env.ADMIN_PASSWORD ?? "ChangeMe123!";
