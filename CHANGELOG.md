@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.25.0] - 2026-06-26
+
+### Added
+- Per-contact client portal permissions: each contact can be allowed (or not) to create tickets and to reply on tickets, set from the contact form. Viewing their company's tickets remains the baseline. The portal hides and enforces these capabilities accordingly.
+
 ## [0.24.0] - 2026-06-26
 
 ### Added
