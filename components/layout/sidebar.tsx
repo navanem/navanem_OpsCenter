@@ -9,6 +9,7 @@ const items: { href: string; label: string; permission?: PermissionKey; flag?: "
   { href: "/projects", label: "Projects", permission: "projects.read" },
   { href: "/planning", label: "Planning", permission: "visits.read" },
   { href: "/contracts", label: "Contracts", permission: "contracts.read", flag: "contracts" },
+  { href: "/knowledge", label: "Knowledge", permission: "knowledge.read" },
   { href: "/timesheets", label: "Timesheets", permission: "timesheets.read", flag: "timesheeting" },
   { href: "/settings", label: "Settings", permission: "settings.manage" },
 ];

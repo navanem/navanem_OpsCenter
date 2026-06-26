@@ -149,6 +149,18 @@ async function main() {
     for (const t of ticketTags) {
       await prisma.ticketTag.upsert({ where: { name: t.name }, update: {}, create: t });
     }
+
+    // 13. Default knowledge base categories
+    const knowledgeCategories = [
+      { name: "How-to", color: "#3b82f6", sortOrder: 1 },
+      { name: "Troubleshooting", color: "#ef4444", sortOrder: 2 },
+      { name: "Tips & tricks", color: "#8b5cf6", sortOrder: 3 },
+      { name: "Policies", color: "#f59e0b", sortOrder: 4 },
+      { name: "Onboarding", color: "#10b981", sortOrder: 5 },
+    ];
+    for (const c of knowledgeCategories) {
+      await prisma.knowledgeCategory.upsert({ where: { name: c.name }, update: {}, create: c });
+    }
   } finally {
     await prisma.$disconnect();
   }

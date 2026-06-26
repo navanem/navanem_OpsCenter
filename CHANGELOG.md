@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.29.0] - 2026-06-26
+
+### Added
+- Knowledge base module: write and maintain internal articles (how-tos, troubleshooting, tips & tricks, policies) with Markdown content, configurable categories (Settings → Taxonomies), draft/published status, and full-text search. Drafts are visible to editors only. RBAC-gated by `knowledge.*` permissions.
+
 ## [0.28.0] - 2026-06-26
 
 ### Added
