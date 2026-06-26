@@ -178,8 +178,10 @@ model Ticket {
   client      Client           @relation(fields: [clientId], references: [id])
   assigneeId  String?
   assignee    User?            @relation("TicketAssignee", fields: [assigneeId], references: [id])
-  createdById String
-  createdBy   User             @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  createdById String?
+  createdBy   User?            @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  createdByContactId String?
+  createdByContact   ClientContact? @relation("TicketCreatedByContact", fields: [createdByContactId], references: [id], onDelete: SetNull)
   comments    TicketComment[]
   activities  TicketActivity[]
   timeEntries TimeEntry[]
@@ -206,8 +208,10 @@ model TicketComment {
   id        String   @id @default(cuid())
   ticketId  String
   ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User     @relation("TicketCommentAuthor", fields: [authorId], references: [id])
+  authorId  String?
+  author    User?    @relation("TicketCommentAuthor", fields: [authorId], references: [id])
+  authorContactId String?
+  authorContact   ClientContact? @relation("TicketCommentAuthorContact", fields: [authorContactId], references: [id], onDelete: SetNull)
   body      String
   createdAt DateTime @default(now())
 }
@@ -258,8 +262,23 @@ model ClientContact {
   isVip         Boolean  @default(false)
   photoData     Bytes?
   photoMimeType String?
+  portalEnabled Boolean  @default(false)
+  passwordHash  String?
+  portalTokens  PortalToken[]
+  createdTickets  Ticket[]        @relation("TicketCreatedByContact")
+  ticketComments  TicketComment[] @relation("TicketCommentAuthorContact")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model PortalToken {
+  id        String    @id @default(cuid())
+  contactId String
+  contact   ClientContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model ClientIndustry {

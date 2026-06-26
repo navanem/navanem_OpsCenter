@@ -5,9 +5,69 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { contactSchema, normalizeContactInput } from "@/lib/validation/contact";
+import { generatePortalToken } from "@/lib/portal/token";
+import { getAppSettings } from "@/lib/settings/service";
+import { isSmtpConfigured, sendMail } from "@/lib/mailer";
 
 export interface ContactFormState {
   error?: string;
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// Enable portal access for a contact and email them a link to set their password.
+export async function grantPortalAccessAction(formData: FormData): Promise<void> {
+  await requirePermission("clients.manage");
+  const id = formData.get("id");
+  const clientId = formData.get("clientId");
+  if (typeof id === "string" && id.length > 0) {
+    const contact = await prisma.clientContact.findUnique({ where: { id } });
+    if (contact && contact.email) {
+      await prisma.clientContact.update({ where: { id }, data: { portalEnabled: true } });
+      const { token, tokenHash } = generatePortalToken();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+      await prisma.portalToken.create({ data: { contactId: id, tokenHash, expiresAt } });
+      const base = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+      const link = `${base}/portal/set-password/${token}`;
+      try {
+        if (await isSmtpConfigured()) {
+          const settings = await getAppSettings();
+          await sendMail({
+            to: contact.email,
+            subject: `Access the ${settings.companyName} client portal`,
+            html: `<p>You have been granted access to the <strong>${escapeHtml(settings.companyName)}</strong> client portal.</p><p><a href="${link}">Set your password</a> (link expires in 24 hours).</p>`,
+            text: `Set your client portal password: ${link} (expires in 24 hours).`,
+          });
+        } else {
+          console.log(`[portal-invite] ${contact.email}: ${link}`);
+        }
+      } catch (e) {
+        console.error("portal invite email failed", e);
+      }
+    }
+  }
+  if (typeof clientId === "string") revalidatePath(`/clients/${clientId}`);
+  redirect(typeof clientId === "string" ? `/clients/${clientId}` : "/clients");
+}
+
+export async function revokePortalAccessAction(formData: FormData): Promise<void> {
+  await requirePermission("clients.manage");
+  const id = formData.get("id");
+  const clientId = formData.get("clientId");
+  if (typeof id === "string" && id.length > 0) {
+    await prisma.clientContact.update({
+      where: { id },
+      data: { portalEnabled: false, passwordHash: null },
+    });
+    await prisma.portalToken.updateMany({
+      where: { contactId: id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+  }
+  if (typeof clientId === "string") revalidatePath(`/clients/${clientId}`);
+  redirect(typeof clientId === "string" ? `/clients/${clientId}` : "/clients");
 }
 
 const ALLOWED_PHOTO_TYPES = ["image/png", "image/jpeg", "image/webp"];

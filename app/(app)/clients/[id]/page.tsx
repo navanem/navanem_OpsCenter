@@ -21,7 +21,7 @@ import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { StatusBadge as ProjectStatusBadge } from "@/components/projects/badges";
 import { VisitStatusBadge, TypeDot } from "@/components/planning/badges";
 import { deleteClientAction } from "../actions";
-import { deleteContactAction } from "./contacts/actions";
+import { deleteContactAction, grantPortalAccessAction, revokePortalAccessAction } from "./contacts/actions";
 
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
@@ -412,6 +412,11 @@ export default async function ClientDetailPage({
                               VIP
                             </span>
                           )}
+                          {c.portalEnabled && (
+                            <span className="bg-[#10b98122] text-[#10b981] rounded-full px-2 py-0.5 text-xs shrink-0">
+                              Portal
+                            </span>
+                          )}
                         </div>
                         {c.jobTitle && (
                           <p className="text-[var(--muted-foreground)] truncate">{c.jobTitle}</p>
@@ -450,6 +455,25 @@ export default async function ClientDetailPage({
                             Delete
                           </button>
                         </form>
+                        {c.email ? (
+                          c.portalEnabled ? (
+                            <form action={revokePortalAccessAction}>
+                              <input type="hidden" name="id" value={c.id} />
+                              <input type="hidden" name="clientId" value={id} />
+                              <button type="submit" className="text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors">
+                                Revoke portal
+                              </button>
+                            </form>
+                          ) : (
+                            <form action={grantPortalAccessAction}>
+                              <input type="hidden" name="id" value={c.id} />
+                              <input type="hidden" name="clientId" value={id} />
+                              <button type="submit" className="text-xs text-[var(--primary)] hover:underline transition-colors">
+                                Grant portal
+                              </button>
+                            </form>
+                          )
+                        ) : null}
                       </div>
                     )}
                   </div>

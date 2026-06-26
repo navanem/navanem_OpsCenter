@@ -1,0 +1,30 @@
+import { requireContact } from "@/lib/portal/current-contact";
+import { getAppSettings } from "@/lib/settings/service";
+import { portalSignOutAction } from "./actions";
+
+export default async function PortalDashboardLayout({ children }: { children: React.ReactNode }) {
+  const [contact, settings] = await Promise.all([requireContact(), getAppSettings()]);
+
+  return (
+    <div className="min-h-screen">
+      <header className="border-b border-[var(--border)] bg-[var(--card)]">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
+          <span className="font-semibold tracking-tight">
+            {settings.companyName} <span className="text-[var(--muted-foreground)] font-normal">· Client portal</span>
+          </span>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-[var(--muted-foreground)]">
+              {contact.firstName} {contact.lastName} · {contact.clientName}
+            </span>
+            <form action={portalSignOutAction}>
+              <button type="submit" className="rounded-[var(--radius)] border border-[var(--border)] px-3 py-1.5 hover:bg-[var(--muted)]">
+                Sign out
+              </button>
+            </form>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-4xl space-y-6 p-6">{children}</main>
+    </div>
+  );
+}

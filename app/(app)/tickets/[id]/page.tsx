@@ -145,9 +145,9 @@ export default async function TicketDetailPage({
               ) : (
                 <div className="space-y-4">
                   {ticket.comments.map((comment) => {
+                    const who = comment.author ?? comment.authorContact;
                     const initials = (
-                      (comment.author.firstName?.[0] ?? "") +
-                      (comment.author.lastName?.[0] ?? "")
+                      (who?.firstName?.[0] ?? "") + (who?.lastName?.[0] ?? "")
                     ).toUpperCase();
                     return (
                       <div key={comment.id} className="flex gap-3">
@@ -157,7 +157,10 @@ export default async function TicketDetailPage({
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">
-                              {comment.author.firstName} {comment.author.lastName}
+                              {who ? `${who.firstName} ${who.lastName}` : "Unknown"}
+                              {comment.authorContact ? (
+                                <span className="ml-1.5 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">client</span>
+                              ) : null}
                             </span>
                             <span className="text-xs text-[var(--muted-foreground)]">
                               {comment.createdAt.toLocaleString()}
@@ -197,7 +200,11 @@ export default async function TicketDetailPage({
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[var(--muted-foreground)]">Created by</span>
                   <span className="font-medium">
-                    {ticket.createdBy.firstName} {ticket.createdBy.lastName}
+                    {ticket.createdBy
+                      ? `${ticket.createdBy.firstName} ${ticket.createdBy.lastName}`
+                      : ticket.createdByContact
+                        ? `${ticket.createdByContact.firstName} ${ticket.createdByContact.lastName} (client)`
+                        : "—"}
                   </span>
                 </div>
                 <div className="flex flex-col gap-0.5">
