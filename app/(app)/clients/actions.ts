@@ -5,9 +5,37 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { clientSchema, normalizeClientInput } from "@/lib/validation/client";
+import { parseClientsCsv } from "@/lib/clients/import";
 
 export interface ClientFormState {
   error?: string;
+}
+
+export interface ClientImportState {
+  error?: string;
+  imported?: number;
+  errors?: { line: number; message: string }[];
+}
+
+export async function importClientsAction(
+  _prev: ClientImportState,
+  formData: FormData,
+): Promise<ClientImportState> {
+  await requirePermission("clients.manage");
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Please choose a CSV file to import." };
+  }
+  const text = await file.text();
+  const { valid, errors } = parseClientsCsv(text);
+  if (valid.length === 0) {
+    return { error: "No valid rows to import.", errors };
+  }
+  await prisma.client.createMany({
+    data: valid.map((c) => ({ companyName: c.companyName, domain: c.domain, status: c.status })),
+  });
+  revalidatePath("/clients");
+  return { imported: valid.length, errors };
 }
 
 function parseForm(formData: FormData) {

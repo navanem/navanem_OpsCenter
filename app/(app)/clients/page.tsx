@@ -51,9 +51,14 @@ export default async function ClientsPage({
             <Button variant="outline">Export CSV</Button>
           </a>
           {can(user, "clients.manage") ? (
-            <Link href="/clients/new">
-              <Button>New client</Button>
-            </Link>
+            <>
+              <Link href="/clients/import">
+                <Button variant="outline">Import CSV</Button>
+              </Link>
+              <Link href="/clients/new">
+                <Button>New client</Button>
+              </Link>
+            </>
           ) : null}
         </div>
       </div>
