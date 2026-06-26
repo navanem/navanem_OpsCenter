@@ -3,6 +3,14 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.12.0] - 2026-06-26
+
+### Added
+- Planning & dispatch: schedule visits (e.g. client support, office support) for technicians, shown on a week calendar.
+- Recurring visit templates (daily/weekly/monthly) that generate dated visit occurrences you can reschedule, complete, or cancel individually.
+- Configurable visit types (managed in Settings → Taxonomies).
+- New RBAC permissions: `visits.read`, `visits.manage`, `visits.assign`.
+
 ## [0.11.0] - 2026-06-26
 
 ### Added
