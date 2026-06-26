@@ -7,6 +7,7 @@ import { listTechnicians } from "@/lib/users/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { TimeLogSection } from "@/components/timesheets/time-log-section";
 import { VisitForm } from "../../../visit-form";
 import {
   updateVisitAction,
@@ -95,6 +96,11 @@ export default async function EditVisitPage({
           </form>
         </CardContent>
       </Card>
+
+      <TimeLogSection
+        context={{ visitId: visit.id, label: `Linked to visit "${visit.title}"` }}
+        redirectTo={`/planning/visits/${visit.id}/edit`}
+      />
     </div>
   );
 }

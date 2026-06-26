@@ -13,6 +13,7 @@ import { StatusBadge, PriorityBadge, CategoryBadge } from "@/components/tickets/
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { TimeLogSection } from "@/components/timesheets/time-log-section";
 import {
   updateStatusAction,
   updatePriorityAction,
@@ -299,6 +300,11 @@ export default async function TicketDetailPage({
               )}
             </CardContent>
           </Card>
+
+          <TimeLogSection
+            context={{ ticketId: ticket.id, label: `Linked to ${formatTicketReference(ticket.number)}` }}
+            redirectTo={`/tickets/${ticket.id}`}
+          />
         </div>
       </div>
     </div>
