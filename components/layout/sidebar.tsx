@@ -7,6 +7,7 @@ const items: { href: string; label: string; permission?: PermissionKey }[] = [
   { href: "/clients", label: "Clients", permission: "clients.read" },
   { href: "/tickets", label: "Tickets", permission: "tickets.read" },
   { href: "/projects", label: "Projects", permission: "projects.read" },
+  { href: "/planning", label: "Planning", permission: "visits.read" },
   { href: "/settings", label: "Settings", permission: "settings.manage" },
 ];
 
