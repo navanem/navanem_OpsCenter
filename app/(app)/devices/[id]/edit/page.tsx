@@ -1,10 +1,13 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guard";
+import { can } from "@/lib/rbac/can";
 import { isDevicesEnabled } from "@/lib/settings/service";
-import { getDevice } from "@/lib/devices/queries";
+import { getDevice, listDeviceTickets } from "@/lib/devices/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listDeviceTypes, listDeviceStatuses } from "@/lib/taxonomies/queries";
 import { formatDeviceReference } from "@/lib/devices/meta";
+import { formatTicketReference, TICKET_STATUS_META, type TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -12,14 +15,16 @@ import { DeviceForm } from "../../device-form";
 import { updateDeviceAction, deleteDeviceAction } from "../../actions";
 
 export default async function EditDevicePage({ params }: { params: Promise<{ id: string }> }) {
-  await requirePermission("devices.manage");
+  const user = await requirePermission("devices.manage");
   if (!(await isDevicesEnabled())) notFound();
   const { id } = await params;
-  const [device, clients, types, statuses] = await Promise.all([
+  const canReadTickets = can(user, "tickets.read");
+  const [device, clients, types, statuses, tickets] = await Promise.all([
     getDevice(id),
     listClients({}),
     listDeviceTypes({ activeOnly: true }),
     listDeviceStatuses({ activeOnly: true }),
+    canReadTickets ? listDeviceTickets(id) : Promise.resolve([]),
   ]);
   if (!device) notFound();
 
@@ -55,6 +60,39 @@ export default async function EditDevicePage({ params }: { params: Promise<{ id:
           />
         </CardContent>
       </Card>
+
+      {canReadTickets ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              Related tickets{" "}
+              <span className="text-sm font-normal text-[var(--muted-foreground)]">({tickets.length})</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {tickets.length === 0 ? (
+              <p className="text-[var(--muted-foreground)]">No tickets linked to this device.</p>
+            ) : (
+              <div>
+                {tickets.map((t) => {
+                  const m = TICKET_STATUS_META[t.status as TicketStatusKey];
+                  return (
+                    <div key={t.id} className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0">
+                      <Link href={`/tickets/${t.id}`} className="flex items-center gap-2 min-w-0 hover:underline">
+                        <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">{formatTicketReference(t.number)}</span>
+                        <span className="truncate">{t.subject}</span>
+                      </Link>
+                      <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium shrink-0" style={{ backgroundColor: `${m.color}22`, color: m.color }}>
+                        {m.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader><CardTitle>Danger zone</CardTitle></CardHeader>

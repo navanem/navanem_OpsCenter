@@ -193,6 +193,8 @@ model Ticket {
   timeEntries TimeEntry[]
   timeTimers  TimeTimer[]
   tags        TicketTag[]
+  deviceId    String?
+  device      Device?          @relation(fields: [deviceId], references: [id], onDelete: SetNull)
   dueAt       DateTime?
   closedAt    DateTime?
   createdAt   DateTime         @default(now())
@@ -613,6 +615,7 @@ model Device {
   purchaseDate   DateTime?
   warrantyExpiry DateTime?
   notes          String?
+  tickets        Ticket[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 

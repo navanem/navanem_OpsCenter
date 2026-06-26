@@ -31,6 +31,15 @@ export function getDevice(id: string) {
   return prisma.device.findUnique({ where: { id }, include });
 }
 
+export function listDeviceTickets(deviceId: string) {
+  return prisma.ticket.findMany({
+    where: { deviceId },
+    select: { id: true, number: true, subject: true, status: true },
+    orderBy: { updatedAt: "desc" },
+    take: 20,
+  });
+}
+
 export function listClientDevices(clientId: string) {
   return prisma.device.findMany({
     where: { clientId },

@@ -1,9 +1,13 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getTicket } from "@/lib/tickets/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { listTicketPriorities, listTicketTags } from "@/lib/taxonomies/queries";
+import { isDevicesEnabled } from "@/lib/settings/service";
+import { listClientDevices } from "@/lib/devices/queries";
+import { formatDeviceReference } from "@/lib/devices/meta";
 import {
   TICKET_STATUS_META,
   TICKET_STATUSES,
@@ -21,6 +25,7 @@ import {
   assignTicketAction,
   updateDueDateAction,
   updateTicketTagsAction,
+  updateTicketDeviceAction,
 } from "../actions";
 
 function toLocalDateTime(d: Date | string | null | undefined): string {
@@ -89,6 +94,8 @@ export default async function TicketDetailPage({
 
   const canManage = can(user, "tickets.manage");
   const canAssign = can(user, "tickets.assign");
+  const devicesEnabled = (await isDevicesEnabled()) && can(user, "devices.read");
+  const clientDevices = devicesEnabled ? await listClientDevices(ticket.client.id) : [];
 
   return (
     <div className="space-y-6">
@@ -236,6 +243,19 @@ export default async function TicketDetailPage({
                     ) : null}
                   </span>
                 </div>
+                {devicesEnabled ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[var(--muted-foreground)]">Device</span>
+                    {ticket.device ? (
+                      <Link href={`/devices/${ticket.device.id}/edit`} className="font-medium hover:underline">
+                        <span className="font-mono text-xs text-[var(--muted-foreground)]">{formatDeviceReference(ticket.device.number)}</span>{" "}
+                        {ticket.device.name}
+                      </Link>
+                    ) : (
+                      <span className="text-[var(--muted-foreground)]">None</span>
+                    )}
+                  </div>
+                ) : null}
                 <div className="flex flex-col gap-1">
                   <span className="text-[var(--muted-foreground)]">Tags</span>
                   {ticket.tags.length > 0 ? (
@@ -314,6 +334,23 @@ export default async function TicketDetailPage({
                       Update due date
                     </Button>
                   </form>
+
+                  {/* Device */}
+                  {devicesEnabled ? (
+                    <form action={updateTicketDeviceAction} className="flex flex-col gap-2">
+                      <input type="hidden" name="id" value={ticket.id} />
+                      <label className="text-xs font-medium text-[var(--muted-foreground)]">Device</label>
+                      <select name="deviceId" defaultValue={ticket.deviceId ?? ""} className={selectClass}>
+                        <option value="">None</option>
+                        {clientDevices.map((d) => (
+                          <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                      </select>
+                      <Button type="submit" variant="outline" className="self-start">
+                        Update device
+                      </Button>
+                    </form>
+                  ) : null}
 
                   {/* Tags */}
                   {allTags.length > 0 ? (
