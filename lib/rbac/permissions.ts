@@ -13,6 +13,9 @@ export const PERMISSIONS = {
   "projects.read": { label: "View projects", group: "Projects" },
   "projects.manage": { label: "Manage projects", group: "Projects" },
   "projects.assign": { label: "Assign project tasks", group: "Projects" },
+  "visits.read": { label: "View planning", group: "Planning" },
+  "visits.manage": { label: "Manage visits", group: "Planning" },
+  "visits.assign": { label: "Assign visits", group: "Planning" },
 } as const;
 
 export type PermissionKey = keyof typeof PERMISSIONS;
