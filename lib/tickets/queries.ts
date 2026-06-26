@@ -16,10 +16,13 @@ export function listTickets(filters: TicketFilters) {
 }
 
 export async function getTicketStats() {
-  const [byStatus, unassignedOpen, total] = await Promise.all([
+  const [byStatus, unassignedOpen, overdue, total] = await Promise.all([
     prisma.ticket.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.ticket.count({
       where: { assigneeId: null, status: { in: ["OPEN", "IN_PROGRESS", "PENDING"] } },
+    }),
+    prisma.ticket.count({
+      where: { dueAt: { lt: new Date() }, status: { in: ["OPEN", "IN_PROGRESS", "PENDING"] } },
     }),
     prisma.ticket.count(),
   ]);
@@ -30,6 +33,7 @@ export async function getTicketStats() {
     open,
     inProgress: map.IN_PROGRESS ?? 0,
     unassignedOpen,
+    overdue,
     total,
   };
 }

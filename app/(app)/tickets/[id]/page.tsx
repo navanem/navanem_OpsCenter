@@ -8,6 +8,7 @@ import {
   TICKET_STATUS_META,
   TICKET_STATUSES,
   formatTicketReference,
+  isTicketOverdue,
 } from "@/lib/tickets/meta";
 import { StatusBadge, PriorityBadge, CategoryBadge } from "@/components/tickets/badges";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -18,7 +19,16 @@ import {
   updateStatusAction,
   updatePriorityAction,
   assignTicketAction,
+  updateDueDateAction,
 } from "../actions";
+
+function toLocalDateTime(d: Date | string | null | undefined): string {
+  if (!d) return "";
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return "";
+  const p = (n: number) => `${n}`.padStart(2, "0");
+  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}`;
+}
 import { CommentForm } from "./comment-form";
 
 const selectClass =
@@ -204,6 +214,17 @@ export default async function TicketDetailPage({
                       : "Unassigned"}
                   </span>
                 </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[var(--muted-foreground)]">Due date</span>
+                  <span className="flex items-center gap-2 font-medium">
+                    {ticket.dueAt ? new Date(ticket.dueAt).toLocaleString() : "—"}
+                    {isTicketOverdue(ticket.dueAt, ticket.status) ? (
+                      <span className="rounded-full bg-[#ef444422] px-2 py-0.5 text-xs font-medium text-[#ef4444]">
+                        Overdue
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
               </div>
 
               {canManage && (
@@ -249,6 +270,23 @@ export default async function TicketDetailPage({
                     </select>
                     <Button type="submit" variant="outline" className="self-start">
                       Update priority
+                    </Button>
+                  </form>
+
+                  {/* Due date */}
+                  <form action={updateDueDateAction} className="flex flex-col gap-2">
+                    <input type="hidden" name="id" value={ticket.id} />
+                    <label className="text-xs font-medium text-[var(--muted-foreground)]">
+                      Due date
+                    </label>
+                    <input
+                      type="datetime-local"
+                      name="dueAt"
+                      defaultValue={toLocalDateTime(ticket.dueAt)}
+                      className={selectClass}
+                    />
+                    <Button type="submit" variant="outline" className="self-start">
+                      Update due date
                     </Button>
                   </form>
                 </div>

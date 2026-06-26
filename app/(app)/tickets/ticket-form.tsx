@@ -106,6 +106,13 @@ export function TicketForm({ clients, technicians, categories, priorities }: Tic
             ))}
           </select>
         </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="dueAt" className="text-sm text-[var(--muted-foreground)]">
+            Due date
+          </label>
+          <input id="dueAt" name="dueAt" type="datetime-local" className={inputClass} />
+        </div>
       </div>
 
       {state.error ? (

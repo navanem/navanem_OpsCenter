@@ -173,6 +173,7 @@ model Ticket {
   activities  TicketActivity[]
   timeEntries TimeEntry[]
   timeTimers  TimeTimer[]
+  dueAt       DateTime?
   closedAt    DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt

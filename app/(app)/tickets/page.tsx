@@ -5,7 +5,7 @@ import { listTickets, getTicketStats } from "@/lib/tickets/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { listTicketCategories, listTicketPriorities } from "@/lib/taxonomies/queries";
-import { formatTicketReference } from "@/lib/tickets/meta";
+import { formatTicketReference, isTicketOverdue } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
 
   const kpis = [
     { label: "Open", value: ticketStats.open },
-    { label: "In progress", value: ticketStats.inProgress },
+    { label: "Overdue", value: ticketStats.overdue },
     { label: "Unassigned (open)", value: ticketStats.unassignedOpen },
     { label: "Total tickets", value: ticketStats.total },
   ];
@@ -85,6 +85,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
                 <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
                 <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Priority</th>
                 <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Due</th>
                 <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Assignee</th>
               </tr>
             </thead>
@@ -100,6 +101,15 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">{t.client.companyName}</td>
                   <td className="px-6 py-3"><PriorityBadge name={t.priority.name} color={t.priority.color} /></td>
                   <td className="px-6 py-3"><StatusBadge status={t.status as TicketStatusKey} /></td>
+                  <td className="px-6 py-3 text-[var(--muted-foreground)]">
+                    {t.dueAt ? (
+                      <span className={isTicketOverdue(t.dueAt, t.status) ? "font-medium text-[#ef4444]" : ""}>
+                        {new Date(t.dueAt).toLocaleDateString()}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">
                     {t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : "Unassigned"}
                   </td>

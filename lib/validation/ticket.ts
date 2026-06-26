@@ -7,6 +7,7 @@ export const ticketSchema = z.object({
   categoryId: z.string().trim().min(1, "Category is required"),
   priorityId: z.string().trim().min(1, "Priority is required"),
   assigneeId: z.string().trim().optional().or(z.literal("")),
+  dueAt: z.string().trim().optional().or(z.literal("")),
 });
 
 export type TicketInput = z.infer<typeof ticketSchema>;

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { ticketSchema, commentSchema } from "@/lib/validation/ticket";
+import { notifyTicketEvent } from "@/lib/tickets/notify";
 
 type TicketStatus = "OPEN" | "IN_PROGRESS" | "PENDING" | "RESOLVED" | "CLOSED";
 const STATUSES: TicketStatus[] = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
@@ -28,6 +29,7 @@ export async function createTicketAction(
     categoryId: formData.get("categoryId"),
     priorityId: formData.get("priorityId"),
     assigneeId: formData.get("assigneeId"),
+    dueAt: formData.get("dueAt"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
@@ -43,6 +45,8 @@ export async function createTicketAction(
     parsed.data.assigneeId && parsed.data.assigneeId.length > 0
       ? parsed.data.assigneeId
       : null;
+  const due = parsed.data.dueAt ? new Date(parsed.data.dueAt) : null;
+  const dueAt = due && !isNaN(due.getTime()) ? due : null;
   const ticket = await prisma.ticket.create({
     data: {
       subject: parsed.data.subject,
@@ -51,6 +55,7 @@ export async function createTicketAction(
       categoryId: parsed.data.categoryId,
       priorityId: parsed.data.priorityId,
       assigneeId,
+      dueAt,
       createdById: user.id,
       activities: { create: { type: "CREATED", actorId: user.id } },
     },
@@ -85,6 +90,7 @@ export async function moveTicketAction(
       },
     }),
   ]);
+  await notifyTicketEvent({ ticketId, event: "status_changed", actorId: user.id, toStatus: status });
   revalidatePath("/tickets");
   revalidatePath(`/tickets/${ticketId}`);
 }
@@ -139,6 +145,23 @@ export async function updatePriorityAction(formData: FormData): Promise<void> {
   redirect(`/tickets/${typeof id === "string" ? id : ""}`);
 }
 
+export async function updateDueDateAction(formData: FormData): Promise<void> {
+  await requirePermission("tickets.manage");
+  const id = formData.get("id");
+  const dueRaw = formData.get("dueAt");
+  if (typeof id === "string" && id.length > 0) {
+    let dueAt: Date | null = null;
+    if (typeof dueRaw === "string" && dueRaw.length > 0) {
+      const d = new Date(dueRaw);
+      dueAt = isNaN(d.getTime()) ? null : d;
+    }
+    await prisma.ticket.update({ where: { id }, data: { dueAt } });
+    revalidatePath(`/tickets/${id}`);
+    revalidatePath("/tickets");
+  }
+  redirect(`/tickets/${typeof id === "string" ? id : ""}`);
+}
+
 export async function assignTicketAction(formData: FormData): Promise<void> {
   const user = await requirePermission("tickets.assign");
   const id = formData.get("id");
@@ -162,6 +185,9 @@ export async function assignTicketAction(formData: FormData): Promise<void> {
           },
         }),
       ]);
+      if (assigneeId) {
+        await notifyTicketEvent({ ticketId: id, event: "assigned", actorId: user.id });
+      }
     }
   }
   redirect(`/tickets/${typeof id === "string" ? id : ""}`);
@@ -188,6 +214,7 @@ export async function addCommentAction(
       data: { ticketId: id, actorId: user.id, type: "COMMENTED" },
     }),
   ]);
+  await notifyTicketEvent({ ticketId: id, event: "commented", actorId: user.id });
   revalidatePath(`/tickets/${id}`);
   return {};
 }
