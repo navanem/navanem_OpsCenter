@@ -4,13 +4,18 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getClient } from "@/lib/clients/queries";
 import { listTickets } from "@/lib/tickets/queries";
+import { listProjects } from "@/lib/projects/queries";
+import { listClientVisits } from "@/lib/planning/queries";
 import { listClientContacts } from "@/lib/contacts/queries";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
+import { formatProjectReference } from "@/lib/projects/meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
+import { StatusBadge as ProjectStatusBadge } from "@/components/projects/badges";
+import { VisitStatusBadge, TypeDot } from "@/components/planning/badges";
 import { deleteClientAction } from "../actions";
 import { deleteContactAction } from "./contacts/actions";
 
@@ -36,6 +41,8 @@ export default async function ClientDetailPage({
   const manage = can(user, "clients.manage");
   const canReadTickets = can(user, "tickets.read");
   const canManageTickets = can(user, "tickets.manage");
+  const canReadProjects = can(user, "projects.read");
+  const canReadVisits = can(user, "visits.read");
 
   const technician = client.assignedTechnician
     ? `${client.assignedTechnician.firstName} ${client.assignedTechnician.lastName}`
@@ -54,7 +61,13 @@ export default async function ClientDetailPage({
     );
   }
 
-  const contacts = await listClientContacts(id);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [projects, upcomingVisits, contacts] = await Promise.all([
+    canReadProjects ? listProjects({ clientId: id }) : Promise.resolve([]),
+    canReadVisits ? listClientVisits(id, { from: today, take: 10 }) : Promise.resolve([]),
+    listClientContacts(id),
+  ]);
 
   const detailsCard = (
     <Card>
@@ -191,6 +204,109 @@ export default async function ClientDetailPage({
       ) : (
         detailsCard
       )}
+
+      {canReadProjects ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                Projects{" "}
+                <span className="text-[var(--muted-foreground)] font-normal text-sm">
+                  ({projects.length})
+                </span>
+              </CardTitle>
+              {can(user, "projects.manage") && (
+                <Link href="/projects/new">
+                  <Button variant="outline">New project</Button>
+                </Link>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {projects.length === 0 ? (
+              <p className="text-[var(--muted-foreground)]">No projects.</p>
+            ) : (
+              <div>
+                {projects.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">
+                        {formatProjectReference(p.number)}
+                      </span>
+                      <Link href={`/projects/${p.id}`} className="font-medium hover:underline truncate">
+                        {p.name}
+                      </Link>
+                      <span className="text-xs text-[var(--muted-foreground)] shrink-0">
+                        {p._count.tasks} task{p._count.tasks === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                      <span className="text-xs text-[var(--muted-foreground)]">
+                        {p.lead ? `${p.lead.firstName} ${p.lead.lastName}` : "No lead"}
+                      </span>
+                      <ProjectStatusBadge name={p.status.name} color={p.status.color} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {canReadVisits ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                Upcoming visits{" "}
+                <span className="text-[var(--muted-foreground)] font-normal text-sm">
+                  ({upcomingVisits.length})
+                </span>
+              </CardTitle>
+              {can(user, "visits.manage") && (
+                <Link href="/planning/visits/new">
+                  <Button variant="outline">New visit</Button>
+                </Link>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {upcomingVisits.length === 0 ? (
+              <p className="text-[var(--muted-foreground)]">No upcoming visits.</p>
+            ) : (
+              <div>
+                {upcomingVisits.map((v) => (
+                  <div
+                    key={v.id}
+                    className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">
+                        {new Date(v.scheduledAt).toLocaleDateString()}{" "}
+                        {new Date(v.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}
+                      </span>
+                      <Link href={`/planning/visits/${v.id}/edit`} className="flex items-center gap-1.5 font-medium hover:underline truncate">
+                        <TypeDot color={v.type.color ?? "#6b7280"} />
+                        {v.title}
+                      </Link>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                      <span className="text-xs text-[var(--muted-foreground)]">
+                        {v.assignee ? `${v.assignee.firstName} ${v.assignee.lastName}` : "Unassigned"}
+                      </span>
+                      <VisitStatusBadge status={v.status} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

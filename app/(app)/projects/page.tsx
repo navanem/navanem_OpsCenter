@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
-import { listProjects } from "@/lib/projects/queries";
+import { listProjects, getProjectStats } from "@/lib/projects/queries";
 import { listProjectStatuses } from "@/lib/taxonomies/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { formatProjectReference } from "@/lib/projects/meta";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge } from "@/components/projects/badges";
 import { ProjectsFilters } from "./projects-filters";
@@ -18,7 +18,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const user = await requirePermission("projects.read");
   const sp = await searchParams;
 
-  const [projects, statuses, clients, technicians] = await Promise.all([
+  const [projects, statuses, clients, technicians, stats] = await Promise.all([
     listProjects({
       search: sp.search,
       statusId: sp.statusId,
@@ -28,7 +28,15 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
     listProjectStatuses({ activeOnly: true }),
     listClients({}),
     listTechnicians(),
+    getProjectStats(),
   ]);
+
+  const kpis = [
+    { label: "Total projects", value: stats.total },
+    { label: "Tasks", value: stats.taskCount },
+    { label: "No lead", value: stats.withoutLead },
+    { label: "Overdue", value: stats.overdue },
+  ];
 
   return (
     <div className="space-y-6">
@@ -40,6 +48,17 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             <Button>New project</Button>
           </Link>
         ) : null}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((k) => (
+          <Card key={k.label}>
+            <CardContent>
+              <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
+              <p className="mt-1 text-3xl font-semibold">{k.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <ProjectsFilters
