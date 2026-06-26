@@ -114,6 +114,29 @@ async function main() {
     for (const t of visitTypes) {
       await prisma.visitType.upsert({ where: { name: t.name }, update: {}, create: t });
     }
+
+    // 10. Default contract types (with default hourly rates, in cents)
+    const contractTypes = [
+      { name: "Support", color: "#3b82f6", sortOrder: 1, defaultHourlyRateCents: 12000 },
+      { name: "Maintenance", color: "#10b981", sortOrder: 2, defaultHourlyRateCents: 11000 },
+      { name: "Infogérance", color: "#8b5cf6", sortOrder: 3, defaultHourlyRateCents: 14000 },
+      { name: "Project", color: "#f59e0b", sortOrder: 4, defaultHourlyRateCents: 15000 },
+      { name: "Other", color: "#6b7280", sortOrder: 5, defaultHourlyRateCents: null },
+    ];
+    for (const t of contractTypes) {
+      await prisma.contractType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
+
+    // 11. Default contract statuses
+    const contractStatuses = [
+      { name: "Draft", color: "#6b7280", sortOrder: 1 },
+      { name: "Active", color: "#10b981", sortOrder: 2 },
+      { name: "Expired", color: "#f59e0b", sortOrder: 3 },
+      { name: "Cancelled", color: "#ef4444", sortOrder: 4 },
+    ];
+    for (const s of contractStatuses) {
+      await prisma.contractStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }
