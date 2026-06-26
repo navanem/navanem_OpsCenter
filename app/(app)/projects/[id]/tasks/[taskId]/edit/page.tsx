@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guard";
-import { getProject } from "@/lib/projects/queries";
-import { getProjectTask } from "@/lib/projects/queries";
+import { getProject, getProjectTask } from "@/lib/projects/queries";
 import { listProjectTaskStatuses } from "@/lib/taxonomies/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
