@@ -50,3 +50,15 @@ export function invitationEmail(opts: { link: string; companyName: string }): {
   const html = `<p>You have been invited to <strong>${safeName}</strong>.</p><p><a href="${opts.link}">Set up your account</a></p>`;
   return { subject, html, text };
 }
+
+export function passwordResetEmail(opts: { link: string; companyName: string }): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const subject = `Reset your ${opts.companyName} password`;
+  const text = `Reset your password: ${opts.link}\nThis link expires in 1 hour. If you did not request this, ignore this email.`;
+  const safeName = escapeHtml(opts.companyName);
+  const html = `<p>A password reset was requested for your <strong>${safeName}</strong> account.</p><p><a href="${opts.link}">Reset your password</a></p><p>This link expires in 1 hour. If you did not request this, you can safely ignore this email.</p>`;
+  return { subject, html, text };
+}

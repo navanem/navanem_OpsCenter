@@ -14,5 +14,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Protect everything except the login route, Next internals, and static assets.
-  matcher: ["/((?!login(?:$|/)|invite(?:$|/)|_next/static|_next/image|favicon.ico|.*\\.svg).*)"],
+  matcher: ["/((?!login(?:$|/)|invite(?:$|/)|forgot-password(?:$|/)|reset-password(?:$|/)|_next/static|_next/image|favicon.ico|.*\\.svg).*)"],
 };
