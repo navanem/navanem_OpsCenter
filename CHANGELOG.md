@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.34.0] - 2026-06-26
+
+### Added
+- Admins can require two-factor authentication for all users (Settings → Security → Organization policy). When on, anyone without 2FA is sent to a setup screen before they can use the app; backup codes ensure no one is locked out.
+
 ## [0.33.0] - 2026-06-26
 
 ### Added
