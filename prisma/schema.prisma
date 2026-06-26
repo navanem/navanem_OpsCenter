@@ -48,14 +48,16 @@ model User {
   status           UserStatus       @default(INVITED)
   roleId           String
   role             Role             @relation(fields: [roleId], references: [id])
-  assignedClients  Client[]
-  invitations      Invitation[]
-  assignedTickets  Ticket[]         @relation("TicketAssignee")
-  createdTickets   Ticket[]         @relation("TicketCreatedBy")
-  ticketComments   TicketComment[]  @relation("TicketCommentAuthor")
-  ticketActivities TicketActivity[] @relation("TicketActivityActor")
-  ledProjects      Project[]        @relation("ProjectLead")
-  assignedTasks    ProjectTask[]    @relation("ProjectTaskAssignee")
+  assignedClients          Client[]
+  invitations              Invitation[]
+  assignedTickets          Ticket[]         @relation("TicketAssignee")
+  createdTickets           Ticket[]         @relation("TicketCreatedBy")
+  ticketComments           TicketComment[]  @relation("TicketCommentAuthor")
+  ticketActivities         TicketActivity[] @relation("TicketActivityActor")
+  ledProjects              Project[]        @relation("ProjectLead")
+  assignedTasks            ProjectTask[]    @relation("ProjectTaskAssignee")
+  assignedVisits           Visit[]          @relation("VisitAssignee")
+  assignedRecurringVisits  RecurringVisit[] @relation("RecurringVisitAssignee")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -85,6 +87,8 @@ model Client {
   tickets              Ticket[]
   contacts             ClientContact[]
   projects             Project[]
+  visits               Visit[]
+  recurringVisits      RecurringVisit[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -295,4 +299,74 @@ model ProjectTask {
   sortOrder   Int               @default(0)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+}
+
+enum VisitStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model VisitType {
+  id              String           @id @default(cuid())
+  name            String           @unique
+  color           String           @default("#6b7280")
+  sortOrder       Int              @default(0)
+  isActive        Boolean          @default(true)
+  visits          Visit[]
+  recurringVisits RecurringVisit[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model RecurringVisit {
+  id              String              @id @default(cuid())
+  title           String
+  description     String?
+  typeId          String
+  type            VisitType           @relation(fields: [typeId], references: [id])
+  clientId        String?
+  client          Client?             @relation(fields: [clientId], references: [id])
+  assigneeId      String?
+  assignee        User?               @relation("RecurringVisitAssignee", fields: [assigneeId], references: [id])
+  location        String?
+  durationMinutes Int                 @default(60)
+  frequency       RecurrenceFrequency
+  interval        Int                 @default(1)
+  weekdays        Int[]
+  startDate       DateTime
+  endDate         DateTime?
+  timeHour        Int                 @default(9)
+  timeMinute      Int                 @default(0)
+  isActive        Boolean             @default(true)
+  visits          Visit[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model Visit {
+  id               String          @id @default(cuid())
+  title            String
+  description      String?
+  typeId           String
+  type             VisitType       @relation(fields: [typeId], references: [id])
+  clientId         String?
+  client           Client?         @relation(fields: [clientId], references: [id])
+  assigneeId       String?
+  assignee         User?           @relation("VisitAssignee", fields: [assigneeId], references: [id])
+  location         String?
+  scheduledAt      DateTime
+  durationMinutes  Int             @default(60)
+  status           VisitStatus     @default(SCHEDULED)
+  notes            String?
+  recurringVisitId String?
+  recurringVisit   RecurringVisit? @relation(fields: [recurringVisitId], references: [id], onDelete: SetNull)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
