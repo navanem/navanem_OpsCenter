@@ -13,6 +13,7 @@ const TABS = [
   { key: "task-status", label: "Task statuses" },
   { key: "visit-type", label: "Visit types" },
   { key: "contract-status", label: "Contract statuses" },
+  { key: "tag", label: "Ticket tags" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -25,6 +26,7 @@ export function TaxonomyTabs({
   taskStatuses,
   visitTypes,
   contractStatuses,
+  tags,
 }: {
   categories: Item[];
   priorities: Item[];
@@ -33,6 +35,7 @@ export function TaxonomyTabs({
   taskStatuses: Item[];
   visitTypes: Item[];
   contractStatuses: Item[];
+  tags: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
@@ -74,6 +77,9 @@ export function TaxonomyTabs({
       ) : null}
       {tab === "contract-status" ? (
         <TaxonomyManager kind="contract-status" title="Contract statuses" items={contractStatuses} />
+      ) : null}
+      {tab === "tag" ? (
+        <TaxonomyManager kind="tag" title="Ticket tags" items={tags} />
       ) : null}
     </div>
   );

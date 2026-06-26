@@ -3,7 +3,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getTicket } from "@/lib/tickets/queries";
 import { listTechnicians } from "@/lib/users/queries";
-import { listTicketPriorities } from "@/lib/taxonomies/queries";
+import { listTicketPriorities, listTicketTags } from "@/lib/taxonomies/queries";
 import {
   TICKET_STATUS_META,
   TICKET_STATUSES,
@@ -20,6 +20,7 @@ import {
   updatePriorityAction,
   assignTicketAction,
   updateDueDateAction,
+  updateTicketTagsAction,
 } from "../actions";
 
 function toLocalDateTime(d: Date | string | null | undefined): string {
@@ -76,12 +77,15 @@ export default async function TicketDetailPage({
 }) {
   const user = await requirePermission("tickets.read");
   const { id } = await params;
-  const [ticket, technicians, priorities] = await Promise.all([
+  const [ticket, technicians, priorities, allTags] = await Promise.all([
     getTicket(id),
     listTechnicians(),
     listTicketPriorities({ activeOnly: true }),
+    listTicketTags({ activeOnly: true }),
   ]);
   if (!ticket) notFound();
+
+  const ticketTagIds = new Set(ticket.tags.map((t) => t.id));
 
   const canManage = can(user, "tickets.manage");
   const canAssign = can(user, "tickets.assign");
@@ -225,6 +229,20 @@ export default async function TicketDetailPage({
                     ) : null}
                   </span>
                 </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[var(--muted-foreground)]">Tags</span>
+                  {ticket.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {ticket.tags.map((tag) => (
+                        <span key={tag.id} className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${tag.color}22`, color: tag.color }}>
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-[var(--muted-foreground)]">None</span>
+                  )}
+                </div>
               </div>
 
               {canManage && (
@@ -289,6 +307,28 @@ export default async function TicketDetailPage({
                       Update due date
                     </Button>
                   </form>
+
+                  {/* Tags */}
+                  {allTags.length > 0 ? (
+                    <form action={updateTicketTagsAction} className="flex flex-col gap-2">
+                      <input type="hidden" name="id" value={ticket.id} />
+                      <label className="text-xs font-medium text-[var(--muted-foreground)]">Tags</label>
+                      <div className="flex flex-col gap-1.5">
+                        {allTags.map((tag) => (
+                          <label key={tag.id} className="flex items-center gap-1.5 text-sm">
+                            <input type="checkbox" name="tags" value={tag.id} defaultChecked={ticketTagIds.has(tag.id)} className="h-4 w-4 cursor-pointer" />
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: tag.color }} />
+                              {tag.name}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      <Button type="submit" variant="outline" className="self-start">
+                        Update tags
+                      </Button>
+                    </form>
+                  ) : null}
                 </div>
               )}
 

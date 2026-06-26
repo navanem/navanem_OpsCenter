@@ -4,7 +4,7 @@ import { can } from "@/lib/rbac/can";
 import { listTickets, getTicketStats } from "@/lib/tickets/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
-import { listTicketCategories, listTicketPriorities } from "@/lib/taxonomies/queries";
+import { listTicketCategories, listTicketPriorities, listTicketTags } from "@/lib/taxonomies/queries";
 import { formatTicketReference, isTicketOverdue } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { TicketsFilters } from "./tickets-filters";
 
-type SP = { search?: string; status?: string; priorityId?: string; categoryId?: string; clientId?: string; assigneeId?: string };
+type SP = { search?: string; status?: string; priorityId?: string; categoryId?: string; clientId?: string; assigneeId?: string; tagId?: string };
 const STATUSES = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
 
 export default async function TicketsPage({ searchParams }: { searchParams: Promise<SP> }) {
@@ -21,7 +21,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const status = STATUSES.includes(sp.status ?? "") ? (sp.status as never) : undefined;
 
-  const [tickets, clients, technicians, priorities, categories, ticketStats] = await Promise.all([
+  const [tickets, clients, technicians, priorities, categories, tags, ticketStats] = await Promise.all([
     listTickets({
       search: sp.search,
       status,
@@ -29,11 +29,13 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
       categoryId: sp.categoryId,
       clientId: sp.clientId,
       assigneeId: sp.assigneeId,
+      tagId: sp.tagId,
     }),
     listClients({}),
     listTechnicians(),
     listTicketPriorities({ activeOnly: true }),
     listTicketCategories({ activeOnly: true }),
+    listTicketTags({ activeOnly: true }),
     getTicketStats(),
   ]);
 
@@ -71,6 +73,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
         technicians={technicians}
         priorities={priorities}
         categories={categories}
+        tags={tags.map((t) => ({ id: t.id, name: t.name }))}
       />
 
       <Card>
@@ -97,6 +100,15 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
                   </td>
                   <td className="px-6 py-3">
                     <Link href={`/tickets/${t.id}`} className="font-medium text-[var(--foreground)] hover:underline">{t.subject}</Link>
+                    {t.tags.length > 0 ? (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {t.tags.map((tag) => (
+                          <span key={tag.id} className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: `${tag.color}22`, color: tag.color }}>
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">{t.client.companyName}</td>
                   <td className="px-6 py-3"><PriorityBadge name={t.priority.name} color={t.priority.color} /></td>

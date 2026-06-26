@@ -7,11 +7,13 @@ export function TicketsFilters({
   technicians,
   priorities,
   categories,
+  tags,
 }: {
   clients: { id: string; companyName: string }[];
   technicians: { id: string; firstName: string; lastName: string }[];
   priorities: { id: string; name: string }[];
   categories: { id: string; name: string }[];
+  tags: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -91,6 +93,18 @@ export function TicketsFilters({
         {technicians.map((t) => (
           <option key={t.id} value={t.id}>
             {t.firstName} {t.lastName}
+          </option>
+        ))}
+      </select>
+      <select
+        defaultValue={params.get("tagId") ?? ""}
+        onChange={(e) => update("tagId", e.target.value)}
+        className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm"
+      >
+        <option value="">All tags</option>
+        {tags.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.name}
           </option>
         ))}
       </select>

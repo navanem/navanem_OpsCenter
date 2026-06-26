@@ -47,6 +47,7 @@ export async function createTicketAction(
       : null;
   const due = parsed.data.dueAt ? new Date(parsed.data.dueAt) : null;
   const dueAt = due && !isNaN(due.getTime()) ? due : null;
+  const tagIds = formData.getAll("tags").filter((t): t is string => typeof t === "string" && t.length > 0);
   const ticket = await prisma.ticket.create({
     data: {
       subject: parsed.data.subject,
@@ -57,6 +58,7 @@ export async function createTicketAction(
       assigneeId,
       dueAt,
       createdById: user.id,
+      tags: tagIds.length > 0 ? { connect: tagIds.map((id) => ({ id })) } : undefined,
       activities: { create: { type: "CREATED", actorId: user.id } },
     },
   });
@@ -156,6 +158,21 @@ export async function updateDueDateAction(formData: FormData): Promise<void> {
       dueAt = isNaN(d.getTime()) ? null : d;
     }
     await prisma.ticket.update({ where: { id }, data: { dueAt } });
+    revalidatePath(`/tickets/${id}`);
+    revalidatePath("/tickets");
+  }
+  redirect(`/tickets/${typeof id === "string" ? id : ""}`);
+}
+
+export async function updateTicketTagsAction(formData: FormData): Promise<void> {
+  await requirePermission("tickets.manage");
+  const id = formData.get("id");
+  if (typeof id === "string" && id.length > 0) {
+    const tagIds = formData.getAll("tags").filter((t): t is string => typeof t === "string" && t.length > 0);
+    await prisma.ticket.update({
+      where: { id },
+      data: { tags: { set: tagIds.map((tid) => ({ id: tid })) } },
+    });
     revalidatePath(`/tickets/${id}`);
     revalidatePath("/tickets");
   }

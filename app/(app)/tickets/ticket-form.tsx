@@ -12,9 +12,10 @@ export interface TicketFormProps {
   technicians: { id: string; firstName: string; lastName: string }[];
   categories: { id: string; name: string }[];
   priorities: { id: string; name: string }[];
+  tags: { id: string; name: string; color: string }[];
 }
 
-export function TicketForm({ clients, technicians, categories, priorities }: TicketFormProps) {
+export function TicketForm({ clients, technicians, categories, priorities, tags }: TicketFormProps) {
   const [state, formAction, pending] = useActionState<TicketFormState, FormData>(
     createTicketAction,
     {},
@@ -114,6 +115,23 @@ export function TicketForm({ clients, technicians, categories, priorities }: Tic
           <input id="dueAt" name="dueAt" type="datetime-local" className={inputClass} />
         </div>
       </div>
+
+      {tags.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span className="text-sm text-[var(--muted-foreground)]">Tags</span>
+          <div className="flex flex-wrap gap-3">
+            {tags.map((t) => (
+              <label key={t.id} className="flex items-center gap-1.5 text-sm">
+                <input type="checkbox" name="tags" value={t.id} className="h-4 w-4 cursor-pointer" />
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: t.color }} />
+                  {t.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {state.error ? (
         <p className="text-sm text-[var(--destructive)]">{state.error}</p>

@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.21.0] - 2026-06-26
+
+### Added
+- Configurable ticket tags (managed in Settings → Taxonomies): tag tickets on creation or from the detail, see colored tag chips in the list and detail, and filter the ticket list by tag.
+
 ## [0.20.0] - 2026-06-26
 
 ### Added
