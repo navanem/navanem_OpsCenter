@@ -29,7 +29,9 @@ interface ProjectTask {
 interface Props {
   tasks: ProjectTask[];
   statuses: TaskStatus[];
+  technicians: { id: string; firstName: string; lastName: string }[];
   canManage: boolean;
+  canAssign: boolean;
   projectId: string;
   initialYear: number;
   initialMonth: number;
@@ -37,7 +39,7 @@ interface Props {
 
 type View = "List" | "Board" | "Timeline" | "Calendar";
 
-export function ProjectViews({ tasks, statuses, canManage, projectId, initialYear, initialMonth }: Props) {
+export function ProjectViews({ tasks, statuses, technicians, canManage, canAssign, projectId, initialYear, initialMonth }: Props) {
   const [view, setView] = useState<View>("List");
 
   return (
@@ -131,16 +133,19 @@ export function ProjectViews({ tasks, statuses, canManage, projectId, initialYea
         <TaskBoard
           projectId={projectId}
           statuses={statuses}
+          technicians={technicians}
           tasks={tasks.map((t) => ({
             id: t.id,
             title: t.title,
             statusId: t.statusId,
             priority: t.priority,
+            assigneeId: t.assignee?.id ?? null,
             assignee: t.assignee
               ? { firstName: t.assignee.firstName, lastName: t.assignee.lastName }
               : null,
           }))}
           canManage={canManage}
+          canAssign={canAssign}
         />
       ) : null}
 

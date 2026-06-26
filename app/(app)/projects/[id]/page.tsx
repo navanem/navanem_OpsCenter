@@ -4,6 +4,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getProject } from "@/lib/projects/queries";
 import { listProjectTaskStatuses } from "@/lib/taxonomies/queries";
+import { listTechnicians } from "@/lib/users/queries";
 import { formatProjectReference } from "@/lib/projects/meta";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -20,14 +21,16 @@ export default async function ProjectDetailPage({
   const user = await requirePermission("projects.read");
   const { id } = await params;
 
-  const [project, taskStatuses] = await Promise.all([
+  const [project, taskStatuses, technicians] = await Promise.all([
     getProject(id),
     listProjectTaskStatuses({ activeOnly: true }),
+    listTechnicians(),
   ]);
 
   if (!project) notFound();
 
   const canManage = can(user, "projects.manage");
+  const canAssign = can(user, "projects.assign");
   const now = new Date();
 
   const totalTasks = project.tasks.length;
@@ -141,7 +144,9 @@ export default async function ProjectDetailPage({
       <ProjectViews
         tasks={project.tasks}
         statuses={taskStatuses}
+        technicians={technicians}
         canManage={canManage}
+        canAssign={canAssign}
         projectId={project.id}
         initialYear={now.getFullYear()}
         initialMonth={now.getMonth()}

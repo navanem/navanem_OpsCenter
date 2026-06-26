@@ -243,6 +243,24 @@ export async function reorderTasksAction(
 }
 
 // ---------------------------------------------------------------------------
+// Board RPC: quick-assign a task (separate permission: projects.assign)
+// ---------------------------------------------------------------------------
+
+export async function setTaskAssigneeAction(
+  taskId: string,
+  assigneeId: string | null,
+): Promise<void> {
+  await requirePermission("projects.assign");
+  const task = await prisma.projectTask.findUnique({ where: { id: taskId } });
+  if (!task) return;
+  await prisma.projectTask.update({
+    where: { id: taskId },
+    data: { assigneeId: assigneeId && assigneeId.length > 0 ? assigneeId : null },
+  });
+  revalidatePath(`/projects/${task.projectId}`);
+}
+
+// ---------------------------------------------------------------------------
 // Assign task (separate permission: projects.assign)
 // ---------------------------------------------------------------------------
 
