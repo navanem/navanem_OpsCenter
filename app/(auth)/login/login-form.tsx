@@ -7,14 +7,22 @@ import { Button } from "@/components/ui/button";
 
 const initialState: LoginState = {};
 
-export function LoginForm() {
+interface LoginLabels {
+  email: string;
+  password: string;
+  signIn: string;
+  signingIn: string;
+  forgotPassword: string;
+}
+
+export function LoginForm({ labels }: { labels: LoginLabels }) {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label htmlFor="email" className="text-sm text-[var(--muted-foreground)]">
-          Email
+          {labels.email}
         </label>
         <input
           id="email"
@@ -27,7 +35,7 @@ export function LoginForm() {
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="password" className="text-sm text-[var(--muted-foreground)]">
-          Password
+          {labels.password}
         </label>
         <input
           id="password"
@@ -42,13 +50,13 @@ export function LoginForm() {
         <p className="text-sm text-[var(--destructive)]">{state.error}</p>
       ) : null}
       <Button type="submit" disabled={pending}>
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? labels.signingIn : labels.signIn}
       </Button>
       <Link
         href="/forgot-password"
         className="text-center text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
       >
-        Forgot password?
+        {labels.forgotPassword}
       </Link>
     </form>
   );

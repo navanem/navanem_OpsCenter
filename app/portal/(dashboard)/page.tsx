@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireContact } from "@/lib/portal/current-contact";
 import { listPortalTickets } from "@/lib/portal/queries";
+import { getDictionary } from "@/lib/i18n/server";
 import { formatTicketReference, TICKET_STATUS_META, type TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,29 +17,30 @@ function StatusPill({ status }: { status: TicketStatusKey }) {
 }
 
 export default async function PortalHome() {
-  const contact = await requireContact();
+  const [contact, dict] = await Promise.all([requireContact(), getDictionary()]);
+  const t = dict.portal;
   const tickets = await listPortalTickets(contact.clientId);
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Your tickets</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t.yourTickets}</h1>
         {contact.canCreate ? (
-          <Link href="/portal/tickets/new"><Button>New ticket</Button></Link>
+          <Link href="/portal/tickets/new"><Button>{t.newTicket}</Button></Link>
         ) : null}
       </div>
 
       <Card>
         {tickets.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">You have no tickets yet. Create one to get started.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{t.noTickets}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Subject</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Priority</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{t.ref}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{t.subject}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{t.priority}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{t.status}</th>
               </tr>
             </thead>
             <tbody>

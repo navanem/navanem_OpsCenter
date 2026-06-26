@@ -12,6 +12,7 @@ export interface CurrentContact {
   email: string | null;
   canCreate: boolean;
   canComment: boolean;
+  locale: string;
 }
 
 export async function getCurrentContact(): Promise<CurrentContact | null> {
@@ -37,6 +38,7 @@ export async function getCurrentContact(): Promise<CurrentContact | null> {
     email: contact.email,
     canCreate: contact.portalCanCreate,
     canComment: contact.portalCanComment,
+    locale: contact.locale,
   };
 }
 

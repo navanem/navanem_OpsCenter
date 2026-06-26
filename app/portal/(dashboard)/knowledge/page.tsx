@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireContact } from "@/lib/portal/current-contact";
 import { listPortalArticles } from "@/lib/portal/queries";
+import { getDictionary } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 
 export default async function PortalKnowledgePage({
@@ -8,7 +9,8 @@ export default async function PortalKnowledgePage({
 }: {
   searchParams: Promise<{ search?: string }>;
 }) {
-  await requireContact();
+  const [, dict] = await Promise.all([requireContact(), getDictionary()]);
+  const t = dict.portal;
   const sp = await searchParams;
   const search = sp.search?.trim() || undefined;
   const articles = await listPortalArticles(search);
@@ -16,7 +18,7 @@ export default async function PortalKnowledgePage({
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Knowledge base</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t.knowledgeBase}</h1>
       </div>
 
       <form className="flex gap-2">
@@ -24,18 +26,18 @@ export default async function PortalKnowledgePage({
           type="search"
           name="search"
           defaultValue={search ?? ""}
-          placeholder="Search articles…"
+          placeholder={t.searchArticles}
           className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         />
         <button type="submit" className="rounded-[var(--radius)] border border-[var(--border)] px-4 py-2 text-sm hover:bg-[var(--muted)]">
-          Search
+          {dict.common.search}
         </button>
       </form>
 
       {articles.length === 0 ? (
         <Card>
           <p className="p-6 text-[var(--muted-foreground)]">
-            {search ? "No articles match your search." : "No articles are available yet."}
+            {search ? t.noArticlesMatch : t.noArticles}
           </p>
         </Card>
       ) : (
@@ -52,7 +54,7 @@ export default async function PortalKnowledgePage({
                   ) : null}
                 </div>
                 {a.excerpt ? <p className="mt-1 text-sm text-[var(--muted-foreground)]">{a.excerpt}</p> : null}
-                <p className="mt-1 text-xs text-[var(--muted-foreground)]">Updated {new Date(a.updatedAt).toLocaleDateString()}</p>
+                <p className="mt-1 text-xs text-[var(--muted-foreground)]">{t.updated} {new Date(a.updatedAt).toLocaleDateString()}</p>
               </Card>
             </Link>
           ))}
