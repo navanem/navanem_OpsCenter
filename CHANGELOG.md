@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.22.0] - 2026-06-26
+
+### Changed
+- Refreshed KPI cards across the dashboard, tickets, projects, contracts, and timesheets with a cleaner, consistent `StatCard` design (colored accent, soft glow, tabular figures, hover state).
+
 ## [0.21.0] - 2026-06-26
 
 ### Added

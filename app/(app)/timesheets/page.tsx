@@ -6,7 +6,8 @@ import { isTimesheetingEnabled } from "@/lib/settings/service";
 import { listTimeEntries, getTimeStats, getRunningTimer } from "@/lib/timesheets/queries";
 import { formatMinutes, formatRateCents } from "@/lib/timesheets/meta";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TimeEntryStatusBadge } from "@/components/timesheets/badges";
 import { TimerWidget } from "@/components/timesheets/timer-widget";
@@ -71,17 +72,11 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
 
       <TimerWidget running={running} redirectTo="/timesheets" />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatGrid>
         {kpis.map((k) => (
-          <Card key={k.label} className="relative overflow-hidden">
-            <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: k.color }} />
-            <CardContent>
-              <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
-              <p className="mt-1 text-3xl font-semibold tabular-nums">{k.value}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={k.label} label={k.label} value={k.value} color={k.color} />
         ))}
-      </div>
+      </StatGrid>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <Link href={baseQuery({ status: undefined })} className={`rounded-full px-3 py-1 ${!status ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>All</Link>

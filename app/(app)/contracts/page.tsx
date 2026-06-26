@@ -9,7 +9,8 @@ import { listContractTypes, listContractStatuses } from "@/lib/taxonomies/querie
 import { formatContractReference, formatMoneyCents, billingCycleLabel } from "@/lib/contracts/meta";
 import { formatMinutes } from "@/lib/timesheets/meta";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ContractBadge } from "@/components/contracts/badges";
 import { ContractsFilters } from "./contracts-filters";
@@ -46,17 +47,11 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
         ) : null}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatGrid>
         {kpis.map((k) => (
-          <Card key={k.label} className="relative overflow-hidden">
-            <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: k.color }} />
-            <CardContent>
-              <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
-              <p className="mt-1 text-3xl font-semibold tabular-nums">{k.value}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={k.label} label={k.label} value={k.value} color={k.color} />
         ))}
-      </div>
+      </StatGrid>
 
       <ContractsFilters
         clients={clients.map((c) => ({ id: c.id, companyName: c.companyName }))}
