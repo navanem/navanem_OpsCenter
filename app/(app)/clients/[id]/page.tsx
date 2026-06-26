@@ -6,10 +6,14 @@ import { getClient } from "@/lib/clients/queries";
 import { listTickets } from "@/lib/tickets/queries";
 import { listProjects } from "@/lib/projects/queries";
 import { listClientVisits } from "@/lib/planning/queries";
+import { listContracts } from "@/lib/contracts/queries";
 import { listClientContacts } from "@/lib/contacts/queries";
+import { isContractsEnabled } from "@/lib/settings/service";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { formatProjectReference } from "@/lib/projects/meta";
+import { formatContractReference, formatMoneyCents, billingCycleLabel } from "@/lib/contracts/meta";
+import { ContractBadge } from "@/components/contracts/badges";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -43,6 +47,7 @@ export default async function ClientDetailPage({
   const canManageTickets = can(user, "tickets.manage");
   const canReadProjects = can(user, "projects.read");
   const canReadVisits = can(user, "visits.read");
+  const canReadContracts = can(user, "contracts.read") && (await isContractsEnabled());
 
   const technician = client.assignedTechnician
     ? `${client.assignedTechnician.firstName} ${client.assignedTechnician.lastName}`
@@ -63,9 +68,10 @@ export default async function ClientDetailPage({
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const [projects, upcomingVisits, contacts] = await Promise.all([
+  const [projects, upcomingVisits, contracts, contacts] = await Promise.all([
     canReadProjects ? listProjects({ clientId: id }) : Promise.resolve([]),
     canReadVisits ? listClientVisits(id, { from: today, take: 10 }) : Promise.resolve([]),
+    canReadContracts ? listContracts({ clientId: id }) : Promise.resolve([]),
     listClientContacts(id),
   ]);
 
@@ -299,6 +305,54 @@ export default async function ClientDetailPage({
                         {v.assignee ? `${v.assignee.firstName} ${v.assignee.lastName}` : "Unassigned"}
                       </span>
                       <VisitStatusBadge status={v.status} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {canReadContracts ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                Contracts{" "}
+                <span className="text-[var(--muted-foreground)] font-normal text-sm">
+                  ({contracts.length})
+                </span>
+              </CardTitle>
+              {can(user, "contracts.manage") && (
+                <Link href="/contracts/new">
+                  <Button variant="outline">New contract</Button>
+                </Link>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {contracts.length === 0 ? (
+              <p className="text-[var(--muted-foreground)]">No contracts.</p>
+            ) : (
+              <div>
+                {contracts.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Link href={`/contracts/${c.id}/edit`} className="font-mono text-xs text-[var(--muted-foreground)] shrink-0 hover:underline">
+                        {formatContractReference(c.number)}
+                      </Link>
+                      <ContractBadge name={c.type.name} color={c.type.color} />
+                      {c.name ? <span className="truncate text-[var(--muted-foreground)]">{c.name}</span> : null}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                      <span className="text-xs text-[var(--muted-foreground)]">
+                        {formatMoneyCents(c.valueCents)} / {billingCycleLabel(c.billingCycle).toLowerCase()}
+                      </span>
+                      <ContractBadge name={c.status.name} color={c.status.color} />
                     </div>
                   </div>
                 ))}

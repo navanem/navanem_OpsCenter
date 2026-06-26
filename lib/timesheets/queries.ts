@@ -68,6 +68,20 @@ export async function getTimeStats(filters: { userId?: string } = {}) {
   };
 }
 
+// Entries for a client over a period (for the monthly client report). Excludes rejected.
+export function listClientReportEntries(clientId: string, from: Date, to: Date) {
+  return prisma.timeEntry.findMany({
+    where: { clientId, date: { gte: from, lt: to }, status: { not: "REJECTED" } },
+    include: {
+      user: { select: { id: true, firstName: true, lastName: true } },
+      ticket: { select: { id: true, number: true, subject: true } },
+      task: { select: { id: true, title: true } },
+      visit: { select: { id: true, title: true } },
+    },
+    orderBy: { date: "asc" },
+  });
+}
+
 export function getRunningTimer(userId: string) {
   return prisma.timeTimer.findUnique({
     where: { userId },

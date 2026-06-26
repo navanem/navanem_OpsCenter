@@ -59,6 +59,9 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Timesheets</h1>
         <div className="flex gap-2">
+          {canViewAll ? (
+            <Link href="/timesheets/reports"><Button variant="outline">Reports</Button></Link>
+          ) : null}
           {canApprove ? (
             <Link href="/timesheets/approvals"><Button variant="outline">Approvals</Button></Link>
           ) : null}

@@ -19,6 +19,8 @@ export const PERMISSIONS = {
   "timesheets.read": { label: "Log & view own time", group: "Timesheets" },
   "timesheets.read.all": { label: "View all timesheets", group: "Timesheets" },
   "timesheets.approve": { label: "Approve timesheets", group: "Timesheets" },
+  "contracts.read": { label: "View contracts", group: "Contracts" },
+  "contracts.manage": { label: "Manage contracts", group: "Contracts" },
 } as const;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

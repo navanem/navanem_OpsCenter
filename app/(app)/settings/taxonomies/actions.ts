@@ -10,7 +10,7 @@ export interface TaxonomyState {
   ok?: boolean;
 }
 
-type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status";
 
 function isKind(v: FormDataEntryValue | null): v is Kind {
   return (
@@ -19,7 +19,8 @@ function isKind(v: FormDataEntryValue | null): v is Kind {
     v === "industry" ||
     v === "project-status" ||
     v === "task-status" ||
-    v === "visit-type"
+    v === "visit-type" ||
+    v === "contract-status"
   );
 }
 
@@ -75,6 +76,9 @@ export async function saveTaxonomyAction(
     } else if (kind === "visit-type") {
       if (editing) await prisma.visitType.update({ where: { id: id as string }, data });
       else await prisma.visitType.create({ data });
+    } else if (kind === "contract-status") {
+      if (editing) await prisma.contractStatus.update({ where: { id: id as string }, data });
+      else await prisma.contractStatus.create({ data });
     } else {
       if (editing) await prisma.projectTaskStatus.update({ where: { id: id as string }, data });
       else await prisma.projectTaskStatus.create({ data });
@@ -98,6 +102,7 @@ export async function deleteTaxonomyAction(formData: FormData): Promise<void> {
       else if (kind === "project-status") await prisma.projectStatus.delete({ where: { id } });
       else if (kind === "task-status") await prisma.projectTaskStatus.delete({ where: { id } });
       else if (kind === "visit-type") await prisma.visitType.delete({ where: { id } });
+      else if (kind === "contract-status") await prisma.contractStatus.delete({ where: { id } });
       else await prisma.clientIndustry.delete({ where: { id } });
     } catch {
       // A taxonomy item still referenced by tickets/projects cannot be deleted (FK RESTRICT).

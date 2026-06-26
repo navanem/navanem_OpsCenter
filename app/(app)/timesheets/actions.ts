@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
-import { isTimesheetingEnabled } from "@/lib/settings/service";
+import { isTimesheetingEnabled, getAppSettings } from "@/lib/settings/service";
+import { getClientActiveContract } from "@/lib/contracts/queries";
 import type { PermissionKey } from "@/lib/rbac/permissions";
 import { timeEntrySchema, normalizeTimeEntryInput } from "@/lib/validation/timesheet";
 
@@ -43,6 +44,19 @@ async function resolveClientId(links: {
   return links.clientId ?? null;
 }
 
+// When no rate is entered, inherit it from the client's active contract type,
+// then fall back to the global default rate in settings.
+async function resolveRate(current: number | null, clientId: string | null): Promise<number | null> {
+  if (current != null) return current;
+  if (clientId) {
+    const contract = await getClientActiveContract(clientId);
+    const rate = contract?.type.defaultHourlyRateCents;
+    if (rate != null) return rate;
+  }
+  const settings = await getAppSettings();
+  return settings.defaultHourlyRateCents ?? null;
+}
+
 function safeRedirect(formData: FormData): string {
   const to = formData.get("redirectTo");
   return typeof to === "string" && to.startsWith("/") ? to : "/timesheets";
@@ -74,8 +88,9 @@ export async function createTimeEntryAction(
   }
   const data = normalizeTimeEntryInput(parsed.data);
   const clientId = await resolveClientId(data);
+  const hourlyRateCents = await resolveRate(data.hourlyRateCents, clientId);
   await prisma.timeEntry.create({
-    data: { ...data, clientId, userId: user.id, status: "DRAFT" },
+    data: { ...data, hourlyRateCents, clientId, userId: user.id, status: "DRAFT" },
   });
   revalidatePath("/timesheets");
   redirect(safeRedirect(formData));
@@ -103,7 +118,8 @@ export async function updateTimeEntryAction(
   }
   const data = normalizeTimeEntryInput(parsed.data);
   const clientId = await resolveClientId(data);
-  await prisma.timeEntry.update({ where: { id }, data: { ...data, clientId } });
+  const hourlyRateCents = await resolveRate(data.hourlyRateCents, clientId);
+  await prisma.timeEntry.update({ where: { id }, data: { ...data, hourlyRateCents, clientId } });
   revalidatePath("/timesheets");
   redirect(safeRedirect(formData));
 }
@@ -211,6 +227,7 @@ export async function stopTimerAction(formData: FormData): Promise<void> {
     const minutes = Math.max(1, Math.round(elapsedMs / 60000));
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const hourlyRateCents = await resolveRate(null, timer.clientId);
     await prisma.$transaction([
       prisma.timeEntry.create({
         data: {
@@ -219,6 +236,7 @@ export async function stopTimerAction(formData: FormData): Promise<void> {
           minutes,
           description: timer.description,
           billable: true,
+          hourlyRateCents,
           ticketId: timer.ticketId,
           taskId: timer.taskId,
           visitId: timer.visitId,

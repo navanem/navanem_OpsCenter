@@ -58,3 +58,19 @@ export function listVisitTypes(opts?: { activeOnly?: boolean }) {
 export function getVisitType(id: string) {
   return prisma.visitType.findUnique({ where: { id } });
 }
+
+export function listContractTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.contractType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function getContractType(id: string) {
+  return prisma.contractType.findUnique({ where: { id } });
+}
+
+export function listContractStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.contractStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function getContractStatus(id: string) {
+  return prisma.contractStatus.findUnique({ where: { id } });
+}

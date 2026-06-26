@@ -26,12 +26,10 @@ export async function updateGeneralAction(
 
   const data: {
     companyName: string;
-    timesheetingEnabled: boolean;
     logoData?: Uint8Array<ArrayBuffer>;
     logoMimeType?: string;
   } = {
     companyName: parsed.data.companyName,
-    timesheetingEnabled: formData.get("timesheetingEnabled") === "true",
   };
 
   const logo = formData.get("logo");

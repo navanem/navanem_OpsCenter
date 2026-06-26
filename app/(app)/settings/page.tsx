@@ -28,6 +28,18 @@ export default async function SettingsPage() {
       permission: "settings.manage",
     },
     {
+      title: "Timesheets",
+      description: "Enable time tracking and set the default hourly rate.",
+      href: "/settings/timesheets",
+      permission: "settings.manage",
+    },
+    {
+      title: "Contracts",
+      description: "Enable client contracts and manage contract types.",
+      href: "/settings/contracts",
+      permission: "settings.manage",
+    },
+    {
       title: "Users",
       description: "Manage user accounts, invite new users, and control access.",
       href: "/settings/users",

@@ -3,6 +3,20 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.14.0] - 2026-06-26
+
+### Added
+- Contracts module (toggle on/off in Settings → Contracts): client contracts with a type, a configurable status, value, billing cycle (monthly/quarterly/yearly/one-off), and an included-hours quota per period.
+- Configurable **contract types** with a default hourly rate (Support, Maintenance, Infogérance, …), managed in Settings → Contract types; **contract statuses** managed as a taxonomy.
+- Contracts list with KPIs (count, monthly recurring value, total value, expiring within 30 days), filters, and a Contracts section on the client detail.
+- New RBAC permissions: `contracts.read`, `contracts.manage`.
+- Hourly rates now live on contract types: new time entries inherit the rate from the client's active contract, falling back to a global default rate set in Settings → Timesheets.
+- Monthly per-client timesheet report (Timesheets → Reports) with hours and billable amounts, exportable as PDF via the browser (Save as PDF).
+
+### Changed
+- Timesheeting settings moved to their own Settings → Timesheets page (was under General).
+- The time-tracking panel now sits at the top of the ticket detail page; refreshed timesheets/timer visuals.
+
 ## [0.13.0] - 2026-06-26
 
 ### Added

@@ -29,3 +29,27 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Print: render only the report area in black-on-white (Save as PDF). */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+    color: #000 !important;
+    border-color: #ccc !important;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 24px;
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
