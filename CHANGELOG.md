@@ -3,6 +3,12 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.17.0] - 2026-06-26
+
+### Added
+- Tickets now have a **due date**, set on creation or from the ticket detail. Overdue open tickets are flagged with a badge, shown in red in the list, and counted in a new "Overdue" KPI.
+- **Email notifications** for ticket events (assigned, new comment, status change) sent to the assignee and creator (excluding the actor) when SMTP is configured. Set `APP_URL` so the email links resolve to your deployment (defaults to `http://localhost:3000`).
+
 ## [0.16.0] - 2026-06-26
 
 ### Added
