@@ -5,13 +5,14 @@ import { SidebarNav, type IconName } from "./sidebar-nav";
 
 type NavKey = keyof Dictionary["nav"];
 
-const items: { href: string; key: NavKey; icon: IconName; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" }[] = [
+const items: { href: string; key: NavKey; icon: IconName; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" | "subscriptions" }[] = [
   { href: "/dashboard", key: "dashboard", icon: "dashboard" },
   { href: "/clients", key: "clients", icon: "clients", permission: "clients.read" },
   { href: "/tickets", key: "tickets", icon: "tickets", permission: "tickets.read" },
   { href: "/projects", key: "projects", icon: "projects", permission: "projects.read" },
   { href: "/planning", key: "planning", icon: "planning", permission: "visits.read" },
   { href: "/contracts", key: "contracts", icon: "contracts", permission: "contracts.read", flag: "contracts" },
+  { href: "/subscriptions", key: "subscriptions", icon: "contracts", permission: "subscriptions.read", flag: "subscriptions" },
   { href: "/devices", key: "devices", icon: "devices", permission: "devices.read", flag: "devices" },
   { href: "/knowledge", key: "knowledge", icon: "knowledge", permission: "knowledge.read" },
   { href: "/timesheets", key: "timesheets", icon: "timesheets", permission: "timesheets.read", flag: "timesheeting" },
@@ -25,12 +26,13 @@ interface SidebarProps {
   timesheetingEnabled: boolean;
   contractsEnabled: boolean;
   devicesEnabled: boolean;
+  subscriptionsEnabled: boolean;
   nav: Dictionary["nav"];
 }
 
-export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled, nav }: SidebarProps) {
+export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled, subscriptionsEnabled, nav }: SidebarProps) {
   const user = { id: "", email: "", permissions };
-  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled };
+  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled, subscriptions: subscriptionsEnabled };
   const visible = items.filter(
     (i) =>
       (!i.permission || can(user, i.permission)) &&

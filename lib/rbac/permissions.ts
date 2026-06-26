@@ -25,6 +25,8 @@ export const PERMISSIONS = {
   "knowledge.manage": { label: "Manage knowledge base", group: "Knowledge" },
   "devices.read": { label: "View devices", group: "Devices" },
   "devices.manage": { label: "Manage devices", group: "Devices" },
+  "subscriptions.read": { label: "View subscriptions", group: "Subscriptions" },
+  "subscriptions.manage": { label: "Manage subscriptions", group: "Subscriptions" },
 } as const;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

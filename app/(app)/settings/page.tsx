@@ -18,6 +18,7 @@ export default async function SettingsPage() {
     { title: t.timesheets, description: t.timesheetsDesc, href: "/settings/timesheets", permission: "settings.manage" },
     { title: t.contracts, description: t.contractsDesc, href: "/settings/contracts", permission: "settings.manage" },
     { title: t.devices, description: t.devicesDesc, href: "/settings/devices", permission: "settings.manage" },
+    { title: t.subscriptions, description: t.subscriptionsDesc, href: "/settings/subscriptions", permission: "settings.manage" },
     { title: t.users, description: t.usersDesc, href: "/settings/users", permission: "users.read" },
     { title: t.roles, description: t.rolesDesc, href: "/settings/roles", permission: "roles.read" },
   ];

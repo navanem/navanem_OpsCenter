@@ -10,7 +10,7 @@ export interface TaxonomyState {
   ok?: boolean;
 }
 
-type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status" | "subscription-type" | "subscription-status";
 
 function isKind(v: FormDataEntryValue | null): v is Kind {
   return (
@@ -24,7 +24,9 @@ function isKind(v: FormDataEntryValue | null): v is Kind {
     v === "tag" ||
     v === "knowledge-category" ||
     v === "device-type" ||
-    v === "device-status"
+    v === "device-status" ||
+    v === "subscription-type" ||
+    v === "subscription-status"
   );
 }
 
@@ -95,6 +97,12 @@ export async function saveTaxonomyAction(
     } else if (kind === "device-status") {
       if (editing) await prisma.deviceStatus.update({ where: { id: id as string }, data });
       else await prisma.deviceStatus.create({ data });
+    } else if (kind === "subscription-type") {
+      if (editing) await prisma.subscriptionType.update({ where: { id: id as string }, data });
+      else await prisma.subscriptionType.create({ data });
+    } else if (kind === "subscription-status") {
+      if (editing) await prisma.subscriptionStatus.update({ where: { id: id as string }, data });
+      else await prisma.subscriptionStatus.create({ data });
     } else {
       if (editing) await prisma.projectTaskStatus.update({ where: { id: id as string }, data });
       else await prisma.projectTaskStatus.create({ data });
@@ -123,6 +131,8 @@ export async function deleteTaxonomyAction(formData: FormData): Promise<void> {
       else if (kind === "knowledge-category") await prisma.knowledgeCategory.delete({ where: { id } });
       else if (kind === "device-type") await prisma.deviceType.delete({ where: { id } });
       else if (kind === "device-status") await prisma.deviceStatus.delete({ where: { id } });
+      else if (kind === "subscription-type") await prisma.subscriptionType.delete({ where: { id } });
+      else if (kind === "subscription-status") await prisma.subscriptionStatus.delete({ where: { id } });
       else await prisma.clientIndustry.delete({ where: { id } });
     } catch {
       // A taxonomy item still referenced by tickets/projects cannot be deleted (FK RESTRICT).

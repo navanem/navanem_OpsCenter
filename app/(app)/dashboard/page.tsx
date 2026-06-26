@@ -5,6 +5,8 @@ import { getDashboardStats, getMyWork, getModuleCounts, getExpiringSoon } from "
 import { getAppSettings } from "@/lib/settings/service";
 import { formatMoneyCents, formatContractReference } from "@/lib/contracts/meta";
 import { formatDeviceReference } from "@/lib/devices/meta";
+import { listSubscriptionsRenewingSoon } from "@/lib/subscriptions/queries";
+import { formatSubscriptionReference } from "@/lib/subscriptions/meta";
 import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -24,10 +26,12 @@ export default async function DashboardPage() {
 
   const showContracts = can(user, "contracts.read") && settings.contractsEnabled;
   const showDevices = can(user, "devices.read") && settings.devicesEnabled;
+  const showSubs = can(user, "subscriptions.read") && settings.subscriptionsEnabled;
   const expiring = showContracts || showDevices ? await getExpiringSoon() : { contracts: [], devices: [] };
   const expiringContracts = showContracts ? expiring.contracts : [];
   const expiringDevices = showDevices ? expiring.devices : [];
-  const hasAttention = expiringContracts.length + expiringDevices.length > 0;
+  const renewingSubs = showSubs ? await listSubscriptionsRenewingSoon() : [];
+  const hasAttention = expiringContracts.length + expiringDevices.length + renewingSubs.length > 0;
   const dateFmt = (d: Date) => new Date(d).toLocaleDateString();
 
   const moduleCards: { label: string; value: string | number; color: string }[] = [];
@@ -230,6 +234,31 @@ export default async function DashboardPage() {
                             <span className="truncate">{d.name}{d.client ? ` · ${d.client.companyName}` : ""}</span>
                           </Link>
                           {d.warrantyExpiry ? <span className="shrink-0 text-xs font-medium text-[#f59e0b]">{dateFmt(d.warrantyExpiry)}</span> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {showSubs ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{td.subscriptionsRenewing} ({renewingSubs.length})</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  {renewingSubs.length === 0 ? (
+                    <p className="text-[var(--muted-foreground)]">{td.noSubscriptionsRenewing}</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {renewingSubs.map((s) => (
+                        <li key={s.id} className="flex items-center justify-between gap-2">
+                          <Link href={`/subscriptions/${s.id}/edit`} className="min-w-0 flex items-center gap-2 hover:underline">
+                            <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">{formatSubscriptionReference(s.number)}</span>
+                            <span className="truncate">{s.name}{s.client ? ` · ${s.client.companyName}` : ""}</span>
+                          </Link>
+                          {s.renewalDate ? <span className="shrink-0 text-xs font-medium text-[#f59e0b]">{dateFmt(s.renewalDate)}</span> : null}
                         </li>
                       ))}
                     </ul>

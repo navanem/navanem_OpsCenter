@@ -186,6 +186,33 @@ async function main() {
     for (const s of deviceStatuses) {
       await prisma.deviceStatus.upsert({ where: { name: s.name }, update: {}, create: s });
     }
+
+    // 16. Default subscription types & statuses (name not unique → findFirst guard)
+    const subscriptionTypes = [
+      { name: "Software / SaaS", color: "#6366f1", sortOrder: 1 },
+      { name: "Microsoft 365", color: "#3b82f6", sortOrder: 2 },
+      { name: "Hosting", color: "#06b6d4", sortOrder: 3 },
+      { name: "Domain", color: "#8b5cf6", sortOrder: 4 },
+      { name: "Support plan", color: "#10b981", sortOrder: 5 },
+      { name: "Warranty", color: "#f59e0b", sortOrder: 6 },
+      { name: "Other", color: "#6b7280", sortOrder: 7 },
+    ];
+    for (const t of subscriptionTypes) {
+      if (!(await prisma.subscriptionType.findFirst({ where: { name: t.name } }))) {
+        await prisma.subscriptionType.create({ data: t });
+      }
+    }
+    const subscriptionStatuses = [
+      { name: "Active", color: "#10b981", sortOrder: 1 },
+      { name: "Pending renewal", color: "#f59e0b", sortOrder: 2 },
+      { name: "Cancelled", color: "#6b7280", sortOrder: 3 },
+      { name: "Expired", color: "#ef4444", sortOrder: 4 },
+    ];
+    for (const s of subscriptionStatuses) {
+      if (!(await prisma.subscriptionStatus.findFirst({ where: { name: s.name } }))) {
+        await prisma.subscriptionStatus.create({ data: s });
+      }
+    }
   } finally {
     await prisma.$disconnect();
   }

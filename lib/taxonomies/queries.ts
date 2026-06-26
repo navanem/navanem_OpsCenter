@@ -98,3 +98,11 @@ export function listDeviceTypes(opts?: { activeOnly?: boolean }) {
 export function listDeviceStatuses(opts?: { activeOnly?: boolean }) {
   return prisma.deviceStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
 }
+
+export function listSubscriptionTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.subscriptionType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listSubscriptionStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.subscriptionStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}

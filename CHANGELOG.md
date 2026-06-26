@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.44.0] - 2026-06-26
+
+### Added
+- New Subscriptions module (toggle in Settings → Subscriptions) to manage recurring subscriptions, renewals, warranties and support plans per client: type & status (configurable in Settings → Taxonomies), provider, cost & billing cycle, seats, start/renewal/coverage dates, auto-renew and support level. Includes a list with KPIs and filters, per-client section, and a dashboard "Subscriptions renewing" alert for the next 30 days.
+
 ## [0.43.0] - 2026-06-26
 
 ### Added
