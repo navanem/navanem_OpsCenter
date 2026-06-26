@@ -40,3 +40,28 @@ export function monthlyEquivalentCents(valueCents: number | null, cycle: Billing
 export function formatContractReference(n: number): string {
   return `CON-${1000 + n}`;
 }
+
+// The current billing period bounds for a cycle (now injected for testability).
+export function currentBillingPeriod(
+  cycle: BillingCycleKey,
+  now: Date,
+): { start: Date; end: Date; label: string } {
+  const y = now.getFullYear();
+  if (cycle === "MONTHLY") {
+    const m = now.getMonth();
+    return {
+      start: new Date(y, m, 1),
+      end: new Date(y, m + 1, 1),
+      label: new Date(y, m, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+    };
+  }
+  if (cycle === "QUARTERLY") {
+    const q = Math.floor(now.getMonth() / 3);
+    return { start: new Date(y, q * 3, 1), end: new Date(y, q * 3 + 3, 1), label: `Q${q + 1} ${y}` };
+  }
+  if (cycle === "YEARLY") {
+    return { start: new Date(y, 0, 1), end: new Date(y + 1, 0, 1), label: `${y}` };
+  }
+  // ONE_OFF: count all time to date.
+  return { start: new Date(2000, 0, 1), end: new Date(y + 1, 0, 1), label: "To date" };
+}

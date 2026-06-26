@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guard";
-import { isContractsEnabled } from "@/lib/settings/service";
+import { can } from "@/lib/rbac/can";
+import { isContractsEnabled, isTimesheetingEnabled } from "@/lib/settings/service";
 import { getContract } from "@/lib/contracts/queries";
+import { sumClientMinutes } from "@/lib/timesheets/queries";
 import { listClients } from "@/lib/clients/queries";
 import { listContractTypes, listContractStatuses } from "@/lib/taxonomies/queries";
-import { formatContractReference } from "@/lib/contracts/meta";
+import { formatContractReference, currentBillingPeriod, type BillingCycleKey } from "@/lib/contracts/meta";
+import { formatMinutes } from "@/lib/timesheets/meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -12,7 +15,7 @@ import { ContractForm } from "../../contract-form";
 import { updateContractAction, deleteContractAction } from "../../actions";
 
 export default async function EditContractPage({ params }: { params: Promise<{ id: string }> }) {
-  await requirePermission("contracts.manage");
+  const user = await requirePermission("contracts.manage");
   if (!(await isContractsEnabled())) notFound();
   const { id } = await params;
 
@@ -26,6 +29,15 @@ export default async function EditContractPage({ params }: { params: Promise<{ i
   if (!contract) notFound();
 
   const ref = formatContractReference(contract.number);
+
+  // Quota usage: logged time vs included hours for the client this billing period.
+  let usage: { label: string; used: number; quota: number; pct: number } | null = null;
+  if (contract.includedMinutesPerPeriod != null && can(user, "timesheets.read") && (await isTimesheetingEnabled())) {
+    const period = currentBillingPeriod(contract.billingCycle as BillingCycleKey, new Date());
+    const used = await sumClientMinutes(contract.clientId, period.start, period.end);
+    const quota = contract.includedMinutesPerPeriod;
+    usage = { label: period.label, used, quota, pct: quota > 0 ? Math.round((used / quota) * 100) : 0 };
+  }
 
   return (
     <div className="space-y-6">
@@ -58,6 +70,38 @@ export default async function EditContractPage({ params }: { params: Promise<{ i
           />
         </CardContent>
       </Card>
+
+      {usage ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              Time usage{" "}
+              <span className="text-sm font-normal text-[var(--muted-foreground)]">· {usage.label}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-[var(--muted-foreground)]">Logged vs included</span>
+              <span className="font-medium">
+                {formatMinutes(usage.used)} <span className="text-[var(--muted-foreground)]">/ {formatMinutes(usage.quota)}</span>
+                {" "}<span className={usage.pct > 100 ? "text-[#ef4444]" : usage.pct >= 80 ? "text-[#f59e0b]" : "text-[#10b981]"}>({usage.pct}%)</span>
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--muted)]">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(100, usage.pct)}%`,
+                  backgroundColor: usage.pct > 100 ? "#ef4444" : usage.pct >= 80 ? "#f59e0b" : "#10b981",
+                }}
+              />
+            </div>
+            {usage.pct > 100 ? (
+              <p className="text-xs text-[#ef4444]">Over the included hours for this period.</p>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>
