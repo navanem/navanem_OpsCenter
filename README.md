@@ -52,7 +52,7 @@ Sign in at `/login` with the seeded admin account:
 
 ## Features
 
-- **Authentication** — email/password login, signed-cookie sessions, route protection, and self-service password reset (emailed, time-limited, single-use hashed tokens).
+- **Authentication** — email/password login, signed-cookie sessions, route protection, self-service password reset (emailed, time-limited, single-use hashed tokens), and optional two-factor authentication (TOTP authenticator app, encrypted secret, second-step code at sign-in).
 - **Client portal** — a separate external area (`/portal`) where client contacts sign in with their own session to view their company's tickets, open new tickets, and reply on the conversation. Staff grant/revoke portal access per contact from the client detail. Portal sessions are isolated from staff sessions and strictly scoped to the contact's own client.
 - **RBAC** — role-based permission catalog with a `can()` helper and per-route permission guards.
 - **Clients** — RBAC-gated client management (`clients.read` to view, `clients.manage` to create/edit/delete); list with search and status/technician filters, create/edit form, and detail page.

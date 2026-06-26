@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.27.0] - 2026-06-26
+
+### Added
+- Optional two-factor authentication (TOTP): users enable an authenticator app from Settings → Security (scan a QR, verify a code). When enabled, sign-in asks for a 6-digit code as a second step. Secrets are encrypted at rest; disabling requires a current code.
+
 ## [0.26.0] - 2026-06-26
 
 ### Added
