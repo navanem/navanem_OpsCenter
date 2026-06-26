@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.26.0] - 2026-06-26
+
+### Added
+- Invitation lifecycle management on Settings → Users: pending invitations show as "Invite expired" once past their expiry, and can be **resent** (fresh link, old one revoked) or **revoked** (cancels the pending invite and removes the placeholder account). Resending/revoking writes the proper REVOKED status.
+
 ## [0.25.0] - 2026-06-26
 
 ### Added
