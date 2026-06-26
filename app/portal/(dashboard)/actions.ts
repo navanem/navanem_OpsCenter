@@ -74,6 +74,15 @@ export async function addPortalCommentAction(
   return {};
 }
 
+export async function updatePortalLocaleAction(formData: FormData): Promise<void> {
+  const contact = await requireContact();
+  const { normalizeLocale } = await import("@/lib/i18n/config");
+  const locale = normalizeLocale(formData.get("locale"));
+  await prisma.clientContact.update({ where: { id: contact.id }, data: { locale } });
+  revalidatePath("/portal", "layout");
+  redirect("/portal");
+}
+
 export async function portalSignOutAction(): Promise<void> {
   await clearPortalSessionCookie();
   redirect("/portal/login");

@@ -48,6 +48,7 @@ model User {
   totpSecret       String?
   totpEnabled      Boolean          @default(false)
   totpBackupCodes  String[]
+  locale           String           @default("en")
   status           UserStatus       @default(INVITED)
   roleId           String
   role             Role             @relation(fields: [roleId], references: [id])
@@ -151,6 +152,7 @@ model AppSetting {
   contractsEnabled    Boolean @default(false)
   devicesEnabled      Boolean @default(false)
   enforce2fa          Boolean @default(false)
+  defaultLocale       String  @default("en")
   updatedAt       DateTime @updatedAt
 }
 
@@ -274,6 +276,7 @@ model ClientContact {
   portalEnabled Boolean  @default(false)
   portalCanCreate  Boolean @default(true)
   portalCanComment Boolean @default(true)
+  locale        String   @default("en")
   passwordHash  String?
   portalTokens  PortalToken[]
   createdTickets  Ticket[]        @relation("TicketCreatedByContact")

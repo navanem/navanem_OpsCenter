@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.43.0] - 2026-06-26
+
+### Added
+- Bilingual interface (English / French), chosen per user in Settings → Language and remembered on your account. Admins set the default language for new users and the client portal. Client-portal users can switch language from the portal header. This release translates the navigation, top bar, dashboard, sign-in, settings, and the client portal; the remaining module pages are being translated next.
+
 ## [0.42.0] - 2026-06-26
 
 ### Added

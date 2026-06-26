@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContact } from "@/lib/portal/current-contact";
 import { getPortalArticle } from "@/lib/portal/queries";
+import { getDictionary } from "@/lib/i18n/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Markdown } from "@/components/knowledge/markdown";
 
 export default async function PortalArticlePage({ params }: { params: Promise<{ id: string }> }) {
-  await requireContact();
+  const [, dict] = await Promise.all([requireContact(), getDictionary()]);
+  const t = dict.portal;
   const { id } = await params;
   const article = await getPortalArticle(id);
   if (!article) notFound();
@@ -15,7 +17,7 @@ export default async function PortalArticlePage({ params }: { params: Promise<{ 
     <>
       <div>
         <Link href="/portal/knowledge" className="text-sm text-[var(--muted-foreground)] hover:underline">
-          ← Knowledge base
+          ← {t.backToKb}
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">{article.title}</h1>
@@ -25,7 +27,7 @@ export default async function PortalArticlePage({ params }: { params: Promise<{ 
             </span>
           ) : null}
         </div>
-        <p className="mt-1 text-xs text-[var(--muted-foreground)]">Updated {new Date(article.updatedAt).toLocaleDateString()}</p>
+        <p className="mt-1 text-xs text-[var(--muted-foreground)]">{t.updated} {new Date(article.updatedAt).toLocaleDateString()}</p>
       </div>
 
       <Card>

@@ -9,15 +9,18 @@ import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { PriorityBadge } from "@/components/tickets/badges";
+import { getDictionary } from "@/lib/i18n/server";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const [stats, myWork, moduleCounts, settings] = await Promise.all([
+  const [stats, myWork, moduleCounts, settings, dict] = await Promise.all([
     getDashboardStats(),
     getMyWork(user.id),
     getModuleCounts(),
     getAppSettings(),
+    getDictionary(),
   ]);
+  const td = dict.dashboard;
 
   const showContracts = can(user, "contracts.read") && settings.contractsEnabled;
   const showDevices = can(user, "devices.read") && settings.devicesEnabled;
@@ -28,11 +31,11 @@ export default async function DashboardPage() {
   const dateFmt = (d: Date) => new Date(d).toLocaleDateString();
 
   const moduleCards: { label: string; value: string | number; color: string }[] = [];
-  if (can(user, "projects.read")) moduleCards.push({ label: "Projects", value: moduleCounts.projects, color: "#3b82f6" });
-  if (can(user, "visits.read")) moduleCards.push({ label: "Visits this week", value: moduleCounts.visitsThisWeek, color: "#8b5cf6" });
-  if (can(user, "contracts.read") && settings.contractsEnabled) moduleCards.push({ label: "Monthly recurring", value: formatMoneyCents(moduleCounts.contractsMrrCents), color: "#10b981" });
-  if (can(user, "devices.read") && settings.devicesEnabled) moduleCards.push({ label: "Devices", value: moduleCounts.devices, color: "#f59e0b" });
-  if (can(user, "knowledge.read")) moduleCards.push({ label: "KB articles", value: moduleCounts.kbPublished, color: "#6d5efc" });
+  if (can(user, "projects.read")) moduleCards.push({ label: td.projects, value: moduleCounts.projects, color: "#3b82f6" });
+  if (can(user, "visits.read")) moduleCards.push({ label: td.visitsThisWeek, value: moduleCounts.visitsThisWeek, color: "#8b5cf6" });
+  if (can(user, "contracts.read") && settings.contractsEnabled) moduleCards.push({ label: td.monthlyRecurring, value: formatMoneyCents(moduleCounts.contractsMrrCents), color: "#10b981" });
+  if (can(user, "devices.read") && settings.devicesEnabled) moduleCards.push({ label: td.devices, value: moduleCounts.devices, color: "#f59e0b" });
+  if (can(user, "knowledge.read")) moduleCards.push({ label: td.kbArticles, value: moduleCounts.kbPublished, color: "#6d5efc" });
   const hasMyWork = myWork.myTickets.length + myWork.myTasks.length + myWork.myVisits.length > 0;
   const timeFmt: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
 
@@ -45,18 +48,18 @@ export default async function DashboardPage() {
   const kpiCards: { label: string; value: number; sublabel?: string; color: string }[] = [];
   if (canClients) {
     kpiCards.push({
-      label: "Clients",
+      label: td.clients,
       value: stats.clientsTotal,
-      sublabel: `${stats.clientsActive} active`,
+      sublabel: `${stats.clientsActive} ${td.activeSuffix}`,
       color: "#6d5efc",
     });
   }
   if (canTickets) {
-    kpiCards.push({ label: "Open tickets", value: stats.openTickets, color: "#3b82f6" });
-    kpiCards.push({ label: "Total tickets", value: stats.ticketsTotal, color: "#10b981" });
+    kpiCards.push({ label: td.openTickets, value: stats.openTickets, color: "#3b82f6" });
+    kpiCards.push({ label: td.totalTickets, value: stats.ticketsTotal, color: "#10b981" });
   }
   if (canUsers) {
-    kpiCards.push({ label: "Team members", value: stats.usersTotal, color: "#f59e0b" });
+    kpiCards.push({ label: td.teamMembers, value: stats.usersTotal, color: "#f59e0b" });
   }
 
   // Max count for status bar widths
@@ -71,18 +74,18 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{td.title}</h1>
 
       {/* My work */}
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-          My work
+          {td.myWork}
         </h2>
         {!hasMyWork ? (
           <Card>
             <CardContent>
               <p className="text-sm text-[var(--muted-foreground)]">
-                Nothing assigned to you right now. Assigned tickets, upcoming tasks, and visits will appear here.
+                {td.myWorkEmpty}
               </p>
             </CardContent>
           </Card>
@@ -90,11 +93,11 @@ export default async function DashboardPage() {
           <div className="grid gap-4 lg:grid-cols-3">
             <Card>
               <CardHeader>
-                <CardTitle>My tickets ({myWork.myTickets.length})</CardTitle>
+                <CardTitle>{td.myTickets} ({myWork.myTickets.length})</CardTitle>
               </CardHeader>
               <CardContent className="text-sm">
                 {myWork.myTickets.length === 0 ? (
-                  <p className="text-[var(--muted-foreground)]">No open tickets.</p>
+                  <p className="text-[var(--muted-foreground)]">{td.noOpenTickets}</p>
                 ) : (
                   <ul className="space-y-2">
                     {myWork.myTickets.map((t) => (
@@ -119,11 +122,11 @@ export default async function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>My tasks ({myWork.myTasks.length})</CardTitle>
+                <CardTitle>{td.myTasks} ({myWork.myTasks.length})</CardTitle>
               </CardHeader>
               <CardContent className="text-sm">
                 {myWork.myTasks.length === 0 ? (
-                  <p className="text-[var(--muted-foreground)]">No open tasks.</p>
+                  <p className="text-[var(--muted-foreground)]">{td.noOpenTasks}</p>
                 ) : (
                   <ul className="space-y-2">
                     {myWork.myTasks.map((t) => (
@@ -144,11 +147,11 @@ export default async function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Upcoming visits ({myWork.myVisits.length})</CardTitle>
+                <CardTitle>{td.upcomingVisits} ({myWork.myVisits.length})</CardTitle>
               </CardHeader>
               <CardContent className="text-sm">
                 {myWork.myVisits.length === 0 ? (
-                  <p className="text-[var(--muted-foreground)]">No upcoming visits.</p>
+                  <p className="text-[var(--muted-foreground)]">{td.noUpcomingVisits}</p>
                 ) : (
                   <ul className="space-y-2">
                     {myWork.myVisits.map((v) => (
@@ -172,7 +175,7 @@ export default async function DashboardPage() {
 
       {moduleCards.length > 0 ? (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">Across your modules</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">{td.acrossModules}</h2>
           <StatGrid>
             {moduleCards.map((c) => (
               <StatCard key={c.label} label={c.label} value={c.value} color={c.color} />
@@ -183,16 +186,16 @@ export default async function DashboardPage() {
 
       {hasAttention ? (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">Attention needed</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">{td.attentionNeeded}</h2>
           <div className="grid gap-4 lg:grid-cols-2">
             {showContracts ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Contracts ending soon ({expiringContracts.length})</CardTitle>
+                  <CardTitle>{td.contractsEndingSoon} ({expiringContracts.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm">
                   {expiringContracts.length === 0 ? (
-                    <p className="text-[var(--muted-foreground)]">No contracts ending in the next 30 days.</p>
+                    <p className="text-[var(--muted-foreground)]">{td.noContractsEnding}</p>
                   ) : (
                     <ul className="space-y-2">
                       {expiringContracts.map((c) => (
@@ -213,11 +216,11 @@ export default async function DashboardPage() {
             {showDevices ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Warranties expiring ({expiringDevices.length})</CardTitle>
+                  <CardTitle>{td.warrantiesExpiring} ({expiringDevices.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm">
                   {expiringDevices.length === 0 ? (
-                    <p className="text-[var(--muted-foreground)]">No warranties expiring in the next 60 days.</p>
+                    <p className="text-[var(--muted-foreground)]">{td.noWarrantiesExpiring}</p>
                   ) : (
                     <ul className="space-y-2">
                       {expiringDevices.map((d) => (
@@ -241,12 +244,11 @@ export default async function DashboardPage() {
       {!hasAny ? (
         <Card>
           <CardHeader>
-            <CardTitle>Welcome to OpsCenter</CardTitle>
+            <CardTitle>{td.welcomeTitle}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-[var(--muted-foreground)]">
-              You do not have access to any modules yet. Contact your
-              administrator.
+              {td.welcomeBody}
             </p>
           </CardContent>
         </Card>
@@ -264,7 +266,7 @@ export default async function DashboardPage() {
               {/* Tickets by status */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Tickets by status</CardTitle>
+                  <CardTitle>{td.ticketsByStatus}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -303,12 +305,12 @@ export default async function DashboardPage() {
               {/* Recent tickets */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent tickets</CardTitle>
+                  <CardTitle>{td.recentTickets}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {stats.recentTickets.length === 0 ? (
                     <p className="text-sm text-[var(--muted-foreground)]">
-                      No tickets yet.
+                      {td.noTicketsYet}
                     </p>
                   ) : (
                     <div className="divide-y divide-[var(--border)]">

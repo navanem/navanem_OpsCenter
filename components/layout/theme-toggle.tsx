@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
 
-export function ThemeToggle() {
+export function ThemeToggle({ labels }: { labels?: { toLight: string; toDark: string } }) {
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -26,12 +26,14 @@ export function ThemeToggle() {
     setTheme(next);
   }
 
+  const label = theme === "dark" ? labels?.toLight ?? "Switch to light mode" : labels?.toDark ?? "Switch to dark mode";
+
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      aria-label={label}
+      title={label}
       className="flex h-8 w-8 items-center justify-center rounded-[var(--radius)] border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
     >
       {/* Render the icon for the target theme; keep stable before mount to avoid hydration mismatch. */}
