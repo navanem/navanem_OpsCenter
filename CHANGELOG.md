@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.37.0] - 2026-06-26
+
+### Added
+- Dashboard "Attention needed" section surfaces contracts ending within 30 days and device warranties expiring within 60 days, each linking to the record. Shown per module enabled + permission.
+
 ## [0.36.0] - 2026-06-26
 
 ### Added
