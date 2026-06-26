@@ -13,9 +13,11 @@ export interface TicketFormProps {
   categories: { id: string; name: string }[];
   priorities: { id: string; name: string }[];
   tags: { id: string; name: string; color: string }[];
+  defaultClientId?: string;
+  deviceId?: string;
 }
 
-export function TicketForm({ clients, technicians, categories, priorities, tags }: TicketFormProps) {
+export function TicketForm({ clients, technicians, categories, priorities, tags, defaultClientId, deviceId }: TicketFormProps) {
   const [state, formAction, pending] = useActionState<TicketFormState, FormData>(
     createTicketAction,
     {},
@@ -27,6 +29,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags 
 
   return (
     <form action={formAction} className="space-y-6">
+      {deviceId ? <input type="hidden" name="deviceId" value={deviceId} /> : null}
       <div className="flex flex-col gap-1">
         <label htmlFor="subject" className="text-sm text-[var(--muted-foreground)]">
           Subject *
@@ -58,7 +61,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags 
           <label htmlFor="clientId" className="text-sm text-[var(--muted-foreground)]">
             Client *
           </label>
-          <select id="clientId" name="clientId" required className={inputClass}>
+          <select id="clientId" name="clientId" required defaultValue={defaultClientId ?? ""} className={inputClass}>
             <option value="">Select a client</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>

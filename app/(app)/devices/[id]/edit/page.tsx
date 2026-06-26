@@ -33,7 +33,14 @@ export default async function EditDevicePage({ params }: { params: Promise<{ id:
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Devices", href: "/devices" }, { label: ref }]} />
-      <h1 className="text-2xl font-semibold tracking-tight">{device.name} <span className="font-mono text-base text-[var(--muted-foreground)]">{ref}</span></h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold tracking-tight">{device.name} <span className="font-mono text-base text-[var(--muted-foreground)]">{ref}</span></h1>
+        {canReadTickets && device.clientId && can(user, "tickets.manage") ? (
+          <Link href={`/tickets/new?clientId=${device.clientId}&deviceId=${device.id}`}>
+            <Button variant="outline" size="sm">New ticket for this device</Button>
+          </Link>
+        ) : null}
+      </div>
       <Card>
         <CardHeader><CardTitle>Device details</CardTitle></CardHeader>
         <CardContent>

@@ -6,8 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TicketForm } from "../ticket-form";
 
-export default async function NewTicketPage() {
+export default async function NewTicketPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ clientId?: string; deviceId?: string }>;
+}) {
   await requirePermission("tickets.manage");
+  const sp = await searchParams;
   const [clients, technicians, categories, priorities, tags] = await Promise.all([
     listClients({}),
     listTechnicians(),
@@ -31,6 +36,8 @@ export default async function NewTicketPage() {
             categories={categories}
             priorities={priorities}
             tags={tags.map((t) => ({ id: t.id, name: t.name, color: t.color }))}
+            defaultClientId={sp.clientId}
+            deviceId={sp.deviceId}
           />
         </CardContent>
       </Card>
