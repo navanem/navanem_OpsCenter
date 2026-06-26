@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.33.0] - 2026-06-26
+
+### Added
+- Contract ↔ timesheets linkage: a contract with an included-hours quota now shows a "Time usage" card on its page — logged time for the client this billing period vs the included hours, with a progress bar (green / amber near limit / red over).
+
 ## [0.32.0] - 2026-06-26
 
 ### Added
