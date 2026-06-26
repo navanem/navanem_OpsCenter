@@ -5,9 +5,10 @@ import { listProjectTaskStatuses } from "@/lib/taxonomies/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { TaskForm } from "../../../task-form";
 import { TimeLogSection } from "@/components/timesheets/time-log-section";
-import { updateTaskAction } from "../../../../actions";
+import { updateTaskAction, deleteTaskAction } from "../../../../actions";
 
 export default async function EditTaskPage({
   params,
@@ -67,6 +68,19 @@ export default async function EditTaskPage({
         context={{ taskId: task.id, label: `Linked to task "${task.title}"` }}
         redirectTo={`/projects/${id}/tasks/${task.id}/edit`}
       />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Danger zone</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={deleteTaskAction}>
+            <input type="hidden" name="id" value={task.id} />
+            <input type="hidden" name="projectId" value={id} />
+            <Button type="submit" variant="destructive">Delete task</Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TaskPriorityBadge } from "@/components/projects/badges";
-import { moveTaskAction } from "../actions";
+import { reorderTasksAction } from "../actions";
 import type { TaskPriorityKey } from "@/lib/projects/meta";
 
 export interface BoardTask {
@@ -34,15 +34,27 @@ export function TaskBoard({ projectId, statuses, tasks, canManage }: Props) {
   const [, startTransition] = useTransition();
   const router = useRouter();
 
-  function onDrop(statusId: string) {
+  // Drop the dragged task into `statusId`, before `beforeId` (or at the end when null).
+  function handleDrop(statusId: string, beforeId: string | null) {
     if (!dragId || !canManage) return;
     const id = dragId;
     setDragId(null);
-    setItems((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, statusId } : t)),
-    );
+    const moved = items.find((t) => t.id === id);
+    if (!moved) return;
+
+    const without = items.filter((t) => t.id !== id);
+    const movedNew = { ...moved, statusId };
+    const targetCol = without.filter((t) => t.statusId === statusId);
+    let insertIdx = beforeId ? targetCol.findIndex((t) => t.id === beforeId) : targetCol.length;
+    if (insertIdx < 0) insertIdx = targetCol.length;
+    targetCol.splice(insertIdx, 0, movedNew);
+
+    const orderedIds = targetCol.map((t) => t.id);
+    const others = without.filter((t) => t.statusId !== statusId);
+    setItems([...others, ...targetCol]);
+
     startTransition(async () => {
-      await moveTaskAction(id, statusId);
+      await reorderTasksAction(id, statusId, orderedIds);
       router.refresh();
     });
   }
@@ -55,7 +67,7 @@ export function TaskBoard({ projectId, statuses, tasks, canManage }: Props) {
           <div
             key={status.id}
             onDragOver={(e) => e.preventDefault()}
-            onDrop={() => onDrop(status.id)}
+            onDrop={() => handleDrop(status.id, null)}
             className="flex w-72 shrink-0 flex-col rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)]"
           >
             <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
@@ -74,7 +86,17 @@ export function TaskBoard({ projectId, statuses, tasks, canManage }: Props) {
                   key={task.id}
                   draggable={canManage}
                   onDragStart={() => setDragId(task.id)}
-                  className="cursor-grab rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-3 text-sm shadow-sm transition hover:border-[var(--ring)] active:cursor-grabbing"
+                  onDragOver={(e) => {
+                    if (canManage && dragId && dragId !== task.id) e.preventDefault();
+                  }}
+                  onDrop={(e) => {
+                    e.stopPropagation();
+                    handleDrop(status.id, task.id);
+                  }}
+                  className={[
+                    "cursor-grab rounded-[var(--radius)] border bg-[var(--muted)] p-3 text-sm shadow-sm transition hover:border-[var(--ring)] active:cursor-grabbing",
+                    dragId === task.id ? "border-[var(--ring)] opacity-50" : "border-[var(--border)]",
+                  ].join(" ")}
                 >
                   <div className="mb-1 flex items-center justify-between">
                     <TaskPriorityBadge priority={task.priority} />

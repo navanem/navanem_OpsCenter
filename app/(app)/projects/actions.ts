@@ -219,6 +219,30 @@ export async function moveTaskAction(
 }
 
 // ---------------------------------------------------------------------------
+// Board RPC: reorder tasks within a column (and move across columns)
+// ---------------------------------------------------------------------------
+
+export async function reorderTasksAction(
+  taskId: string,
+  statusId: string,
+  orderedIds: string[],
+): Promise<void> {
+  await requirePermission("projects.manage");
+  const [taskStatus, task] = await Promise.all([
+    prisma.projectTaskStatus.findUnique({ where: { id: statusId } }),
+    prisma.projectTask.findUnique({ where: { id: taskId } }),
+  ]);
+  if (!taskStatus || !task) return;
+  await prisma.$transaction([
+    prisma.projectTask.update({ where: { id: taskId }, data: { statusId } }),
+    ...orderedIds.map((id, index) =>
+      prisma.projectTask.update({ where: { id }, data: { sortOrder: index } }),
+    ),
+  ]);
+  revalidatePath(`/projects/${task.projectId}`);
+}
+
+// ---------------------------------------------------------------------------
 // Assign task (separate permission: projects.assign)
 // ---------------------------------------------------------------------------
 
