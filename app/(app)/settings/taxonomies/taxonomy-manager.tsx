@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const inputClass =
   "rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
-type Kind = "category" | "priority" | "industry" | "project-status" | "task-status";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type";
 
 interface TaxonomyItem {
   id: string;
