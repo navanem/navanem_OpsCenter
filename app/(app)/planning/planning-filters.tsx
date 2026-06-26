@@ -2,19 +2,12 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-function isoDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = `${d.getMonth() + 1}`.padStart(2, "0");
-  const day = `${d.getDate()}`.padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 export function PlanningFilters({
-  monday,
+  month,
   technicians,
   types,
 }: {
-  monday: string; // YYYY-MM-DD of the current week's Monday
+  month: string; // YYYY-MM of the displayed month
   technicians: { id: string; firstName: string; lastName: string }[];
   types: { id: string; name: string }[];
 }) {
@@ -28,59 +21,34 @@ export function PlanningFilters({
     router.push(`/planning?${next.toString()}`);
   }
 
-  function shiftWeek(days: number) {
-    const d = new Date(monday + "T00:00:00");
-    d.setDate(d.getDate() + days);
-    update("week", isoDate(d));
+  function shiftMonth(delta: number) {
+    const [y, m] = month.split("-").map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    update("month", `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, "0")}`);
   }
+
+  const navBtn =
+    "rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm transition-colors hover:bg-[var(--muted)]";
+  const selectCls =
+    "rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => shiftWeek(-7)}
-          className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm hover:bg-[var(--muted)]/70"
-        >
-          ‹ Prev
-        </button>
-        <button
-          type="button"
-          onClick={() => update("week", "")}
-          className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm hover:bg-[var(--muted)]/70"
-        >
-          This week
-        </button>
-        <button
-          type="button"
-          onClick={() => shiftWeek(7)}
-          className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm hover:bg-[var(--muted)]/70"
-        >
-          Next ›
-        </button>
+        <button type="button" onClick={() => shiftMonth(-1)} aria-label="Previous month" className={navBtn}>‹</button>
+        <button type="button" onClick={() => update("month", "")} className={navBtn}>Today</button>
+        <button type="button" onClick={() => shiftMonth(1)} aria-label="Next month" className={navBtn}>›</button>
       </div>
-      <select
-        defaultValue={params.get("assigneeId") ?? ""}
-        onChange={(e) => update("assigneeId", e.target.value)}
-        className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm"
-      >
+      <select defaultValue={params.get("assigneeId") ?? ""} onChange={(e) => update("assigneeId", e.target.value)} className={selectCls}>
         <option value="">All technicians</option>
         {technicians.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.firstName} {t.lastName}
-          </option>
+          <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>
         ))}
       </select>
-      <select
-        defaultValue={params.get("typeId") ?? ""}
-        onChange={(e) => update("typeId", e.target.value)}
-        className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm"
-      >
+      <select defaultValue={params.get("typeId") ?? ""} onChange={(e) => update("typeId", e.target.value)} className={selectCls}>
         <option value="">All types</option>
         {types.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
+          <option key={t.id} value={t.id}>{t.name}</option>
         ))}
       </select>
     </div>
