@@ -51,6 +51,18 @@ export const en = {
     timesheets: "Timesheets",
     settings: "Settings",
   },
+  navGroups: {
+    operations: "Operations",
+    customers: "Customers",
+    system: "System",
+  },
+  userMenu: {
+    theme: "Theme",
+    light: "Light",
+    dark: "Dark",
+    language: "Language",
+    account: "Account",
+  },
   topbar: {
     security: "Security",
     signOut: "Sign out",

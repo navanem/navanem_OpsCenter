@@ -53,6 +53,18 @@ export const fr: Dictionary = {
     timesheets: "Feuilles de temps",
     settings: "Paramètres",
   },
+  navGroups: {
+    operations: "Opérations",
+    customers: "Clientèle",
+    system: "Système",
+  },
+  userMenu: {
+    theme: "Thème",
+    light: "Clair",
+    dark: "Sombre",
+    language: "Langue",
+    account: "Compte",
+  },
   topbar: {
     security: "Sécurité",
     signOut: "Se déconnecter",

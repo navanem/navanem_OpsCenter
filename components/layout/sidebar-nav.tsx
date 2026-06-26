@@ -53,34 +53,48 @@ function Icon({ name }: { name: IconName }) {
   );
 }
 
-export function SidebarNav({ items }: { items: NavItem[] }) {
+export interface NavGroup {
+  label: string | null;
+  items: NavItem[];
+}
+
+export function SidebarNav({ groups }: { groups: NavGroup[] }) {
   const pathname = usePathname();
   return (
     <nav className="flex flex-col gap-0.5">
-      {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={
-              "group relative flex items-center gap-2.5 rounded-[var(--radius)] px-3 py-2 text-sm font-medium transition " +
-              (active
-                ? "bg-[var(--primary)]/15 text-[var(--foreground)]"
-                : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]")
-            }
-          >
-            {active ? (
-              <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-[var(--primary)]" aria-hidden />
-            ) : null}
-            <span className={active ? "text-[var(--primary)]" : "text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]"}>
-              <Icon name={item.icon} />
-            </span>
-            {item.label}
-          </Link>
-        );
-      })}
+      {groups.map((group, gi) => (
+        <div key={group.label ?? `g${gi}`} className={gi > 0 ? "mt-3" : ""}>
+          {group.label ? (
+            <p className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]/70">
+              {group.label}
+            </p>
+          ) : null}
+          {group.items.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={
+                  "group relative flex items-center gap-2.5 rounded-[var(--radius)] px-3 py-2 text-sm font-medium transition " +
+                  (active
+                    ? "bg-[var(--primary)]/15 text-[var(--foreground)]"
+                    : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]")
+                }
+              >
+                {active ? (
+                  <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-[var(--primary)]" aria-hidden />
+                ) : null}
+                <span className={active ? "text-[var(--primary)]" : "text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]"}>
+                  <Icon name={item.icon} />
+                </span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      ))}
     </nav>
   );
 }
