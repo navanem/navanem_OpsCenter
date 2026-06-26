@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.23.0] - 2026-06-26
+
+### Added
+- Client portal: a separate, external-facing area where client contacts sign in (own session) to view their company's tickets, open new tickets, and reply on the conversation. Staff grant or revoke portal access per contact from the client detail (an email link lets the contact set their password). Portal sessions are isolated from staff sessions, and a portal user can only ever see their own client's data.
+
 ## [0.22.0] - 2026-06-26
 
 ### Changed
