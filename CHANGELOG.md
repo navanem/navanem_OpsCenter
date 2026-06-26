@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.40.0] - 2026-06-26
+
+### Added
+- Import clients from a CSV file (Clients → Import CSV). Recognizes Company (required), Domain and Status columns; validates each row, imports the valid ones, and reports any skipped rows with the reason.
+
 ## [0.39.0] - 2026-06-26
 
 ### Added
