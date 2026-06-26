@@ -8,7 +8,8 @@ import { listTicketCategories, listTicketPriorities, listTicketTags } from "@/li
 import { formatTicketReference, isTicketOverdue } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
 import { TicketsFilters } from "./tickets-filters";
@@ -40,10 +41,10 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
   ]);
 
   const kpis = [
-    { label: "Open", value: ticketStats.open },
-    { label: "Overdue", value: ticketStats.overdue },
-    { label: "Unassigned (open)", value: ticketStats.unassignedOpen },
-    { label: "Total tickets", value: ticketStats.total },
+    { label: "Open", value: ticketStats.open, color: "#3b82f6" },
+    { label: "Overdue", value: ticketStats.overdue, color: "#ef4444" },
+    { label: "Unassigned (open)", value: ticketStats.unassignedOpen, color: "#f59e0b" },
+    { label: "Total tickets", value: ticketStats.total, color: "#6d5efc" },
   ];
 
   return (
@@ -57,16 +58,11 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatGrid>
         {kpis.map((k) => (
-          <Card key={k.label}>
-            <CardContent>
-              <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
-              <p className="mt-1 text-3xl font-semibold">{k.value}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={k.label} label={k.label} value={k.value} color={k.color} />
         ))}
-      </div>
+      </StatGrid>
 
       <TicketsFilters
         clients={clients.map((c) => ({ id: c.id, companyName: c.companyName }))}

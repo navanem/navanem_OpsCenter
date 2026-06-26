@@ -4,6 +4,7 @@ import { can } from "@/lib/rbac/can";
 import { getDashboardStats } from "@/lib/dashboard/queries";
 import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { PriorityBadge } from "@/components/tickets/badges";
 
 export default async function DashboardPage() {
@@ -16,20 +17,21 @@ export default async function DashboardPage() {
   const hasAny = canClients || canTickets || canUsers;
 
   // Build KPI card list
-  const kpiCards: { label: string; value: number; sublabel?: string }[] = [];
+  const kpiCards: { label: string; value: number; sublabel?: string; color: string }[] = [];
   if (canClients) {
     kpiCards.push({
       label: "Clients",
       value: stats.clientsTotal,
       sublabel: `${stats.clientsActive} active`,
+      color: "#6d5efc",
     });
   }
   if (canTickets) {
-    kpiCards.push({ label: "Open tickets", value: stats.openTickets });
-    kpiCards.push({ label: "Total tickets", value: stats.ticketsTotal });
+    kpiCards.push({ label: "Open tickets", value: stats.openTickets, color: "#3b82f6" });
+    kpiCards.push({ label: "Total tickets", value: stats.ticketsTotal, color: "#10b981" });
   }
   if (canUsers) {
-    kpiCards.push({ label: "Team members", value: stats.usersTotal });
+    kpiCards.push({ label: "Team members", value: stats.usersTotal, color: "#f59e0b" });
   }
 
   // Max count for status bar widths
@@ -61,23 +63,11 @@ export default async function DashboardPage() {
       ) : (
         <>
           {/* KPI grid */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatGrid>
             {kpiCards.map((card) => (
-              <Card key={card.label}>
-                <CardContent className="pt-6">
-                  <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
-                    {card.label}
-                  </p>
-                  <p className="text-3xl font-semibold">{card.value}</p>
-                  {card.sublabel && (
-                    <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                      {card.sublabel}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+              <StatCard key={card.label} label={card.label} value={card.value} color={card.color} hint={card.sublabel} />
             ))}
-          </div>
+          </StatGrid>
 
           {canTickets && (
             <>

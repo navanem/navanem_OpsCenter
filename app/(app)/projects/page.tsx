@@ -7,7 +7,8 @@ import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { formatProjectReference } from "@/lib/projects/meta";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge } from "@/components/projects/badges";
 import { ProjectsFilters } from "./projects-filters";
@@ -32,10 +33,10 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   ]);
 
   const kpis = [
-    { label: "Total projects", value: stats.total },
-    { label: "Tasks", value: stats.taskCount },
-    { label: "No lead", value: stats.withoutLead },
-    { label: "Overdue", value: stats.overdue },
+    { label: "Total projects", value: stats.total, color: "#6d5efc" },
+    { label: "Tasks", value: stats.taskCount, color: "#3b82f6" },
+    { label: "No lead", value: stats.withoutLead, color: "#f59e0b" },
+    { label: "Overdue", value: stats.overdue, color: "#ef4444" },
   ];
 
   return (
@@ -50,16 +51,11 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
         ) : null}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatGrid>
         {kpis.map((k) => (
-          <Card key={k.label}>
-            <CardContent>
-              <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
-              <p className="mt-1 text-3xl font-semibold">{k.value}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={k.label} label={k.label} value={k.value} color={k.color} />
         ))}
-      </div>
+      </StatGrid>
 
       <ProjectsFilters
         statuses={statuses.map((s) => ({ id: s.id, name: s.name }))}
