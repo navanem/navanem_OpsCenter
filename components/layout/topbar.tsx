@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/(auth)/login/actions";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Topbar({
   name,
@@ -18,6 +19,7 @@ export function Topbar({
         </span>
       </div>
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <Link href="/settings/security" className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
           Security
         </Link>
