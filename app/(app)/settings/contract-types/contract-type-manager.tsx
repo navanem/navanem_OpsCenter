@@ -2,11 +2,7 @@
 
 import { useActionState } from "react";
 import { saveContractTypeAction, deleteContractTypeAction, type ContractTypeState } from "./actions";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const inputClass =
-  "rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
 interface ContractTypeItem {
   id: string;
@@ -17,68 +13,56 @@ interface ContractTypeItem {
   defaultHourlyRateCents: number | null;
 }
 
+const inputClass =
+  "rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
+const colorClass =
+  "h-8 w-8 shrink-0 cursor-pointer rounded-[var(--radius-sm)] border border-[var(--border)] bg-transparent p-0.5";
+const btnClass =
+  "rounded-[var(--radius-sm)] border border-[var(--border)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--muted)] disabled:opacity-50";
+
+// color | name | rate | order | active | save | delete
+const gridCols = "grid grid-cols-[2rem_minmax(0,1fr)_5rem_4rem_3rem_auto_2rem] items-center gap-2.5";
+
 function rateString(cents: number | null): string {
   return cents != null ? (cents / 100).toFixed(2) : "";
+}
+
+function TrashIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    </svg>
+  );
 }
 
 function ItemRow({ item }: { item: ContractTypeItem }) {
   const [state, action, pending] = useActionState<ContractTypeState, FormData>(saveContractTypeAction, {});
   return (
-    <li className="flex flex-col gap-2 rounded-[var(--radius)] border border-[var(--border)] p-3">
-      <div className="flex items-center gap-3">
-        <span className="inline-block h-4 w-4 flex-shrink-0 rounded-full border border-[var(--border)]" style={{ backgroundColor: item.color }} />
-        <span className="flex-1 text-sm font-medium">{item.name}</span>
-        <span className="text-xs text-[var(--muted-foreground)]">
-          {item.defaultHourlyRateCents != null ? `${rateString(item.defaultHourlyRateCents)}/h` : "no rate"}
-        </span>
-        <span className="text-xs text-[var(--muted-foreground)]">#{item.sortOrder}</span>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${item.isActive ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-[var(--muted)] text-[var(--muted-foreground)]"}`}>
-          {item.isActive ? "Active" : "Inactive"}
-        </span>
-      </div>
-
-      <form action={action} className="flex flex-wrap items-end gap-2">
+    <li className={`${gridCols} px-3 py-2 transition-colors hover:bg-[var(--muted)]/40`}>
+      <form action={action} className="contents">
         <input type="hidden" name="id" value={item.id} />
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted-foreground)]">Name</label>
-          <input type="text" name="name" required defaultValue={item.name} className={`${inputClass} w-36`} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted-foreground)]">Color</label>
-          <input type="color" name="color" defaultValue={item.color} className="h-9 w-12 cursor-pointer rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-1" />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted-foreground)]">Rate/h</label>
-          <input type="text" name="defaultHourlyRate" inputMode="decimal" defaultValue={rateString(item.defaultHourlyRateCents)} placeholder="—" className={`${inputClass} w-20`} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted-foreground)]">Order</label>
-          <input type="number" name="sortOrder" defaultValue={item.sortOrder} min={0} className={`${inputClass} w-16`} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted-foreground)]">Active</label>
-          <div className="flex h-9 items-center">
-            <input type="checkbox" name="isActive" defaultChecked={item.isActive} value="true" className="h-4 w-4 cursor-pointer" />
-          </div>
-        </div>
-        <Button type="submit" variant="outline" className="px-3 py-1 text-xs" disabled={pending}>
-          {pending ? "Saving…" : "Save"}
-        </Button>
+        <input type="color" name="color" defaultValue={item.color} className={colorClass} aria-label="Color" />
+        <input type="text" name="name" required defaultValue={item.name} className={`${inputClass} min-w-0`} aria-label="Name" />
+        <input type="text" name="defaultHourlyRate" inputMode="decimal" defaultValue={rateString(item.defaultHourlyRateCents)} placeholder="—" className={`${inputClass} w-full text-right`} aria-label="Rate per hour" />
+        <input type="number" name="sortOrder" defaultValue={item.sortOrder} min={0} className={`${inputClass} w-full text-center`} aria-label="Order" />
+        <label className="flex justify-center">
+          <input type="checkbox" name="isActive" defaultChecked={item.isActive} value="true" className="h-4 w-4 cursor-pointer" style={{ accentColor: "var(--primary)" }} aria-label="Active" />
+        </label>
+        <button type="submit" className={btnClass} disabled={pending}>{pending ? "…" : "Save"}</button>
       </form>
-
       <form
         action={deleteContractTypeAction}
+        className="contents"
         onSubmit={(e) => {
           if (!confirm(`Delete "${item.name}"? If it is in use, deactivate it instead.`)) e.preventDefault();
         }}
       >
         <input type="hidden" name="id" value={item.id} />
-        <Button type="submit" variant="outline" className="px-3 py-1 text-xs text-[var(--destructive)] hover:bg-red-50 dark:hover:bg-red-950/20">
-          Delete
-        </Button>
+        <button type="submit" aria-label="Delete" title="Delete" className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]">
+          <TrashIcon />
+        </button>
       </form>
-
-      {state.error ? <p className="text-xs text-[var(--destructive)]">{state.error}</p> : state.ok ? <p className="text-xs text-green-600 dark:text-green-400">Saved.</p> : null}
+      {state.error ? <p className="col-span-full pt-1 text-xs text-[var(--destructive)]">{state.error}</p> : null}
     </li>
   );
 }
@@ -86,31 +70,19 @@ function ItemRow({ item }: { item: ContractTypeItem }) {
 function AddForm() {
   const [state, action, pending] = useActionState<ContractTypeState, FormData>(saveContractTypeAction, {});
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2 pt-4">
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-[var(--muted-foreground)]">Name *</label>
-        <input type="text" name="name" required placeholder="New type" className={`${inputClass} w-40`} />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-[var(--muted-foreground)]">Color</label>
-        <input type="color" name="color" defaultValue="#3b82f6" className="h-9 w-12 cursor-pointer rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-1" />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-[var(--muted-foreground)]">Rate/h</label>
-        <input type="text" name="defaultHourlyRate" inputMode="decimal" placeholder="e.g. 120" className={`${inputClass} w-20`} />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-[var(--muted-foreground)]">Order</label>
-        <input type="number" name="sortOrder" defaultValue={0} min={0} className={`${inputClass} w-16`} />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-[var(--muted-foreground)]">Active</label>
-        <div className="flex h-9 items-center">
-          <input type="checkbox" name="isActive" defaultChecked value="true" className="h-4 w-4 cursor-pointer" />
-        </div>
-      </div>
-      <Button type="submit" className="px-3 py-1 text-xs" disabled={pending}>{pending ? "Adding…" : "Add"}</Button>
-      {state.error ? <p className="w-full text-xs text-[var(--destructive)]">{state.error}</p> : state.ok ? <p className="w-full text-xs text-green-600 dark:text-green-400">Saved.</p> : null}
+    <form action={action} className={`${gridCols} rounded-[var(--radius)] border border-dashed border-[var(--border)] bg-[var(--muted)]/30 px-3 py-2.5`}>
+      <input type="color" name="color" defaultValue="#3b82f6" className={colorClass} aria-label="Color" />
+      <input type="text" name="name" required placeholder="New type…" className={`${inputClass} min-w-0`} aria-label="Name" />
+      <input type="text" name="defaultHourlyRate" inputMode="decimal" placeholder="120" className={`${inputClass} w-full text-right`} aria-label="Rate per hour" />
+      <input type="number" name="sortOrder" defaultValue={0} min={0} className={`${inputClass} w-full text-center`} aria-label="Order" />
+      <label className="flex justify-center">
+        <input type="checkbox" name="isActive" defaultChecked value="true" className="h-4 w-4 cursor-pointer" style={{ accentColor: "var(--primary)" }} aria-label="Active" />
+      </label>
+      <button type="submit" className="rounded-[var(--radius-sm)] bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50" disabled={pending}>
+        {pending ? "…" : "Add"}
+      </button>
+      <span />
+      {state.error ? <p className="col-span-full pt-1 text-xs text-[var(--destructive)]">{state.error}</p> : null}
     </form>
   );
 }
@@ -121,23 +93,33 @@ export function ContractTypeManager({ items }: { items: ContractTypeItem[] }) {
       <CardHeader>
         <CardTitle>Contract types</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {items.length === 0 ? (
           <p className="text-sm text-[var(--muted-foreground)]">No contract types yet.</p>
         ) : (
-          <ul className="space-y-2">
-            {items.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </ul>
+          <div>
+            <div className={`${gridCols} px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]`}>
+              <span />
+              <span>Name</span>
+              <span className="text-right">Rate/h</span>
+              <span className="text-center">Order</span>
+              <span className="text-center">Active</span>
+              <span />
+              <span />
+            </div>
+            <ul className="divide-y divide-[var(--border)] overflow-hidden rounded-[var(--radius)] border border-[var(--border)]">
+              {items.map((item) => (
+                <ItemRow key={item.id} item={item} />
+              ))}
+            </ul>
+          </div>
         )}
+
+        <AddForm />
+
         <p className="text-xs text-[var(--muted-foreground)]">
           The default hourly rate is inherited by time entries logged for a client on this type of contract. Items in use cannot be deleted — deactivate them instead.
         </p>
-        <div className="border-t border-[var(--border)] pt-2">
-          <p className="mb-2 text-sm font-medium">Add new</p>
-          <AddForm />
-        </div>
       </CardContent>
     </Card>
   );

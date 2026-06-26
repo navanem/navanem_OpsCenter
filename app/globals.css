@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
-:root {
+/* Make the `dark:` utility variant follow the .dark class (not the OS setting),
+   so it stays in sync with the manual theme toggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Shared tokens + dark palette (default). */
+:root,
+.dark {
   --background: #0a0a10;
   --foreground: #e9e9f0;
   --card: #14141f;
@@ -19,8 +25,28 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* Light palette. */
+.light {
+  --background: #f6f7fb;
+  --foreground: #1b1b29;
+  --card: #ffffff;
+  --card-foreground: #1b1b29;
+  --muted: #eef0f6;
+  --muted-foreground: #61617a;
+  --border: #e3e5ee;
+  --primary: #6d5efc;
+  --primary-foreground: #ffffff;
+  --accent: #6d5efc;
+  --destructive: #dc2626;
+  --ring: #6d5efc;
+  --shadow: 0 1px 2px rgba(20, 20, 40, 0.06), 0 1px 3px rgba(20, 20, 40, 0.08);
+}
+
 html {
   color-scheme: dark;
+}
+html.light {
+  color-scheme: light;
 }
 
 body {

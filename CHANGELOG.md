@@ -3,6 +3,14 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.42.0] - 2026-06-26
+
+### Added
+- Light / dark theme toggle in the top bar. Your choice is remembered, and the page loads in the right theme with no flash.
+
+### Changed
+- Redesigned the Settings → Taxonomies and Contract types editors: each entry is now a clean single-row table (color, name, order, active, save, delete) with column headers, instead of a tall stacked form per item.
+
 ## [0.41.0] - 2026-06-26
 
 ### Changed
