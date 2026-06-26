@@ -12,6 +12,7 @@ import {
   cancelTotpSetupAction,
   enableTotpAction,
   disableTotpAction,
+  regenerateBackupCodesAction,
 } from "./actions";
 
 export default async function SecuritySettingsPage() {
@@ -47,6 +48,10 @@ export default async function SecuritySettingsPage() {
                 </span>
                 Your account is protected by an authenticator app.
               </p>
+              <div className="border-t border-[var(--border)] pt-4">
+                <p className="mb-2 text-[var(--muted-foreground)]">Lost your backup codes? Enter a current code to generate a new set (the old ones stop working).</p>
+                <CodeForm action={regenerateBackupCodesAction} submitLabel="Regenerate backup codes" />
+              </div>
               <div className="border-t border-[var(--border)] pt-4">
                 <p className="mb-2 text-[var(--muted-foreground)]">Enter a current code to turn it off.</p>
                 <CodeForm action={disableTotpAction} submitLabel="Turn off 2FA" destructive />

@@ -6,9 +6,11 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guard";
 import { encryptSecret, decryptSecret } from "@/lib/crypto/secret";
 import { newTotpSecret, verifyTotp } from "@/lib/auth/totp";
+import { generateBackupCodes } from "@/lib/auth/backup-codes";
 
 export interface TotpState {
   error?: string;
+  codes?: string[];
 }
 
 // Step 1: generate and store an unconfirmed secret, then show the QR to scan.
@@ -25,7 +27,7 @@ export async function beginTotpSetupAction(): Promise<void> {
 
 export async function cancelTotpSetupAction(): Promise<void> {
   const user = await requireUser();
-  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: null, totpEnabled: false } });
+  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: null, totpEnabled: false, totpBackupCodes: [] } });
   revalidatePath("/settings/security");
   redirect("/settings/security");
 }
@@ -41,16 +43,31 @@ export async function enableTotpAction(_prev: TotpState, formData: FormData): Pr
   if (typeof code !== "string" || !verifyTotp(secret, code)) {
     return { error: "That code is not valid. Try again." };
   }
-  await prisma.user.update({ where: { id: user.id }, data: { totpEnabled: true } });
+  const { codes, hashes } = generateBackupCodes();
+  await prisma.user.update({ where: { id: user.id }, data: { totpEnabled: true, totpBackupCodes: hashes } });
   revalidatePath("/settings/security");
-  redirect("/settings/security");
+  return { codes };
+}
+
+export async function regenerateBackupCodesAction(_prev: TotpState, formData: FormData): Promise<TotpState> {
+  const user = await requireUser();
+  const record = await prisma.user.findUnique({ where: { id: user.id }, select: { totpSecret: true, totpEnabled: true } });
+  if (!record?.totpEnabled || !record.totpSecret) return { error: "Two-factor authentication is not enabled." };
+  const secret = decryptSecret(record.totpSecret);
+  const code = formData.get("code");
+  if (!secret || typeof code !== "string" || !verifyTotp(secret, code)) {
+    return { error: "Enter a current code to regenerate backup codes." };
+  }
+  const { codes, hashes } = generateBackupCodes();
+  await prisma.user.update({ where: { id: user.id }, data: { totpBackupCodes: hashes } });
+  return { codes };
 }
 
 export async function disableTotpAction(_prev: TotpState, formData: FormData): Promise<TotpState> {
   const user = await requireUser();
   const record = await prisma.user.findUnique({ where: { id: user.id }, select: { totpSecret: true, totpEnabled: true } });
   if (!record?.totpEnabled || !record.totpSecret) {
-    await prisma.user.update({ where: { id: user.id }, data: { totpSecret: null, totpEnabled: false } });
+    await prisma.user.update({ where: { id: user.id }, data: { totpSecret: null, totpEnabled: false, totpBackupCodes: [] } });
     redirect("/settings/security");
   }
   const secret = decryptSecret(record!.totpSecret!);
@@ -58,7 +75,7 @@ export async function disableTotpAction(_prev: TotpState, formData: FormData): P
   if (!secret || typeof code !== "string" || !verifyTotp(secret, code)) {
     return { error: "Enter a current code to turn off two-factor authentication." };
   }
-  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: null, totpEnabled: false } });
+  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: null, totpEnabled: false, totpBackupCodes: [] } });
   revalidatePath("/settings/security");
   redirect("/settings/security");
 }
