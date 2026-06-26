@@ -95,6 +95,11 @@ export default async function TicketDetailPage({
         </div>
       </div>
 
+      <TimeLogSection
+        context={{ ticketId: ticket.id, label: `Linked to ${formatTicketReference(ticket.number)}` }}
+        redirectTo={`/tickets/${ticket.id}`}
+      />
+
       {/* Body layout */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* MAIN column (2 cols) */}
@@ -300,11 +305,6 @@ export default async function TicketDetailPage({
               )}
             </CardContent>
           </Card>
-
-          <TimeLogSection
-            context={{ ticketId: ticket.id, label: `Linked to ${formatTicketReference(ticket.number)}` }}
-            redirectTo={`/tickets/${ticket.id}`}
-          />
         </div>
       </div>
     </div>
