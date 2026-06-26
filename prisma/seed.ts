@@ -103,6 +103,17 @@ async function main() {
     for (const s of taskStatuses) {
       await prisma.projectTaskStatus.upsert({ where: { name: s.name }, update: {}, create: s });
     }
+
+    // 9. Default visit types
+    const visitTypes = [
+      { name: "Client support", color: "#3b82f6", sortOrder: 1 },
+      { name: "Office support", color: "#8b5cf6", sortOrder: 2 },
+      { name: "Maintenance", color: "#10b981", sortOrder: 3 },
+      { name: "Other", color: "#6b7280", sortOrder: 4 },
+    ];
+    for (const t of visitTypes) {
+      await prisma.visitType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
   } finally {
     await prisma.$disconnect();
   }
