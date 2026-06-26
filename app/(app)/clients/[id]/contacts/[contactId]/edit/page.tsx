@@ -48,6 +48,8 @@ export default async function EditContactPage({
               phone: contact.phone,
               isVip: contact.isVip,
               hasPhoto: Boolean(contact.photoData),
+              portalCanCreate: contact.portalCanCreate,
+              portalCanComment: contact.portalCanComment,
             }}
             submitLabel="Save changes"
           />

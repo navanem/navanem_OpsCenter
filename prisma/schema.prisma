@@ -263,6 +263,8 @@ model ClientContact {
   photoData     Bytes?
   photoMimeType String?
   portalEnabled Boolean  @default(false)
+  portalCanCreate  Boolean @default(true)
+  portalCanComment Boolean @default(true)
   passwordHash  String?
   portalTokens  PortalToken[]
   createdTickets  Ticket[]        @relation("TicketCreatedByContact")

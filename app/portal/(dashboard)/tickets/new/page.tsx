@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireContact } from "@/lib/portal/current-contact";
 import { listTicketPriorities } from "@/lib/taxonomies/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PortalTicketForm } from "./ticket-form";
 
 export default async function PortalNewTicketPage() {
-  await requireContact();
+  const contact = await requireContact();
+  if (!contact.canCreate) redirect("/portal");
   const priorities = await listTicketPriorities({ activeOnly: true });
 
   return (

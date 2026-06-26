@@ -12,6 +12,8 @@ export const contactSchema = z.object({
     .union([z.literal("on"), z.literal("true"), z.literal("false"), z.boolean()])
     .optional()
     .transform((v) => v === "on" || v === "true" || v === true),
+  portalCanCreate: z.string().optional(),
+  portalCanComment: z.string().optional(),
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;
@@ -28,5 +30,7 @@ export function normalizeContactInput(input: ContactInput) {
     email: orNull(input.email),
     phone: orNull(input.phone),
     isVip: input.isVip,
+    portalCanCreate: input.portalCanCreate === "true",
+    portalCanComment: input.portalCanComment === "true",
   };
 }
