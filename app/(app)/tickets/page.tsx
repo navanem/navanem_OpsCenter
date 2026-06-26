@@ -53,6 +53,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
         <div className="flex gap-2">
+          <a href="/api/export?type=tickets" download><Button variant="outline">Export CSV</Button></a>
           <Link href="/tickets/board"><Button variant="outline">Board view</Button></Link>
           {can(user, "tickets.manage") ? <Link href="/tickets/new"><Button>New ticket</Button></Link> : null}
         </div>

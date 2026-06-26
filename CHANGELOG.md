@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.39.0] - 2026-06-26
+
+### Added
+- CSV export extended to the Tickets list and (for managers) the Timesheets list. Timesheets export requires the "view all" permission and the Timesheeting module enabled.
+
 ## [0.38.0] - 2026-06-26
 
 ### Added
