@@ -2,7 +2,10 @@ import { prisma } from "@/lib/db";
 
 export function listUsers() {
   return prisma.user.findMany({
-    include: { role: true },
+    include: {
+      role: true,
+      invitations: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
     orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
   });
 }
