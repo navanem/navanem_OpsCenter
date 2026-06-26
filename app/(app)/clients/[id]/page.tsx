@@ -8,10 +8,12 @@ import { listProjects } from "@/lib/projects/queries";
 import { listClientVisits } from "@/lib/planning/queries";
 import { listContracts } from "@/lib/contracts/queries";
 import { listClientDevices } from "@/lib/devices/queries";
+import { listClientSubscriptions } from "@/lib/subscriptions/queries";
 import { listClientContacts } from "@/lib/contacts/queries";
-import { isContractsEnabled, isDevicesEnabled } from "@/lib/settings/service";
+import { isContractsEnabled, isDevicesEnabled, isSubscriptionsEnabled } from "@/lib/settings/service";
 import { DeviceBadge } from "@/components/devices/badges";
 import { formatDeviceReference } from "@/lib/devices/meta";
+import { formatSubscriptionReference } from "@/lib/subscriptions/meta";
 import { formatTicketReference } from "@/lib/tickets/meta";
 import type { TicketStatusKey } from "@/lib/tickets/meta";
 import { formatProjectReference } from "@/lib/projects/meta";
@@ -52,6 +54,7 @@ export default async function ClientDetailPage({
   const canReadVisits = can(user, "visits.read");
   const canReadContracts = can(user, "contracts.read") && (await isContractsEnabled());
   const canReadDevices = can(user, "devices.read") && (await isDevicesEnabled());
+  const canReadSubs = can(user, "subscriptions.read") && (await isSubscriptionsEnabled());
 
   const technician = client.assignedTechnician
     ? `${client.assignedTechnician.firstName} ${client.assignedTechnician.lastName}`
@@ -72,11 +75,12 @@ export default async function ClientDetailPage({
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const [projects, upcomingVisits, contracts, devices, contacts] = await Promise.all([
+  const [projects, upcomingVisits, contracts, devices, subscriptions, contacts] = await Promise.all([
     canReadProjects ? listProjects({ clientId: id }) : Promise.resolve([]),
     canReadVisits ? listClientVisits(id, { from: today, take: 10 }) : Promise.resolve([]),
     canReadContracts ? listContracts({ clientId: id }) : Promise.resolve([]),
     canReadDevices ? listClientDevices(id) : Promise.resolve([]),
+    canReadSubs ? listClientSubscriptions(id) : Promise.resolve([]),
     listClientContacts(id),
   ]);
 
@@ -420,6 +424,47 @@ export default async function ClientDetailPage({
                       <DeviceBadge name={d.type.name} color={d.type.color} />
                     </div>
                     <DeviceBadge name={d.status.name} color={d.status.color} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {canReadSubs ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                Subscriptions{" "}
+                <span className="text-[var(--muted-foreground)] font-normal text-sm">({subscriptions.length})</span>
+              </CardTitle>
+              {can(user, "subscriptions.manage") && (
+                <Link href="/subscriptions/new">
+                  <Button variant="outline">New subscription</Button>
+                </Link>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {subscriptions.length === 0 ? (
+              <p className="text-[var(--muted-foreground)]">No subscriptions.</p>
+            ) : (
+              <div>
+                {subscriptions.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between border-b border-[var(--border)] py-2 last:border-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Link href={`/subscriptions/${s.id}/edit`} className="font-mono text-xs text-[var(--muted-foreground)] shrink-0 hover:underline">
+                        {formatSubscriptionReference(s.number)}
+                      </Link>
+                      <span className="font-medium truncate">{s.name}</span>
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${s.type.color}22`, color: s.type.color }}>{s.type.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {s.renewalDate ? <span className="text-xs text-[var(--muted-foreground)]">{new Date(s.renewalDate).toLocaleDateString()}</span> : null}
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${s.status.color}22`, color: s.status.color }}>{s.status.name}</span>
+                    </div>
                   </div>
                 ))}
               </div>

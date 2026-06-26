@@ -102,6 +102,7 @@ model Client {
   timeTimers           TimeTimer[]
   contracts            Contract[]
   devices              Device[]
+  subscriptions        Subscription[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -153,6 +154,7 @@ model AppSetting {
   devicesEnabled      Boolean @default(false)
   enforce2fa          Boolean @default(false)
   defaultLocale       String  @default("en")
+  subscriptionsEnabled Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -626,4 +628,51 @@ model Device {
 
   @@index([clientId])
   @@index([statusId])
+}
+
+model Subscription {
+  id            String             @id @default(cuid())
+  number        Int                @unique @default(autoincrement())
+  name          String
+  typeId        String
+  type          SubscriptionType   @relation(fields: [typeId], references: [id])
+  statusId      String
+  status        SubscriptionStatus @relation(fields: [statusId], references: [id])
+  clientId      String?
+  client        Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  provider      String?
+  reference     String?
+  costCents     Int?
+  billingCycle  BillingCycle       @default(MONTHLY)
+  seats         Int?
+  startDate     DateTime?
+  renewalDate   DateTime?
+  autoRenew     Boolean            @default(true)
+  supportLevel  String?
+  warrantyEnd   DateTime?
+  notes         String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([clientId])
+  @@index([statusId])
+  @@index([renewalDate])
+}
+
+model SubscriptionType {
+  id            String         @id @default(cuid())
+  name          String
+  color         String         @default("#3b82f6")
+  sortOrder     Int            @default(0)
+  isActive      Boolean        @default(true)
+  subscriptions Subscription[]
+}
+
+model SubscriptionStatus {
+  id            String         @id @default(cuid())
+  name          String
+  color         String         @default("#3b82f6")
+  sortOrder     Int            @default(0)
+  isActive      Boolean        @default(true)
+  subscriptions Subscription[]
 }

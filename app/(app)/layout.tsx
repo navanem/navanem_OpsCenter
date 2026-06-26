@@ -31,6 +31,7 @@ export default async function AppLayout({
           timesheetingEnabled={settings.timesheetingEnabled}
           contractsEnabled={settings.contractsEnabled}
           devicesEnabled={settings.devicesEnabled}
+          subscriptionsEnabled={settings.subscriptionsEnabled}
           nav={dict.nav}
         />
         <div className="flex flex-1 flex-col">

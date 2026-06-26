@@ -25,4 +25,9 @@ export async function isDevicesEnabled(): Promise<boolean> {
   return settings.devicesEnabled;
 }
 
+export async function isSubscriptionsEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.subscriptionsEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;

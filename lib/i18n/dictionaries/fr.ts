@@ -91,6 +91,8 @@ export const fr: Dictionary = {
     warrantiesExpiring: "Garanties qui expirent",
     noContractsEnding: "Aucun contrat n'échoit dans les 30 prochains jours.",
     noWarrantiesExpiring: "Aucune garantie n'expire dans les 60 prochains jours.",
+    subscriptionsRenewing: "Abonnements à renouveler",
+    noSubscriptionsRenewing: "Aucun abonnement à renouveler dans les 30 prochains jours.",
     noTicketsYet: "Aucun ticket pour le moment.",
     ticketsByStatus: "Tickets par statut",
     recentTickets: "Tickets récents",

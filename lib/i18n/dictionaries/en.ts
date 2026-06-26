@@ -89,6 +89,8 @@ export const en = {
     warrantiesExpiring: "Warranties expiring",
     noContractsEnding: "No contracts ending in the next 30 days.",
     noWarrantiesExpiring: "No warranties expiring in the next 60 days.",
+    subscriptionsRenewing: "Subscriptions renewing",
+    noSubscriptionsRenewing: "No subscriptions renewing in the next 30 days.",
     noTicketsYet: "No tickets yet.",
     ticketsByStatus: "Tickets by status",
     recentTickets: "Recent tickets",
