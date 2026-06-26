@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.41.0] - 2026-06-26
+
+### Changed
+- Redesigned the ticket detail page for a cleaner, less cluttered right column: editable fields (status, priority, assignee, due date, device, tags) now save instantly on change instead of each having its own form and "Update" button, the duplicated read-only/edit fields were merged, and the activity timeline moved to the main column where it reads at full width.
+
 ## [0.40.0] - 2026-06-26
 
 ### Added

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getTicket } from "@/lib/tickets/queries";
@@ -16,9 +17,10 @@ import {
 } from "@/lib/tickets/meta";
 import { StatusBadge, PriorityBadge, CategoryBadge } from "@/components/tickets/badges";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TimeLogSection } from "@/components/timesheets/time-log-section";
+import { InlineSelect, InlineDate, InlineTags } from "./inline-controls";
+import { CommentForm } from "./comment-form";
 import {
   updateStatusAction,
   updatePriorityAction,
@@ -35,10 +37,26 @@ function toLocalDateTime(d: Date | string | null | undefined): string {
   const p = (n: number) => `${n}`.padStart(2, "0");
   return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}`;
 }
-import { CommentForm } from "./comment-form";
 
-const selectClass =
-  "rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
+// Stacked label + control, used for the editable fields in the Details card.
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+// Compact read-only row: muted label on the left, value on the right.
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <span className="shrink-0 text-[var(--muted-foreground)]">{label}</span>
+      <span className="text-right">{children}</span>
+    </div>
+  );
+}
 
 function activitySentence(activity: {
   type: string;
@@ -90,16 +108,18 @@ export default async function TicketDetailPage({
   ]);
   if (!ticket) notFound();
 
-  const ticketTagIds = new Set(ticket.tags.map((t) => t.id));
-
   const canManage = can(user, "tickets.manage");
   const canAssign = can(user, "tickets.assign");
   const devicesEnabled = (await isDevicesEnabled()) && can(user, "devices.read");
   const clientDevices = devicesEnabled ? await listClientDevices(ticket.client.id) : [];
 
+  const hidden = { id: ticket.id };
+  const overdue = isTicketOverdue(ticket.dueAt, ticket.status);
+
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Tickets", href: "/tickets" }, { label: formatTicketReference(ticket.number) }]} />
+
       {/* Header */}
       <div className="space-y-1">
         <span className="inline-flex rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-xs text-[var(--muted-foreground)]">
@@ -112,6 +132,9 @@ export default async function TicketDetailPage({
           <div className="flex items-center gap-2 shrink-0">
             <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} />
             <PriorityBadge name={ticket.priority.name} color={ticket.priority.color} />
+            {overdue ? (
+              <span className="rounded-full bg-[#ef444422] px-2 py-0.5 text-xs font-medium text-[#ef4444]">Overdue</span>
+            ) : null}
           </div>
         </div>
       </div>
@@ -127,9 +150,7 @@ export default async function TicketDetailPage({
             </CardHeader>
             <CardContent>
               {ticket.description ? (
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {ticket.description}
-                </p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{ticket.description}</p>
               ) : (
                 <p className="text-sm text-[var(--muted-foreground)]">No description provided.</p>
               )}
@@ -180,231 +201,8 @@ export default async function TicketDetailPage({
               {canManage && <CommentForm ticketId={ticket.id} />}
             </CardContent>
           </Card>
-        </div>
 
-        {/* SIDE column */}
-        <div className="space-y-6">
-          <TimeLogSection
-            context={{ ticketId: ticket.id, label: `Linked to ${formatTicketReference(ticket.number)}` }}
-            redirectTo={`/tickets/${ticket.id}`}
-          />
-
-          {/* Properties */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Properties</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3 text-sm">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[var(--muted-foreground)]">Client</span>
-                  <span className="font-medium">{ticket.client.companyName}</span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[var(--muted-foreground)]">Category</span>
-                  <CategoryBadge name={ticket.category.name} color={ticket.category.color} />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[var(--muted-foreground)]">Created by</span>
-                  <span className="font-medium">
-                    {ticket.createdBy
-                      ? `${ticket.createdBy.firstName} ${ticket.createdBy.lastName}`
-                      : ticket.createdByContact
-                        ? `${ticket.createdByContact.firstName} ${ticket.createdByContact.lastName} (client)`
-                        : "—"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[var(--muted-foreground)]">Created</span>
-                  <span className="font-medium">{ticket.createdAt.toLocaleString()}</span>
-                </div>
-                {ticket.closedAt && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[var(--muted-foreground)]">Closed</span>
-                    <span className="font-medium">{ticket.closedAt.toLocaleString()}</span>
-                  </div>
-                )}
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[var(--muted-foreground)]">Assignee</span>
-                  <span className="font-medium">
-                    {ticket.assignee
-                      ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
-                      : "Unassigned"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[var(--muted-foreground)]">Due date</span>
-                  <span className="flex items-center gap-2 font-medium">
-                    {ticket.dueAt ? new Date(ticket.dueAt).toLocaleString() : "—"}
-                    {isTicketOverdue(ticket.dueAt, ticket.status) ? (
-                      <span className="rounded-full bg-[#ef444422] px-2 py-0.5 text-xs font-medium text-[#ef4444]">
-                        Overdue
-                      </span>
-                    ) : null}
-                  </span>
-                </div>
-                {devicesEnabled ? (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[var(--muted-foreground)]">Device</span>
-                    {ticket.device ? (
-                      <Link href={`/devices/${ticket.device.id}/edit`} className="font-medium hover:underline">
-                        <span className="font-mono text-xs text-[var(--muted-foreground)]">{formatDeviceReference(ticket.device.number)}</span>{" "}
-                        {ticket.device.name}
-                      </Link>
-                    ) : (
-                      <span className="text-[var(--muted-foreground)]">None</span>
-                    )}
-                  </div>
-                ) : null}
-                <div className="flex flex-col gap-1">
-                  <span className="text-[var(--muted-foreground)]">Tags</span>
-                  {ticket.tags.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
-                      {ticket.tags.map((tag) => (
-                        <span key={tag.id} className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${tag.color}22`, color: tag.color }}>
-                          {tag.name}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-[var(--muted-foreground)]">None</span>
-                  )}
-                </div>
-              </div>
-
-              {canManage && (
-                <div className="space-y-3 border-t border-[var(--border)] pt-4">
-                  {/* Status */}
-                  <form action={updateStatusAction} className="flex flex-col gap-2">
-                    <input type="hidden" name="id" value={ticket.id} />
-                    <label className="text-xs font-medium text-[var(--muted-foreground)]">
-                      Status
-                    </label>
-                    <select
-                      name="status"
-                      defaultValue={ticket.status}
-                      className={selectClass}
-                    >
-                      {TICKET_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {TICKET_STATUS_META[s].label}
-                        </option>
-                      ))}
-                    </select>
-                    <Button type="submit" variant="outline" className="self-start">
-                      Update status
-                    </Button>
-                  </form>
-
-                  {/* Priority */}
-                  <form action={updatePriorityAction} className="flex flex-col gap-2">
-                    <input type="hidden" name="id" value={ticket.id} />
-                    <label className="text-xs font-medium text-[var(--muted-foreground)]">
-                      Priority
-                    </label>
-                    <select
-                      name="priorityId"
-                      defaultValue={ticket.priorityId}
-                      className={selectClass}
-                    >
-                      {priorities.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </select>
-                    <Button type="submit" variant="outline" className="self-start">
-                      Update priority
-                    </Button>
-                  </form>
-
-                  {/* Due date */}
-                  <form action={updateDueDateAction} className="flex flex-col gap-2">
-                    <input type="hidden" name="id" value={ticket.id} />
-                    <label className="text-xs font-medium text-[var(--muted-foreground)]">
-                      Due date
-                    </label>
-                    <input
-                      type="datetime-local"
-                      name="dueAt"
-                      defaultValue={toLocalDateTime(ticket.dueAt)}
-                      className={selectClass}
-                    />
-                    <Button type="submit" variant="outline" className="self-start">
-                      Update due date
-                    </Button>
-                  </form>
-
-                  {/* Device */}
-                  {devicesEnabled ? (
-                    <form action={updateTicketDeviceAction} className="flex flex-col gap-2">
-                      <input type="hidden" name="id" value={ticket.id} />
-                      <label className="text-xs font-medium text-[var(--muted-foreground)]">Device</label>
-                      <select name="deviceId" defaultValue={ticket.deviceId ?? ""} className={selectClass}>
-                        <option value="">None</option>
-                        {clientDevices.map((d) => (
-                          <option key={d.id} value={d.id}>{d.name}</option>
-                        ))}
-                      </select>
-                      <Button type="submit" variant="outline" className="self-start">
-                        Update device
-                      </Button>
-                    </form>
-                  ) : null}
-
-                  {/* Tags */}
-                  {allTags.length > 0 ? (
-                    <form action={updateTicketTagsAction} className="flex flex-col gap-2">
-                      <input type="hidden" name="id" value={ticket.id} />
-                      <label className="text-xs font-medium text-[var(--muted-foreground)]">Tags</label>
-                      <div className="flex flex-col gap-1.5">
-                        {allTags.map((tag) => (
-                          <label key={tag.id} className="flex items-center gap-1.5 text-sm">
-                            <input type="checkbox" name="tags" value={tag.id} defaultChecked={ticketTagIds.has(tag.id)} className="h-4 w-4 cursor-pointer" />
-                            <span className="inline-flex items-center gap-1.5">
-                              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: tag.color }} />
-                              {tag.name}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                      <Button type="submit" variant="outline" className="self-start">
-                        Update tags
-                      </Button>
-                    </form>
-                  ) : null}
-                </div>
-              )}
-
-              {canAssign && (
-                <div className="border-t border-[var(--border)] pt-4">
-                  <form action={assignTicketAction} className="flex flex-col gap-2">
-                    <input type="hidden" name="id" value={ticket.id} />
-                    <label className="text-xs font-medium text-[var(--muted-foreground)]">
-                      Assignee
-                    </label>
-                    <select
-                      name="assigneeId"
-                      defaultValue={ticket.assignee?.id ?? ""}
-                      className={selectClass}
-                    >
-                      <option value="">Unassigned</option>
-                      {technicians.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.firstName} {t.lastName}
-                        </option>
-                      ))}
-                    </select>
-                    <Button type="submit" variant="outline" className="self-start">
-                      Assign
-                    </Button>
-                  </form>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Activity timeline */}
+          {/* Activity timeline (full reading width) */}
           <Card>
             <CardHeader>
               <CardTitle>Activity</CardTitle>
@@ -425,6 +223,146 @@ export default async function TicketDetailPage({
                   ))}
                 </ol>
               )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* SIDE column */}
+        <div className="space-y-6">
+          <TimeLogSection
+            context={{ ticketId: ticket.id, label: `Linked to ${formatTicketReference(ticket.number)}` }}
+            redirectTo={`/tickets/${ticket.id}`}
+          />
+
+          {/* Details — editable controls auto-submit on change (no buttons) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div className="space-y-3">
+                <Field label="Status">
+                  {canManage ? (
+                    <InlineSelect
+                      action={updateStatusAction}
+                      name="status"
+                      hidden={hidden}
+                      defaultValue={ticket.status}
+                      options={TICKET_STATUSES.map((s) => ({ value: s, label: TICKET_STATUS_META[s].label }))}
+                    />
+                  ) : (
+                    <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} />
+                  )}
+                </Field>
+
+                <Field label="Priority">
+                  {canManage ? (
+                    <InlineSelect
+                      action={updatePriorityAction}
+                      name="priorityId"
+                      hidden={hidden}
+                      defaultValue={ticket.priorityId}
+                      options={priorities.map((p) => ({ value: p.id, label: p.name }))}
+                    />
+                  ) : (
+                    <PriorityBadge name={ticket.priority.name} color={ticket.priority.color} />
+                  )}
+                </Field>
+
+                <Field label="Assignee">
+                  {canAssign ? (
+                    <InlineSelect
+                      action={assignTicketAction}
+                      name="assigneeId"
+                      hidden={hidden}
+                      defaultValue={ticket.assignee?.id ?? ""}
+                      emptyLabel="Unassigned"
+                      options={technicians.map((t) => ({ value: t.id, label: `${t.firstName} ${t.lastName}` }))}
+                    />
+                  ) : (
+                    <span className="font-medium">
+                      {ticket.assignee ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}` : "Unassigned"}
+                    </span>
+                  )}
+                </Field>
+
+                <Field label="Due date">
+                  {canManage ? (
+                    <InlineDate action={updateDueDateAction} name="dueAt" hidden={hidden} defaultValue={toLocalDateTime(ticket.dueAt)} />
+                  ) : (
+                    <span className={`font-medium ${overdue ? "text-[#ef4444]" : ""}`}>
+                      {ticket.dueAt ? new Date(ticket.dueAt).toLocaleString() : "—"}
+                    </span>
+                  )}
+                </Field>
+
+                {devicesEnabled ? (
+                  <Field label="Device">
+                    {canManage ? (
+                      <InlineSelect
+                        action={updateTicketDeviceAction}
+                        name="deviceId"
+                        hidden={hidden}
+                        defaultValue={ticket.deviceId ?? ""}
+                        emptyLabel="None"
+                        options={clientDevices.map((d) => ({ value: d.id, label: d.name }))}
+                      />
+                    ) : ticket.device ? (
+                      <Link href={`/devices/${ticket.device.id}/edit`} className="font-medium hover:underline">
+                        <span className="font-mono text-xs text-[var(--muted-foreground)]">{formatDeviceReference(ticket.device.number)}</span>{" "}
+                        {ticket.device.name}
+                      </Link>
+                    ) : (
+                      <span className="text-[var(--muted-foreground)]">None</span>
+                    )}
+                  </Field>
+                ) : null}
+
+                {allTags.length > 0 ? (
+                  <Field label="Tags">
+                    {canManage ? (
+                      <InlineTags action={updateTicketTagsAction} hidden={hidden} allTags={allTags} selectedIds={ticket.tags.map((t) => t.id)} />
+                    ) : ticket.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {ticket.tags.map((tag) => (
+                          <span key={tag.id} className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${tag.color}22`, color: tag.color }}>
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[var(--muted-foreground)]">None</span>
+                    )}
+                  </Field>
+                ) : null}
+              </div>
+
+              {/* Read-only facts */}
+              <div className="space-y-2.5 border-t border-[var(--border)] pt-4">
+                <Fact label="Client">
+                  <Link href={`/clients/${ticket.client.id}`} className="font-medium hover:underline">{ticket.client.companyName}</Link>
+                </Fact>
+                <Fact label="Category">
+                  <CategoryBadge name={ticket.category.name} color={ticket.category.color} />
+                </Fact>
+                <Fact label="Created by">
+                  <span className="font-medium">
+                    {ticket.createdBy
+                      ? `${ticket.createdBy.firstName} ${ticket.createdBy.lastName}`
+                      : ticket.createdByContact
+                        ? `${ticket.createdByContact.firstName} ${ticket.createdByContact.lastName} (client)`
+                        : "—"}
+                  </span>
+                </Fact>
+                <Fact label="Created">
+                  <span className="font-medium">{ticket.createdAt.toLocaleString()}</span>
+                </Fact>
+                {ticket.closedAt ? (
+                  <Fact label="Closed">
+                    <span className="font-medium">{ticket.closedAt.toLocaleString()}</span>
+                  </Fact>
+                ) : null}
+              </div>
             </CardContent>
           </Card>
         </div>
