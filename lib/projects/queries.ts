@@ -14,6 +14,18 @@ export function listProjects(filters: ProjectFilters) {
   });
 }
 
+export async function getProjectStats() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [total, withoutLead, overdue, taskCount] = await Promise.all([
+    prisma.project.count(),
+    prisma.project.count({ where: { leadId: null } }),
+    prisma.project.count({ where: { dueDate: { lt: today } } }),
+    prisma.projectTask.count(),
+  ]);
+  return { total, withoutLead, overdue, taskCount };
+}
+
 export function getProject(id: string) {
   return prisma.project.findUnique({
     where: { id },

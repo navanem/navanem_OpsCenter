@@ -16,6 +16,21 @@ export function listVisitsInRange(opts: { from: Date; to: Date; assigneeId?: str
   });
 }
 
+export function listClientVisits(clientId: string, opts?: { from?: Date; take?: number }) {
+  return prisma.visit.findMany({
+    where: {
+      clientId,
+      ...(opts?.from ? { scheduledAt: { gte: opts.from } } : {}),
+    },
+    include: {
+      type: { select: { id: true, name: true, color: true } },
+      assignee: { select: { id: true, firstName: true, lastName: true } },
+    },
+    orderBy: { scheduledAt: "asc" },
+    take: opts?.take ?? 20,
+  });
+}
+
 export function getVisit(id: string) {
   return prisma.visit.findUnique({
     where: { id },

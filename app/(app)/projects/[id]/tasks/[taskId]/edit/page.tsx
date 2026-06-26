@@ -6,6 +6,7 @@ import { listTechnicians } from "@/lib/users/queries";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TaskForm } from "../../../task-form";
+import { TimeLogSection } from "@/components/timesheets/time-log-section";
 import { updateTaskAction } from "../../../../actions";
 
 export default async function EditTaskPage({
@@ -61,6 +62,11 @@ export default async function EditTaskPage({
           />
         </CardContent>
       </Card>
+
+      <TimeLogSection
+        context={{ taskId: task.id, label: `Linked to task "${task.title}"` }}
+        redirectTo={`/projects/${id}/tasks/${task.id}/edit`}
+      />
     </div>
   );
 }

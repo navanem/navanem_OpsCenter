@@ -58,6 +58,9 @@ model User {
   assignedTasks            ProjectTask[]    @relation("ProjectTaskAssignee")
   assignedVisits           Visit[]          @relation("VisitAssignee")
   assignedRecurringVisits  RecurringVisit[] @relation("RecurringVisitAssignee")
+  timeEntries              TimeEntry[]      @relation("TimeEntryUser")
+  approvedTimeEntries      TimeEntry[]      @relation("TimeEntryApprover")
+  timeTimer                TimeTimer?       @relation("TimeTimerUser")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -89,6 +92,8 @@ model Client {
   projects             Project[]
   visits               Visit[]
   recurringVisits      RecurringVisit[]
+  timeEntries          TimeEntry[]
+  timeTimers           TimeTimer[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -124,6 +129,7 @@ model AppSetting {
   smtpPasswordEnc String?
   smtpFrom        String?
   smtpSecure      Boolean  @default(false)
+  timesheetingEnabled Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -162,6 +168,8 @@ model Ticket {
   createdBy   User             @relation("TicketCreatedBy", fields: [createdById], references: [id])
   comments    TicketComment[]
   activities  TicketActivity[]
+  timeEntries TimeEntry[]
+  timeTimers  TimeTimer[]
   closedAt    DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -297,6 +305,8 @@ model ProjectTask {
   startDate   DateTime?
   dueDate     DateTime?
   sortOrder   Int               @default(0)
+  timeEntries TimeEntry[]
+  timeTimers  TimeTimer[]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 }
@@ -367,6 +377,59 @@ model Visit {
   notes            String?
   recurringVisitId String?
   recurringVisit   RecurringVisit? @relation(fields: [recurringVisitId], references: [id], onDelete: SetNull)
+  timeEntries      TimeEntry[]
+  timeTimers       TimeTimer[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+}
+
+enum TimeEntryStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model TimeEntry {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation("TimeEntryUser", fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime
+  minutes         Int
+  description     String?
+  billable        Boolean         @default(true)
+  hourlyRateCents Int?
+  status          TimeEntryStatus @default(DRAFT)
+  ticketId        String?
+  ticket          Ticket?         @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  taskId          String?
+  task            ProjectTask?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  visitId         String?
+  visit           Visit?          @relation(fields: [visitId], references: [id], onDelete: SetNull)
+  clientId        String?
+  client          Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  approvedById    String?
+  approvedBy      User?           @relation("TimeEntryApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt      DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([userId, date])
+  @@index([status])
+}
+
+model TimeTimer {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  user        User         @relation("TimeTimerUser", fields: [userId], references: [id], onDelete: Cascade)
+  description String?
+  ticketId    String?
+  ticket      Ticket?      @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  taskId      String?
+  task        ProjectTask? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  visitId     String?
+  visit       Visit?       @relation(fields: [visitId], references: [id], onDelete: SetNull)
+  clientId    String?
+  client      Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  startedAt   DateTime     @default(now())
 }

@@ -3,6 +3,17 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.13.0] - 2026-06-26
+
+### Added
+- Timesheeting module (toggle on/off in Settings → General): log time against tickets, project tasks, visits, or a client, with a manual entry form or a live start/stop timer.
+- Billable flag and hourly rate per entry, plus a submit → approve/reject workflow; approvers review submitted time at Timesheets → Approvals.
+- "My timesheets" page with KPIs (total/billable time, submitted, approved), status filters, and an everyone view for managers.
+- Time-tracking section embedded on ticket, project task, and visit pages.
+- New RBAC permissions: `timesheets.read`, `timesheets.read.all`, `timesheets.approve`.
+- Projects list now shows KPIs (total projects, tasks, no-lead, overdue).
+- Client detail now lists the client's projects and upcoming visits.
+
 ## [0.12.0] - 2026-06-26
 
 ### Added
