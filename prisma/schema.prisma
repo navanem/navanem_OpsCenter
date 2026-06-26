@@ -47,6 +47,7 @@ model User {
   passwordHash     String?
   totpSecret       String?
   totpEnabled      Boolean          @default(false)
+  totpBackupCodes  String[]
   status           UserStatus       @default(INVITED)
   roleId           String
   role             Role             @relation(fields: [roleId], references: [id])

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import type { TotpState } from "./actions";
@@ -16,6 +17,26 @@ export function CodeForm({
   destructive?: boolean;
 }) {
   const [state, formAction, pending] = useActionState<TotpState, FormData>(action, {});
+
+  if (state.codes && state.codes.length > 0) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Save your backup codes</p>
+        <p className="text-xs text-[var(--muted-foreground)]">
+          Each code works once if you lose access to your authenticator. They won&apos;t be shown again.
+        </p>
+        <ul className="grid grid-cols-2 gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-3 font-mono text-sm">
+          {state.codes.map((c) => (
+            <li key={c}>{c}</li>
+          ))}
+        </ul>
+        <Link href="/settings/security" className="inline-block text-sm text-[var(--primary)] hover:underline">
+          I&apos;ve saved them — done
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-2">
       <div className="flex flex-col gap-1">

@@ -15,7 +15,7 @@ export default async function LoginVerifyPage() {
         </CardHeader>
         <CardContent>
           <p className="mb-4 text-sm text-[var(--muted-foreground)]">
-            Enter the 6-digit code from your authenticator app.
+            Enter the 6-digit code from your authenticator app, or one of your backup codes.
           </p>
           <VerifyForm />
         </CardContent>
