@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth/password";
 import { setSessionCookie, clearSessionCookie } from "@/lib/auth/session";
+import { setTotpChallengeCookie } from "@/lib/auth/totp-challenge";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -36,6 +37,12 @@ export async function loginAction(
 
   const ok = await verifyPassword(user.passwordHash, parsed.data.password);
   if (!ok) return invalid;
+
+  // Second factor: defer the real session until the TOTP code is verified.
+  if (user.totpEnabled) {
+    await setTotpChallengeCookie(user.id);
+    redirect("/login/verify");
+  }
 
   await setSessionCookie({ userId: user.id, email: user.email });
   redirect("/dashboard");

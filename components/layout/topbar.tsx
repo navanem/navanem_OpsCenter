@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { logoutAction } from "@/app/(auth)/login/actions";
 import { Button } from "@/components/ui/button";
 
@@ -16,11 +17,16 @@ export function Topbar({
           {roleName}
         </span>
       </div>
-      <form action={logoutAction}>
-        <Button variant="outline" type="submit">
-          Sign out
-        </Button>
-      </form>
+      <div className="flex items-center gap-3">
+        <Link href="/settings/security" className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+          Security
+        </Link>
+        <form action={logoutAction}>
+          <Button variant="outline" type="submit">
+            Sign out
+          </Button>
+        </form>
+      </div>
     </header>
   );
 }

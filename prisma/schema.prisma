@@ -45,6 +45,8 @@ model User {
   phone            String?
   avatarUrl        String?
   passwordHash     String?
+  totpSecret       String?
+  totpEnabled      Boolean          @default(false)
   status           UserStatus       @default(INVITED)
   roleId           String
   role             Role             @relation(fields: [roleId], references: [id])
