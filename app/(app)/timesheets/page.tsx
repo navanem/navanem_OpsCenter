@@ -34,10 +34,10 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
   ]);
 
   const kpis = [
-    { label: "Total time", value: formatMinutes(stats.totalMinutes) },
-    { label: "Billable time", value: formatMinutes(stats.billableMinutes) },
-    { label: "Submitted", value: stats.submitted },
-    { label: "Approved", value: stats.approved },
+    { label: "Total time", value: formatMinutes(stats.totalMinutes), color: "#6d5efc" },
+    { label: "Billable time", value: formatMinutes(stats.billableMinutes), color: "#10b981" },
+    { label: "Submitted", value: stats.submitted, color: "#3b82f6" },
+    { label: "Approved", value: stats.approved, color: "#22c55e" },
   ];
 
   const running = timer
@@ -70,10 +70,11 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k) => (
-          <Card key={k.label}>
+          <Card key={k.label} className="relative overflow-hidden">
+            <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: k.color }} />
             <CardContent>
               <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">{k.label}</p>
-              <p className="mt-1 text-3xl font-semibold">{k.value}</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums">{k.value}</p>
             </CardContent>
           </Card>
         ))}
