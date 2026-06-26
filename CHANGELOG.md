@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.15.0] - 2026-06-26
+
+### Added
+- Project detail now offers four task views: **List**, **Board**, **Timeline** (Gantt-style bars across the project's date range, colored by status), and **Calendar** (month grid with tasks on their due dates, navigable by month).
+
 ## [0.14.0] - 2026-06-26
 
 ### Added

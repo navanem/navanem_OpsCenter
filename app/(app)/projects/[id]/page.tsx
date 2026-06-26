@@ -28,6 +28,7 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
 
   const canManage = can(user, "projects.manage");
+  const now = new Date();
 
   const totalTasks = project.tasks.length;
   const doneTasks = project.tasks.filter(
@@ -142,6 +143,8 @@ export default async function ProjectDetailPage({
         statuses={taskStatuses}
         canManage={canManage}
         projectId={project.id}
+        initialYear={now.getFullYear()}
+        initialMonth={now.getMonth()}
       />
     </div>
   );

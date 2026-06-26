@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { StatusBadge, TaskPriorityBadge } from "@/components/projects/badges";
 import { TaskBoard } from "./task-board";
+import { TaskTimeline } from "./task-timeline";
+import { TaskCalendar } from "./task-calendar";
 import type { TaskPriorityKey } from "@/lib/projects/meta";
 
 interface TaskStatus {
@@ -20,6 +22,7 @@ interface ProjectTask {
   status: { id: string; name: string; color: string };
   priority: TaskPriorityKey;
   assignee: { id: string; firstName: string; lastName: string } | null;
+  startDate: Date | string | null;
   dueDate: Date | string | null;
 }
 
@@ -28,18 +31,20 @@ interface Props {
   statuses: TaskStatus[];
   canManage: boolean;
   projectId: string;
+  initialYear: number;
+  initialMonth: number;
 }
 
-type View = "List" | "Board";
+type View = "List" | "Board" | "Timeline" | "Calendar";
 
-export function ProjectViews({ tasks, statuses, canManage, projectId }: Props) {
+export function ProjectViews({ tasks, statuses, canManage, projectId, initialYear, initialMonth }: Props) {
   const [view, setView] = useState<View>("List");
 
   return (
     <div className="space-y-4">
       {/* Tab switch */}
       <div className="flex items-center gap-1 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-1 w-fit">
-        {(["List", "Board"] as View[]).map((v) => (
+        {(["List", "Board", "Timeline", "Calendar"] as View[]).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -120,8 +125,9 @@ export function ProjectViews({ tasks, statuses, canManage, projectId }: Props) {
             </table>
           )}
         </Card>
-      ) : (
-        /* Board view */
+      ) : null}
+
+      {view === "Board" ? (
         <TaskBoard
           projectId={projectId}
           statuses={statuses}
@@ -136,7 +142,35 @@ export function ProjectViews({ tasks, statuses, canManage, projectId }: Props) {
           }))}
           canManage={canManage}
         />
-      )}
+      ) : null}
+
+      {view === "Timeline" ? (
+        <TaskTimeline
+          projectId={projectId}
+          tasks={tasks.map((t) => ({
+            id: t.id,
+            title: t.title,
+            startDate: t.startDate,
+            dueDate: t.dueDate,
+            status: { name: t.status.name, color: t.status.color },
+          }))}
+        />
+      ) : null}
+
+      {view === "Calendar" ? (
+        <TaskCalendar
+          projectId={projectId}
+          initialYear={initialYear}
+          initialMonth={initialMonth}
+          tasks={tasks.map((t) => ({
+            id: t.id,
+            title: t.title,
+            startDate: t.startDate,
+            dueDate: t.dueDate,
+            status: { name: t.status.name, color: t.status.color },
+          }))}
+        />
+      ) : null}
     </div>
   );
 }
