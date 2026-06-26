@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
-import { listClients, getClientStats, getClientOpenTicketCounts } from "@/lib/clients/queries";
+import {
+  listClients,
+  getClientStats,
+  getClientOpenTicketCounts,
+  getClientMrrCents,
+  getClientDeviceCounts,
+} from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
+import { isContractsEnabled, isDevicesEnabled } from "@/lib/settings/service";
+import { formatMoneyCents } from "@/lib/contracts/meta";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -19,12 +27,19 @@ export default async function ClientsPage({
   const status = sp.status === "ACTIVE" || sp.status === "INACTIVE" ? sp.status : undefined;
 
   const canReadTickets = can(user, "tickets.read");
-  const [clients, technicians, stats, openCounts] = await Promise.all([
+  const [contractsEnabled, devicesEnabled] = await Promise.all([isContractsEnabled(), isDevicesEnabled()]);
+  const showMrr = contractsEnabled && can(user, "contracts.read");
+  const showDevices = devicesEnabled && can(user, "devices.read");
+  const empty = Promise.resolve({} as Record<string, number>);
+  const [clients, technicians, stats, openCounts, mrrCents, deviceCounts] = await Promise.all([
     listClients({ search: sp.search, status, technicianId: sp.technicianId }),
     listTechnicians(),
     getClientStats(),
-    canReadTickets ? getClientOpenTicketCounts() : Promise.resolve({} as Record<string, number>),
+    canReadTickets ? getClientOpenTicketCounts() : empty,
+    showMrr ? getClientMrrCents() : empty,
+    showDevices ? getClientDeviceCounts() : empty,
   ]);
+  const totalMrrCents = Object.values(mrrCents).reduce((a, b) => a + b, 0);
 
   return (
     <div className="space-y-6">
@@ -47,6 +62,7 @@ export default async function ClientsPage({
         ) : (
           <StatCard label="Inactive" value={stats.total - stats.active} color="#6b7280" />
         )}
+        {showMrr ? <StatCard label="MRR" value={formatMoneyCents(totalMrrCents)} color="#8b5cf6" /> : null}
       </StatGrid>
 
       <ClientsFilters technicians={technicians} />
@@ -62,6 +78,8 @@ export default async function ClientsPage({
                 <th scope="col" className="px-6 py-3 font-medium">Domain</th>
                 <th scope="col" className="px-6 py-3 font-medium">Technician</th>
                 {canReadTickets ? <th scope="col" className="px-6 py-3 font-medium">Open tickets</th> : null}
+                {showDevices ? <th scope="col" className="px-6 py-3 font-medium">Devices</th> : null}
+                {showMrr ? <th scope="col" className="px-6 py-3 font-medium">MRR</th> : null}
                 <th scope="col" className="px-6 py-3 font-medium">Status</th>
               </tr>
             </thead>
@@ -88,6 +106,22 @@ export default async function ClientsPage({
                       ) : (
                         <span className="text-[var(--muted-foreground)]">—</span>
                       )}
+                    </td>
+                  ) : null}
+                  {showDevices ? (
+                    <td className="px-6 py-3">
+                      {deviceCounts[c.id] ? (
+                        <span className="inline-flex items-center rounded-full bg-[#6d5efc22] px-2 py-0.5 text-xs font-medium text-[#6d5efc]">
+                          {deviceCounts[c.id]}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--muted-foreground)]">—</span>
+                      )}
+                    </td>
+                  ) : null}
+                  {showMrr ? (
+                    <td className="px-6 py-3 text-[var(--muted-foreground)] tabular-nums">
+                      {mrrCents[c.id] ? formatMoneyCents(mrrCents[c.id]) : "—"}
                     </td>
                   ) : null}
                   <td className="px-6 py-3">

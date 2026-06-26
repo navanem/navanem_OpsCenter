@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.35.0] - 2026-06-26
+
+### Added
+- The Clients list now shows monthly recurring revenue (MRR) and device count per client, plus a total-MRR KPI. Columns appear only when the Contracts / Devices modules are enabled and you have permission to see them.
+
 ## [0.34.0] - 2026-06-26
 
 ### Added
