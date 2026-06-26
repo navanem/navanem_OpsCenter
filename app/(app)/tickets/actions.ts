@@ -48,6 +48,13 @@ export async function createTicketAction(
   const due = parsed.data.dueAt ? new Date(parsed.data.dueAt) : null;
   const dueAt = due && !isNaN(due.getTime()) ? due : null;
   const tagIds = formData.getAll("tags").filter((t): t is string => typeof t === "string" && t.length > 0);
+  // Optional device link (e.g. when opening a ticket from a device); must belong to the ticket's client.
+  const deviceRaw = formData.get("deviceId");
+  let deviceId: string | null = null;
+  if (typeof deviceRaw === "string" && deviceRaw.length > 0) {
+    const device = await prisma.device.findUnique({ where: { id: deviceRaw } });
+    if (device && device.clientId === parsed.data.clientId) deviceId = device.id;
+  }
   const ticket = await prisma.ticket.create({
     data: {
       subject: parsed.data.subject,
@@ -57,6 +64,7 @@ export async function createTicketAction(
       priorityId: parsed.data.priorityId,
       assigneeId,
       dueAt,
+      deviceId,
       createdById: user.id,
       tags: tagIds.length > 0 ? { connect: tagIds.map((id) => ({ id })) } : undefined,
       activities: { create: { type: "CREATED", actorId: user.id } },

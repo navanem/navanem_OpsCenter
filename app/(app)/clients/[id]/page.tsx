@@ -105,8 +105,29 @@ export default async function ClientDetailPage({
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: "Clients", href: "/clients" }, { label: client.companyName }]} />
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">{client.companyName}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--primary)]/15 text-lg font-semibold text-[var(--primary)]">
+            {client.companyName.slice(0, 2).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight">{client.companyName}</h1>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${client.status === "ACTIVE" ? "bg-[#10b98122] text-[#10b981]" : "bg-[var(--muted)] text-[var(--muted-foreground)]"}`}>
+                {client.status === "ACTIVE" ? "Active" : "Inactive"}
+              </span>
+            </div>
+            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--muted-foreground)]">
+              {client.industry ? <span>{client.industry.name}</span> : null}
+              {client.domain ? <span>{client.domain}</span> : null}
+              <span>{technician}</span>
+              {canReadTickets ? <span><strong className="text-[var(--foreground)]">{open.length}</strong> open tickets</span> : null}
+              {canReadProjects ? <span><strong className="text-[var(--foreground)]">{projects.length}</strong> projects</span> : null}
+              {canReadDevices ? <span><strong className="text-[var(--foreground)]">{devices.length}</strong> devices</span> : null}
+              <span><strong className="text-[var(--foreground)]">{contacts.length}</strong> contacts</span>
+            </div>
+          </div>
+        </div>
         {manage ? (
           <div className="flex gap-2">
             <Link href={`/clients/${client.id}/edit`}>
