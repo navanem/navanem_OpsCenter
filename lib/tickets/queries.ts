@@ -46,11 +46,15 @@ export function getTicket(id: string) {
       client: { select: { id: true, companyName: true, domain: true } },
       assignee: { select: { id: true, firstName: true, lastName: true } },
       createdBy: { select: { id: true, firstName: true, lastName: true } },
+      createdByContact: { select: { id: true, firstName: true, lastName: true } },
       category: { select: { id: true, name: true, color: true } },
       priority: { select: { id: true, name: true, color: true } },
       tags: { select: { id: true, name: true, color: true } },
       comments: {
-        include: { author: { select: { id: true, firstName: true, lastName: true } } },
+        include: {
+          author: { select: { id: true, firstName: true, lastName: true } },
+          authorContact: { select: { id: true, firstName: true, lastName: true } },
+        },
         orderBy: { createdAt: "asc" },
       },
       activities: {
