@@ -46,11 +46,16 @@ export default async function ClientsPage({
       <Breadcrumbs items={[{ label: "Clients" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-        {can(user, "clients.manage") ? (
-          <Link href="/clients/new">
-            <Button>New client</Button>
-          </Link>
-        ) : null}
+        <div className="flex items-center gap-2">
+          <a href="/api/export?type=clients" download>
+            <Button variant="outline">Export CSV</Button>
+          </a>
+          {can(user, "clients.manage") ? (
+            <Link href="/clients/new">
+              <Button>New client</Button>
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <StatGrid>

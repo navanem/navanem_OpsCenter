@@ -42,9 +42,12 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
       <Breadcrumbs items={[{ label: "Contracts" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Contracts</h1>
-        {can(user, "contracts.manage") ? (
-          <Link href="/contracts/new"><Button>New contract</Button></Link>
-        ) : null}
+        <div className="flex items-center gap-2">
+          <a href="/api/export?type=contracts" download><Button variant="outline">Export CSV</Button></a>
+          {can(user, "contracts.manage") ? (
+            <Link href="/contracts/new"><Button>New contract</Button></Link>
+          ) : null}
+        </div>
       </div>
 
       <StatGrid>

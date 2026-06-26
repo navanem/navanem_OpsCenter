@@ -34,7 +34,10 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
       <Breadcrumbs items={[{ label: "Devices" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Devices</h1>
-        {can(user, "devices.manage") ? <Link href="/devices/new"><Button>New device</Button></Link> : null}
+        <div className="flex items-center gap-2">
+          <a href="/api/export?type=devices" download><Button variant="outline">Export CSV</Button></a>
+          {can(user, "devices.manage") ? <Link href="/devices/new"><Button>New device</Button></Link> : null}
+        </div>
       </div>
 
       <StatGrid>

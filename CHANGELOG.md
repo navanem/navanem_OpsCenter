@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.38.0] - 2026-06-26
+
+### Added
+- Export to CSV from the Clients, Devices, and Contracts lists (Excel-friendly UTF-8). Each export respects module-enabled state and your permissions.
+
 ## [0.37.0] - 2026-06-26
 
 ### Added
