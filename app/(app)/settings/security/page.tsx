@@ -1,6 +1,8 @@
 import QRCode from "qrcode";
 import { requireUser } from "@/lib/auth/guard";
+import { can } from "@/lib/rbac/can";
 import { prisma } from "@/lib/db";
+import { getAppSettings } from "@/lib/settings/service";
 import { decryptSecret } from "@/lib/crypto/secret";
 import { totpAuthUri } from "@/lib/auth/totp";
 import { Button } from "@/components/ui/button";
@@ -13,14 +15,19 @@ import {
   enableTotpAction,
   disableTotpAction,
   regenerateBackupCodesAction,
+  updateEnforce2faAction,
 } from "./actions";
 
 export default async function SecuritySettingsPage() {
   const user = await requireUser();
-  const record = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { email: true, totpSecret: true, totpEnabled: true },
-  });
+  const [record, settings] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { email: true, totpSecret: true, totpEnabled: true },
+    }),
+    getAppSettings(),
+  ]);
+  const canManageSettings = can(user, "settings.manage");
 
   const enabled = Boolean(record?.totpEnabled);
   const pendingSecret = !enabled && record?.totpSecret ? decryptSecret(record.totpSecret) : null;
@@ -86,6 +93,26 @@ export default async function SecuritySettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      {canManageSettings ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Organization policy</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <form action={updateEnforce2faAction} className="flex flex-col gap-3">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" name="enforce2fa" value="true" defaultChecked={settings.enforce2fa} className="h-4 w-4 cursor-pointer" />
+                Require two-factor authentication for all users
+              </label>
+              <p className="text-xs text-[var(--muted-foreground)]">
+                When on, users without 2FA are prompted to set it up before they can use the app. Backup codes ensure no one is locked out.
+              </p>
+              <Button type="submit" variant="outline" className="self-start">Save policy</Button>
+            </form>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

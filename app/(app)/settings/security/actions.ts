@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/auth/guard";
+import { requireUser, requirePermission } from "@/lib/auth/guard";
+import { APP_SETTING_ID } from "@/lib/settings/service";
 import { encryptSecret, decryptSecret } from "@/lib/crypto/secret";
 import { newTotpSecret, verifyTotp } from "@/lib/auth/totp";
 import { generateBackupCodes } from "@/lib/auth/backup-codes";
@@ -11,6 +12,19 @@ import { generateBackupCodes } from "@/lib/auth/backup-codes";
 export interface TotpState {
   error?: string;
   codes?: string[];
+}
+
+// Admin: require 2FA for all accounts.
+export async function updateEnforce2faAction(formData: FormData): Promise<void> {
+  await requirePermission("settings.manage");
+  const enabled = formData.get("enforce2fa") === "true";
+  await prisma.appSetting.upsert({
+    where: { id: APP_SETTING_ID },
+    update: { enforce2fa: enabled },
+    create: { id: APP_SETTING_ID, enforce2fa: enabled },
+  });
+  revalidatePath("/", "layout");
+  redirect("/settings/security");
 }
 
 // Step 1: generate and store an unconfirmed secret, then show the QR to scan.

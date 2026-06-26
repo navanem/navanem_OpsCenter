@@ -11,6 +11,8 @@ export default async function AppLayout({
 }) {
   const [user, settings] = await Promise.all([getCurrentUser(), getAppSettings()]);
   if (!user) redirect("/login");
+  // Forced 2FA onboarding: send users without 2FA to the setup screen (outside this layout, so no loop).
+  if (settings.enforce2fa && !user.totpEnabled) redirect("/setup-2fa");
 
   return (
     <div className="flex min-h-screen">
