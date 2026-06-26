@@ -9,6 +9,8 @@ const TABS = [
   { key: "category", label: "Ticket categories" },
   { key: "priority", label: "Ticket priorities" },
   { key: "industry", label: "Client industries" },
+  { key: "project-status", label: "Project statuses" },
+  { key: "task-status", label: "Task statuses" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -17,10 +19,14 @@ export function TaxonomyTabs({
   categories,
   priorities,
   industries,
+  projectStatuses,
+  taskStatuses,
 }: {
   categories: Item[];
   priorities: Item[];
   industries: Item[];
+  projectStatuses: Item[];
+  taskStatuses: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
@@ -50,6 +56,12 @@ export function TaxonomyTabs({
       ) : null}
       {tab === "industry" ? (
         <TaxonomyManager kind="industry" title="Client industries" items={industries} />
+      ) : null}
+      {tab === "project-status" ? (
+        <TaxonomyManager kind="project-status" title="Project statuses" items={projectStatuses} />
+      ) : null}
+      {tab === "task-status" ? (
+        <TaxonomyManager kind="task-status" title="Task statuses" items={taskStatuses} />
       ) : null}
     </div>
   );

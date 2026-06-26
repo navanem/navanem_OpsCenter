@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const inputClass =
   "rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
-type Kind = "category" | "priority" | "industry";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status";
 
 interface TaxonomyItem {
   id: string;
@@ -228,7 +228,7 @@ export function TaxonomyManager({ kind, title, items }: TaxonomyManagerProps) {
         )}
 
         <p className="text-xs text-[var(--muted-foreground)]">
-          Items in use by tickets cannot be deleted — deactivate them instead.
+          Items in use cannot be deleted — deactivate them instead.
         </p>
 
         <div className="border-t border-[var(--border)] pt-2">

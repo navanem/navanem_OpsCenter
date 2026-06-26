@@ -3,6 +3,13 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.11.0] - 2026-06-26
+
+### Added
+- Project management: projects linked to clients with a lead, dates, and tasks. Configurable project and task statuses (managed in Settings → Taxonomies).
+- Projects list with filters, a project detail with an overview, and List and Kanban Board task views (drag-and-drop to change a task's status).
+- New RBAC permissions: `projects.read`, `projects.manage`, `projects.assign`.
+
 ## [0.10.0] - 2026-06-25
 
 ### Added
