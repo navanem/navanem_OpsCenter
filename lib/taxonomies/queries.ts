@@ -74,3 +74,11 @@ export function listContractStatuses(opts?: { activeOnly?: boolean }) {
 export function getContractStatus(id: string) {
   return prisma.contractStatus.findUnique({ where: { id } });
 }
+
+export function listTicketTags(opts?: { activeOnly?: boolean }) {
+  return prisma.ticketTag.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function getTicketTag(id: string) {
+  return prisma.ticketTag.findUnique({ where: { id } });
+}

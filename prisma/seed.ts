@@ -137,6 +137,18 @@ async function main() {
     for (const s of contractStatuses) {
       await prisma.contractStatus.upsert({ where: { name: s.name }, update: {}, create: s });
     }
+
+    // 12. Default ticket tags
+    const ticketTags = [
+      { name: "Bug", color: "#ef4444", sortOrder: 1 },
+      { name: "Feature request", color: "#8b5cf6", sortOrder: 2 },
+      { name: "Question", color: "#3b82f6", sortOrder: 3 },
+      { name: "Follow-up", color: "#f59e0b", sortOrder: 4 },
+      { name: "Billing", color: "#10b981", sortOrder: 5 },
+    ];
+    for (const t of ticketTags) {
+      await prisma.ticketTag.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
   } finally {
     await prisma.$disconnect();
   }
