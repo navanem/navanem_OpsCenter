@@ -76,3 +76,29 @@ export function listLeads(filters: { search?: string; statusId?: string; sourceI
 export function getLead(id: string) {
   return prisma.lead.findUnique({ where: { id }, include: leadInclude });
 }
+
+// Lightweight CRM summary for the dashboard: open pipeline value and the open
+// deals that need attention (overdue or closing within the next 14 days).
+export async function getCrmDashboard() {
+  const now = new Date();
+  const horizon = new Date(now);
+  horizon.setDate(horizon.getDate() + 14);
+  const [openAgg, attention] = await Promise.all([
+    prisma.opportunity.aggregate({ where: { outcome: "OPEN" }, _sum: { valueCents: true } }),
+    prisma.opportunity.findMany({
+      where: { outcome: "OPEN", expectedCloseAt: { not: null, lte: horizon } },
+      select: {
+        id: true,
+        number: true,
+        name: true,
+        valueCents: true,
+        expectedCloseAt: true,
+        client: { select: { companyName: true } },
+        stage: { select: { name: true, color: true } },
+      },
+      orderBy: { expectedCloseAt: "asc" },
+      take: 6,
+    }),
+  ]);
+  return { openValueCents: openAgg._sum.valueCents ?? 0, attention };
+}
