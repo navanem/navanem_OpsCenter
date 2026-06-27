@@ -314,6 +314,37 @@ async function main() {
     for (const s of ciStatuses) {
       await prisma.configItemStatus.upsert({ where: { name: s.name }, update: {}, create: s });
     }
+
+    // 20. Default CRM pipeline stages, lead sources & lead statuses
+    const opportunityStages = [
+      { name: "Qualification", color: "#3b82f6", sortOrder: 1 },
+      { name: "Discovery", color: "#06b6d4", sortOrder: 2 },
+      { name: "Proposal", color: "#8b5cf6", sortOrder: 3 },
+      { name: "Negotiation", color: "#f59e0b", sortOrder: 4 },
+      { name: "Closing", color: "#10b981", sortOrder: 5 },
+    ];
+    for (const s of opportunityStages) {
+      await prisma.opportunityStage.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
+    const leadSources = [
+      { name: "Website", color: "#6366f1", sortOrder: 1 },
+      { name: "Referral", color: "#10b981", sortOrder: 2 },
+      { name: "Cold outreach", color: "#3b82f6", sortOrder: 3 },
+      { name: "Event", color: "#f59e0b", sortOrder: 4 },
+      { name: "Partner", color: "#ec4899", sortOrder: 5 },
+    ];
+    for (const s of leadSources) {
+      await prisma.leadSource.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
+    const leadStatuses = [
+      { name: "New", color: "#3b82f6", sortOrder: 1 },
+      { name: "Contacted", color: "#06b6d4", sortOrder: 2 },
+      { name: "Qualified", color: "#8b5cf6", sortOrder: 3 },
+      { name: "Unqualified", color: "#6b7280", sortOrder: 4 },
+    ];
+    for (const s of leadStatuses) {
+      await prisma.leadStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }

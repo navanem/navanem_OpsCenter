@@ -35,6 +35,7 @@ export default async function AppLayout({
           subscriptionsEnabled={settings.subscriptionsEnabled}
           changesEnabled={settings.changesEnabled}
           cmdbEnabled={settings.cmdbEnabled}
+          crmEnabled={settings.crmEnabled}
           nav={dict.nav}
           navGroups={dict.navGroups}
         />

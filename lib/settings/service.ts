@@ -40,4 +40,9 @@ export async function isCmdbEnabled(): Promise<boolean> {
   return settings.cmdbEnabled;
 }
 
+export async function isCrmEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.crmEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;
