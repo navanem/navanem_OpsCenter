@@ -138,3 +138,19 @@ export function listLeadStatuses(opts?: { activeOnly?: boolean }) {
 export function listOpportunityStages(opts?: { activeOnly?: boolean }) {
   return prisma.opportunityStage.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
 }
+
+export function listProblemTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.problemType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listProblemStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.problemStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listReleaseTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.releaseType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listReleaseStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.releaseStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}

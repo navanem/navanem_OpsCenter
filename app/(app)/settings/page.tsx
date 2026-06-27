@@ -22,6 +22,8 @@ export default async function SettingsPage() {
     { title: t.changes, description: t.changesDesc, href: "/settings/changes", permission: "settings.manage" },
     { title: t.cmdb, description: t.cmdbDesc, href: "/settings/cmdb", permission: "settings.manage" },
     { title: t.crm, description: t.crmDesc, href: "/settings/crm", permission: "settings.manage" },
+    { title: t.problems, description: t.problemsDesc, href: "/settings/problems", permission: "settings.manage" },
+    { title: t.releases, description: t.releasesDesc, href: "/settings/releases", permission: "settings.manage" },
     { title: t.users, description: t.usersDesc, href: "/settings/users", permission: "users.read" },
     { title: t.roles, description: t.rolesDesc, href: "/settings/roles", permission: "roles.read" },
     { title: t.audit, description: t.auditDesc, href: "/settings/audit", permission: "audit.read" },

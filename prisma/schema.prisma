@@ -72,6 +72,8 @@ model User {
   approvedChanges          Change[]         @relation("ChangeApprover")
   ownedLeads               Lead[]           @relation("LeadOwner")
   ownedOpportunities       Opportunity[]    @relation("OpportunityOwner")
+  assignedProblems         Problem[]        @relation("ProblemAssignee")
+  ownedReleases            Release[]        @relation("ReleaseOwner")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -131,6 +133,8 @@ model Client {
   configItems          ConfigItem[]
   opportunities        Opportunity[]
   convertedLeads       Lead[]       @relation("LeadConvertedClient")
+  problems             Problem[]
+  releases             Release[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -186,6 +190,8 @@ model AppSetting {
   changesEnabled      Boolean @default(false)
   cmdbEnabled         Boolean @default(false)
   crmEnabled          Boolean @default(false)
+  problemsEnabled     Boolean @default(false)
+  releasesEnabled     Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -908,4 +914,92 @@ model OpportunityStage {
   sortOrder     Int           @default(0)
   isActive      Boolean       @default(true)
   opportunities Opportunity[]
+}
+
+model Problem {
+  id          String         @id @default(cuid())
+  number      Int            @unique @default(autoincrement())
+  title       String
+  description String?
+  typeId      String?
+  type        ProblemType?   @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  statusId    String
+  status      ProblemStatus  @relation(fields: [statusId], references: [id])
+  clientId    String?
+  client      Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  assigneeId  String?
+  assignee    User?          @relation("ProblemAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  priority    String?
+  impact      String?
+  rootCause   String?
+  workaround  String?
+  resolution  String?
+  knownError  Boolean        @default(false)
+  resolvedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([clientId])
+  @@index([statusId])
+}
+
+model ProblemType {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String    @default("#ef4444")
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  problems  Problem[]
+}
+
+model ProblemStatus {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String    @default("#6b7280")
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  problems  Problem[]
+}
+
+model Release {
+  id           String         @id @default(cuid())
+  number       Int            @unique @default(autoincrement())
+  name         String
+  version      String?
+  description  String?
+  typeId       String?
+  type         ReleaseType?   @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  statusId     String
+  status       ReleaseStatus  @relation(fields: [statusId], references: [id])
+  clientId     String?
+  client       Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  ownerId      String?
+  owner        User?          @relation("ReleaseOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  plannedDate  DateTime?
+  releasedDate DateTime?
+  releaseNotes String?
+  rollbackPlan String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([clientId])
+  @@index([statusId])
+}
+
+model ReleaseType {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String    @default("#6366f1")
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  releases  Release[]
+}
+
+model ReleaseStatus {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String    @default("#6b7280")
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  releases  Release[]
 }

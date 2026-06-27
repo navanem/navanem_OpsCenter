@@ -29,6 +29,10 @@ const TABS = [
   { key: "opportunity-stage", label: "Opportunity stages" },
   { key: "lead-source", label: "Lead sources" },
   { key: "lead-status", label: "Lead statuses" },
+  { key: "problem-type", label: "Problem types" },
+  { key: "problem-status", label: "Problem statuses" },
+  { key: "release-type", label: "Release types" },
+  { key: "release-status", label: "Release statuses" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -56,6 +60,10 @@ export function TaxonomyTabs({
   opportunityStages,
   leadSources,
   leadStatuses,
+  problemTypes,
+  problemStatuses,
+  releaseTypes,
+  releaseStatuses,
 }: {
   categories: Item[];
   priorities: Item[];
@@ -79,6 +87,10 @@ export function TaxonomyTabs({
   opportunityStages: Item[];
   leadSources: Item[];
   leadStatuses: Item[];
+  problemTypes: Item[];
+  problemStatuses: Item[];
+  releaseTypes: Item[];
+  releaseStatuses: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
@@ -165,6 +177,18 @@ export function TaxonomyTabs({
       ) : null}
       {tab === "lead-status" ? (
         <TaxonomyManager kind="lead-status" title="Lead statuses" items={leadStatuses} />
+      ) : null}
+      {tab === "problem-type" ? (
+        <TaxonomyManager kind="problem-type" title="Problem types" items={problemTypes} />
+      ) : null}
+      {tab === "problem-status" ? (
+        <TaxonomyManager kind="problem-status" title="Problem statuses" items={problemStatuses} />
+      ) : null}
+      {tab === "release-type" ? (
+        <TaxonomyManager kind="release-type" title="Release types" items={releaseTypes} />
+      ) : null}
+      {tab === "release-status" ? (
+        <TaxonomyManager kind="release-status" title="Release statuses" items={releaseStatuses} />
       ) : null}
     </div>
   );

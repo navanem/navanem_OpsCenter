@@ -3,6 +3,13 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.63.0] - 2026-06-27
+
+### Added
+- ITSM Problem Management module (toggle in Settings → Problems): track problems (PRB-####) behind recurring incidents with configurable type and status, priority (low→critical), impact, root cause, workaround, a known-error flag and resolution (which marks the problem resolved). List with KPIs (open, known errors, resolved) and filters. Gated by `problems.read` / `problems.manage` permissions.
+- ITSM Release Management module (toggle in Settings → Releases): plan and track releases (REL-####) with a version, configurable type and status, owner, client, planned and actual release dates, release notes and a rollback plan. List with KPIs (planned, upcoming, released) and filters. Gated by `releases.read` / `releases.manage` permissions.
+- Both record actions in the audit log, add their type/status taxonomies in Settings → Taxonomies, and are fully bilingual EN/FR.
+
 ## [0.62.0] - 2026-06-27
 
 ### Added

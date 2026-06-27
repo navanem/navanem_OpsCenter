@@ -22,6 +22,10 @@ import {
   listOpportunityStages,
   listLeadSources,
   listLeadStatuses,
+  listProblemTypes,
+  listProblemStatuses,
+  listReleaseTypes,
+  listReleaseStatuses,
 } from "@/lib/taxonomies/queries";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TaxonomyTabs } from "./taxonomy-tabs";
@@ -29,7 +33,7 @@ import { TaxonomyTabs } from "./taxonomy-tabs";
 export default async function TaxonomiesPage() {
   await requirePermission("settings.manage");
 
-  const [categories, priorities, industries, projectStatuses, taskStatuses, visitTypes, contractTypes, contractStatuses, tags, knowledgeCategories, deviceTypes, deviceStatuses, subscriptionTypes, subscriptionStatuses, ticketTypes, changeTypes, changeStatuses, ciTypes, ciStatuses, opportunityStages, leadSources, leadStatuses] =
+  const [categories, priorities, industries, projectStatuses, taskStatuses, visitTypes, contractTypes, contractStatuses, tags, knowledgeCategories, deviceTypes, deviceStatuses, subscriptionTypes, subscriptionStatuses, ticketTypes, changeTypes, changeStatuses, ciTypes, ciStatuses, opportunityStages, leadSources, leadStatuses, problemTypes, problemStatuses, releaseTypes, releaseStatuses] =
     await Promise.all([
       listTicketCategories(),
       listTicketPriorities(),
@@ -53,6 +57,10 @@ export default async function TaxonomiesPage() {
       listOpportunityStages(),
       listLeadSources(),
       listLeadStatuses(),
+      listProblemTypes(),
+      listProblemStatuses(),
+      listReleaseTypes(),
+      listReleaseStatuses(),
     ]);
 
   return (
@@ -92,6 +100,10 @@ export default async function TaxonomiesPage() {
         opportunityStages={opportunityStages}
         leadSources={leadSources}
         leadStatuses={leadStatuses}
+        problemTypes={problemTypes}
+        problemStatuses={problemStatuses}
+        releaseTypes={releaseTypes}
+        releaseStatuses={releaseStatuses}
       />
     </div>
   );
