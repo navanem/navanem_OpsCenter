@@ -7,27 +7,32 @@ import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { listOpportunityStages } from "@/lib/taxonomies/queries";
 import { formatOpportunityReference } from "@/lib/crm/meta";
+import { isSmtpConfigured } from "@/lib/mailer";
 import { OpportunityTimeline } from "../../opportunity-timeline";
+import { EmailComposer } from "../../email-composer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { getDictionary } from "@/lib/i18n/server";
 import { OpportunityForm } from "../../opportunity-form";
-import { updateOpportunityAction, deleteOpportunityAction } from "../../actions";
+import { updateOpportunityAction, deleteOpportunityAction, sendOpportunityEmailAction } from "../../actions";
 
 export default async function EditOpportunityPage({ params }: { params: Promise<{ id: string }> }) {
   await requirePermission("crm.manage");
   if (!(await isCrmEnabled())) notFound();
   const { id } = await params;
-  const [opp, activities, clients, owners, stages, dict] = await Promise.all([
+  const [opp, activities, clients, owners, stages, smtpReady, dict] = await Promise.all([
     getOpportunity(id),
     listOpportunityActivities(id),
     listClients({}),
     listTechnicians(),
     listOpportunityStages({ activeOnly: true }),
+    isSmtpConfigured(),
     getDictionary(),
   ]);
   if (!opp) notFound();
+
+  const contactEmail = opp.client?.contactEmail ?? null;
 
   const ref = formatOpportunityReference(opp.number);
 
@@ -59,6 +64,15 @@ export default async function EditOpportunityPage({ params }: { params: Promise<
           />
         </CardContent>
       </Card>
+
+      {smtpReady && contactEmail ? (
+        <Card>
+          <CardHeader><CardTitle>{dict.crm.sendEmail}</CardTitle></CardHeader>
+          <CardContent>
+            <EmailComposer action={sendOpportunityEmailAction} id={opp.id} to={contactEmail} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader><CardTitle>{dict.crm.activity}</CardTitle></CardHeader>

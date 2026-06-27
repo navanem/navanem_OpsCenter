@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.65.0] - 2026-06-27
+
+### Added
+- Email CRM contacts: when SMTP is configured (Settings → Email), an opportunity with a client contact email and a lead with an email address each show a **Send email** card on their detail page — compose a subject and message and send it via the configured SMTP server. Opportunity emails are logged on the **activity timeline**; both are recorded in the audit log. Bilingual EN/FR.
+
 ## [0.64.0] - 2026-06-27
 
 ### Added

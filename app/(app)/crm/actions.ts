@@ -9,6 +9,7 @@ import { opportunitySchema, normalizeOpportunityInput } from "@/lib/validation/c
 import { recordAudit } from "@/lib/audit/log";
 import { recordOpportunityActivity } from "@/lib/crm/activity";
 import { formatOpportunityReference } from "@/lib/crm/meta";
+import { sendMail, isSmtpConfigured } from "@/lib/mailer";
 
 export interface OpportunityFormState {
   error?: string;
@@ -87,6 +88,39 @@ export async function markOutcomeAction(id: string, outcome: string): Promise<vo
   await recordAudit({ action: "outcome_changed", entityType: "opportunity", entityId: id, entityLabel: formatOpportunityReference(opp.number), summary: `Marked opportunity ${formatOpportunityReference(opp.number)} as ${outcome.toLowerCase()}` });
   await recordOpportunityActivity(id, "OUTCOME_CHANGED", outcome);
   revalidatePath("/crm");
+}
+
+export interface EmailState {
+  error?: string;
+  ok?: boolean;
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Email the opportunity's client contact and log it on the timeline.
+export async function sendOpportunityEmailAction(_prev: EmailState, formData: FormData): Promise<EmailState> {
+  await requireCrm();
+  const id = formData.get("id");
+  const subject = formData.get("subject");
+  const body = formData.get("body");
+  if (typeof id !== "string" || id.length === 0) return { error: "Missing opportunity id." };
+  if (typeof subject !== "string" || subject.trim().length === 0) return { error: "Subject is required." };
+  if (typeof body !== "string" || body.trim().length === 0) return { error: "Message is required." };
+  if (!(await isSmtpConfigured())) return { error: "SMTP is not configured. Set it up in Settings → Email." };
+  const opp = await prisma.opportunity.findUnique({ where: { id }, select: { number: true, client: { select: { contactEmail: true } } } });
+  const to = opp?.client?.contactEmail;
+  if (!to) return { error: "This opportunity's client has no contact email." };
+  try {
+    await sendMail({ to, subject: subject.trim(), html: `<p>${escapeHtml(body.trim()).replace(/\n/g, "<br>")}</p>`, text: body.trim() });
+  } catch {
+    return { error: "Failed to send the email. Check the SMTP settings." };
+  }
+  await recordOpportunityActivity(id, "EMAIL", subject.trim());
+  await recordAudit({ action: "emailed", entityType: "opportunity", entityId: id, entityLabel: opp ? formatOpportunityReference(opp.number) : undefined, summary: `Emailed ${to} re: "${subject.trim()}"` });
+  revalidatePath(`/crm/${id}/edit`);
+  return { ok: true };
 }
 
 // Add a free-text note to an opportunity's timeline.

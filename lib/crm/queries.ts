@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 
 const oppInclude = {
   stage: { select: { id: true, name: true, color: true } },
-  client: { select: { id: true, companyName: true } },
+  client: { select: { id: true, companyName: true, contactEmail: true } },
   owner: { select: { id: true, firstName: true, lastName: true } },
 };
 

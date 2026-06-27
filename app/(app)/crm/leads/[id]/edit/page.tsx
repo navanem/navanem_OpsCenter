@@ -6,22 +6,25 @@ import { getLead } from "@/lib/crm/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { listLeadSources, listLeadStatuses } from "@/lib/taxonomies/queries";
 import { formatLeadReference } from "@/lib/crm/meta";
+import { isSmtpConfigured } from "@/lib/mailer";
+import { EmailComposer } from "../../../email-composer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { getDictionary } from "@/lib/i18n/server";
 import { LeadForm } from "../../lead-form";
-import { updateLeadAction, deleteLeadAction, convertLeadAction } from "../../actions";
+import { updateLeadAction, deleteLeadAction, convertLeadAction, sendLeadEmailAction } from "../../actions";
 
 export default async function EditLeadPage({ params }: { params: Promise<{ id: string }> }) {
   await requirePermission("crm.manage");
   if (!(await isCrmEnabled())) notFound();
   const { id } = await params;
-  const [lead, owners, sources, statuses, dict] = await Promise.all([
+  const [lead, owners, sources, statuses, smtpReady, dict] = await Promise.all([
     getLead(id),
     listTechnicians(),
     listLeadSources({ activeOnly: true }),
     listLeadStatuses({ activeOnly: true }),
+    isSmtpConfigured(),
     getDictionary(),
   ]);
   if (!lead) notFound();
@@ -56,6 +59,15 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
           )}
         </CardContent>
       </Card>
+
+      {smtpReady && lead.email ? (
+        <Card>
+          <CardHeader><CardTitle>{dict.crm.sendEmail}</CardTitle></CardHeader>
+          <CardContent>
+            <EmailComposer action={sendLeadEmailAction} id={lead.id} to={lead.email} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader><CardTitle>{ref}</CardTitle></CardHeader>
