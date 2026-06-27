@@ -18,6 +18,7 @@ const DOT: Record<string, string> = {
   STAGE_CHANGED: "#3b82f6",
   OUTCOME_CHANGED: "#f59e0b",
   UPDATED: "#6b7280",
+  EMAIL: "#06b6d4",
 };
 
 export function OpportunityTimeline({ opportunityId, entries }: { opportunityId: string; entries: TimelineEntry[] }) {
@@ -32,6 +33,7 @@ export function OpportunityTimeline({ opportunityId, entries }: { opportunityId:
         return `${t.crm.tlOutcomeChanged}: ${o}`;
       }
       case "UPDATED": return t.crm.tlUpdated;
+      case "EMAIL": return `${t.crm.tlEmailed}${e.body ? `: ${e.body}` : ""}`;
       default: return e.body ?? "";
     }
   }

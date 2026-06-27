@@ -2,7 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
-export type OpportunityActivityType = "NOTE" | "CREATED" | "STAGE_CHANGED" | "OUTCOME_CHANGED" | "UPDATED";
+export type OpportunityActivityType = "NOTE" | "CREATED" | "STAGE_CHANGED" | "OUTCOME_CHANGED" | "UPDATED" | "EMAIL";
 
 // Records an opportunity timeline entry. Best-effort: failures are swallowed so
 // they can never break the action that triggered them.
