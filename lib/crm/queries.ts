@@ -26,12 +26,14 @@ export function getOpportunity(id: string) {
 }
 
 export async function getCrmStats() {
-  const [openAgg, wonAgg, openCount, wonCount, openDeals] = await Promise.all([
+  const now = new Date();
+  const [openAgg, wonAgg, openCount, wonCount, openDeals, overdueCount] = await Promise.all([
     prisma.opportunity.aggregate({ where: { outcome: "OPEN" }, _sum: { valueCents: true } }),
     prisma.opportunity.aggregate({ where: { outcome: "WON" }, _sum: { valueCents: true } }),
     prisma.opportunity.count({ where: { outcome: "OPEN" } }),
     prisma.opportunity.count({ where: { outcome: "WON" } }),
     prisma.opportunity.findMany({ where: { outcome: "OPEN" }, select: { valueCents: true, probability: true } }),
+    prisma.opportunity.count({ where: { outcome: "OPEN", expectedCloseAt: { lt: now } } }),
   ]);
   const leadCount = await prisma.lead.count({ where: { convertedAt: null } });
   // Weighted forecast = Σ value × probability over open deals (probability defaults to 100% when unset).
@@ -45,6 +47,7 @@ export async function getCrmStats() {
     weightedForecastCents,
     openCount,
     wonCount,
+    overdueCount,
     leadCount,
   };
 }

@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.60.0] - 2026-06-27
+
+### Added
+- CRM expected-close aging: open opportunities past their expected close date are now flagged as **overdue** — a red badge on pipeline board cards, a red date in the list view, and an overdue count shown under the Open deals KPI. Helps surface stalled deals that need attention. Bilingual EN/FR.
+
 ## [0.59.0] - 2026-06-27
 
 ### Added
