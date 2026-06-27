@@ -74,6 +74,7 @@ model User {
   ownedOpportunities       Opportunity[]    @relation("OpportunityOwner")
   assignedProblems         Problem[]        @relation("ProblemAssignee")
   ownedReleases            Release[]        @relation("ReleaseOwner")
+  opportunityActivities    OpportunityActivity[] @relation("OpportunityActivityAuthor")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -899,12 +900,26 @@ model Opportunity {
   expectedCloseAt DateTime?
   closedAt        DateTime?
   notes           String?
+  activities      OpportunityActivity[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
   @@index([stageId])
   @@index([clientId])
   @@index([ownerId])
+}
+
+model OpportunityActivity {
+  id            String      @id @default(cuid())
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  authorId      String?
+  author        User?       @relation("OpportunityActivityAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  type          String
+  body          String?
+  createdAt     DateTime    @default(now())
+
+  @@index([opportunityId])
 }
 
 model OpportunityStage {

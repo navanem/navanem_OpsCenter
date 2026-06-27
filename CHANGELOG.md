@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.64.0] - 2026-06-27
+
+### Added
+- Opportunity activity timeline: each CRM opportunity now has an **Activity** section on its detail page where you can post free-text **notes** and see an automatic, chronological history of key events — created, details updated, stage changed (with the new stage) and outcome changed (won/lost/reopened) — each attributed to a user and timestamped. Bilingual EN/FR.
+
 ## [0.63.0] - 2026-06-27
 
 ### Added

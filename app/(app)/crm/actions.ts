@@ -7,6 +7,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { isCrmEnabled } from "@/lib/settings/service";
 import { opportunitySchema, normalizeOpportunityInput } from "@/lib/validation/crm";
 import { recordAudit } from "@/lib/audit/log";
+import { recordOpportunityActivity } from "@/lib/crm/activity";
 import { formatOpportunityReference } from "@/lib/crm/meta";
 
 export interface OpportunityFormState {
@@ -39,6 +40,7 @@ export async function createOpportunityAction(_prev: OpportunityFormState, formD
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
   const opp = await prisma.opportunity.create({ data: normalizeOpportunityInput(parsed.data) });
   await recordAudit({ action: "created", entityType: "opportunity", entityId: opp.id, entityLabel: formatOpportunityReference(opp.number), summary: `Created opportunity "${opp.name}"` });
+  await recordOpportunityActivity(opp.id, "CREATED");
   revalidatePath("/crm");
   redirect(`/crm/${opp.id}/edit`);
 }
@@ -51,6 +53,7 @@ export async function updateOpportunityAction(_prev: OpportunityFormState, formD
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
   await prisma.opportunity.update({ where: { id }, data: normalizeOpportunityInput(parsed.data) });
   await recordAudit({ action: "updated", entityType: "opportunity", entityId: id, entityLabel: parsed.data.name, summary: `Updated opportunity "${parsed.data.name}"` });
+  await recordOpportunityActivity(id, "UPDATED");
   revalidatePath("/crm");
   redirect("/crm");
 }
@@ -64,8 +67,10 @@ export async function moveOpportunityAction(id: string, stageId: string): Promis
   if (!opp) return;
   const nextStageId = stageId.length > 0 ? stageId : null;
   if (opp.stageId === nextStageId) return;
+  const target = nextStageId ? await prisma.opportunityStage.findUnique({ where: { id: nextStageId }, select: { name: true } }) : null;
   await prisma.opportunity.update({ where: { id }, data: { stageId: nextStageId } });
   await recordAudit({ action: "stage_changed", entityType: "opportunity", entityId: id, entityLabel: formatOpportunityReference(opp.number), summary: `Moved opportunity ${formatOpportunityReference(opp.number)} to a new stage` });
+  await recordOpportunityActivity(id, "STAGE_CHANGED", target?.name ?? "—");
   revalidatePath("/crm");
 }
 
@@ -80,7 +85,20 @@ export async function markOutcomeAction(id: string, outcome: string): Promise<vo
     data: { outcome: outcome as "OPEN" | "WON" | "LOST", closedAt: outcome === "OPEN" ? null : new Date() },
   });
   await recordAudit({ action: "outcome_changed", entityType: "opportunity", entityId: id, entityLabel: formatOpportunityReference(opp.number), summary: `Marked opportunity ${formatOpportunityReference(opp.number)} as ${outcome.toLowerCase()}` });
+  await recordOpportunityActivity(id, "OUTCOME_CHANGED", outcome);
   revalidatePath("/crm");
+}
+
+// Add a free-text note to an opportunity's timeline.
+export async function addOpportunityNoteAction(formData: FormData): Promise<void> {
+  await requireCrm();
+  const id = formData.get("id");
+  const body = formData.get("body");
+  if (typeof id === "string" && id.length > 0 && typeof body === "string" && body.trim().length > 0) {
+    await recordOpportunityActivity(id, "NOTE", body.trim());
+    revalidatePath(`/crm/${id}/edit`);
+  }
+  redirect(`/crm/${typeof id === "string" ? id : ""}/edit`);
 }
 
 export async function deleteOpportunityAction(formData: FormData): Promise<void> {
