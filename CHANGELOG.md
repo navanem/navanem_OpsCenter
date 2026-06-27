@@ -3,6 +3,12 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.59.0] - 2026-06-27
+
+### Added
+- CRM pipeline board now has **inline Won / Lost actions** on each opportunity card — mark a deal won or lost (or reopen it) in one click without leaving the board, with optimistic UI and an audit-log entry.
+- **Weighted forecast** KPI (Σ value × win probability over open deals) shown under the Pipeline value card, giving a probability-adjusted revenue projection.
+
 ## [0.58.0] - 2026-06-27
 
 ### Added
