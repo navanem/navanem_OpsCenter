@@ -12,6 +12,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TimeEntryStatusBadge } from "@/components/timesheets/badges";
 import { TimerWidget } from "@/components/timesheets/timer-widget";
 import { EntryContext, relationLabel } from "@/components/timesheets/entry-context";
+import { getDictionary } from "@/lib/i18n/server";
 import { submitTimeEntryAction, deleteTimeEntryAction } from "./actions";
 
 type SP = { status?: string; scope?: string };
@@ -20,7 +21,7 @@ const STATUSES = ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED"] as const;
 export default async function TimesheetsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("timesheets.read");
   if (!(await isTimesheetingEnabled())) notFound();
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
 
   const canViewAll = can(user, "timesheets.read.all");
   const canApprove = can(user, "timesheets.approve");
@@ -35,10 +36,10 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
   ]);
 
   const kpis = [
-    { label: "Total time", value: formatMinutes(stats.totalMinutes), color: "#6d5efc" },
-    { label: "Billable time", value: formatMinutes(stats.billableMinutes), color: "#10b981" },
-    { label: "Submitted", value: stats.submitted, color: "#3b82f6" },
-    { label: "Approved", value: stats.approved, color: "#22c55e" },
+    { label: dict.timesheets.kpiTotalTime, value: formatMinutes(stats.totalMinutes), color: "#6d5efc" },
+    { label: dict.timesheets.kpiBillableTime, value: formatMinutes(stats.billableMinutes), color: "#10b981" },
+    { label: dict.timesheets.kpiSubmitted, value: stats.submitted, color: "#3b82f6" },
+    { label: dict.timesheets.kpiApproved, value: stats.approved, color: "#22c55e" },
   ];
 
   const running = timer
@@ -56,20 +57,20 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Timesheets" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.timesheets }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Timesheets</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.timesheets}</h1>
         <div className="flex gap-2">
           {canViewAll ? (
-            <a href="/api/export?type=timesheets" download><Button variant="outline">Export CSV</Button></a>
+            <a href="/api/export?type=timesheets" download><Button variant="outline">{dict.common.exportCsv}</Button></a>
           ) : null}
           {canViewAll ? (
-            <Link href="/timesheets/reports"><Button variant="outline">Reports</Button></Link>
+            <Link href="/timesheets/reports"><Button variant="outline">{dict.timesheets.reports}</Button></Link>
           ) : null}
           {canApprove ? (
-            <Link href="/timesheets/approvals"><Button variant="outline">Approvals</Button></Link>
+            <Link href="/timesheets/approvals"><Button variant="outline">{dict.timesheets.approvals}</Button></Link>
           ) : null}
-          <Link href="/timesheets/new"><Button>New entry</Button></Link>
+          <Link href="/timesheets/new"><Button>{dict.timesheets.newEntry}</Button></Link>
         </div>
       </div>
 
@@ -82,34 +83,34 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
       </StatGrid>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        <Link href={baseQuery({ status: undefined })} className={`rounded-full px-3 py-1 ${!status ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>All</Link>
+        <Link href={baseQuery({ status: undefined })} className={`rounded-full px-3 py-1 ${!status ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>{dict.common.all}</Link>
         {STATUSES.map((s) => (
           <Link key={s} href={baseQuery({ status: s })} className={`rounded-full px-3 py-1 ${status === s ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>
-            {s.charAt(0) + s.slice(1).toLowerCase()}
+            {dict.timesheetStatus[s]}
           </Link>
         ))}
         {canViewAll ? (
           <span className="ml-auto flex items-center gap-2">
-            <Link href={baseQuery({ scope: undefined })} className={`rounded-full px-3 py-1 ${!viewingAll ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>Mine</Link>
-            <Link href={baseQuery({ scope: "all" })} className={`rounded-full px-3 py-1 ${viewingAll ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>Everyone</Link>
+            <Link href={baseQuery({ scope: undefined })} className={`rounded-full px-3 py-1 ${!viewingAll ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>{dict.timesheets.mine}</Link>
+            <Link href={baseQuery({ scope: "all" })} className={`rounded-full px-3 py-1 ${viewingAll ? "bg-[var(--primary)] text-white" : "bg-[var(--muted)]"}`}>{dict.timesheets.everyone}</Link>
           </span>
         ) : null}
       </div>
 
       <Card>
         {entries.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No time entries.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.timesheets.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Date</th>
-                {viewingAll ? <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">User</th> : null}
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Duration</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Context</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Rate</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Actions</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.date}</th>
+                {viewingAll ? <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.user}</th> : null}
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.timesheets.colDuration}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.timesheets.colContext}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.timesheets.colRate}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.status}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -124,7 +125,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
                     ) : null}
                     <td className="px-4 py-3 whitespace-nowrap">
                       {formatMinutes(e.minutes)}
-                      {e.billable ? <span className="ml-1.5 text-xs text-[#10b981]">billable</span> : null}
+                      {e.billable ? <span className="ml-1.5 text-xs text-[#10b981]">{dict.timesheets.billable}</span> : null}
                     </td>
                     <td className="px-4 py-3 min-w-0">
                       <div className="truncate">
@@ -133,20 +134,20 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
                       </div>
                     </td>
                     <td className="px-4 py-3 text-[var(--muted-foreground)] whitespace-nowrap">{formatRateCents(e.hourlyRateCents)}</td>
-                    <td className="px-4 py-3"><TimeEntryStatusBadge status={e.status} /></td>
+                    <td className="px-4 py-3"><TimeEntryStatusBadge status={e.status} label={dict.timesheetStatus[e.status as keyof typeof dict.timesheetStatus]} /></td>
                     <td className="px-4 py-3">
                       {editable ? (
                         <div className="flex items-center gap-2">
-                          <Link href={`/timesheets/${e.id}/edit`} className="text-xs hover:underline">Edit</Link>
+                          <Link href={`/timesheets/${e.id}/edit`} className="text-xs hover:underline">{dict.common.edit}</Link>
                           <form action={submitTimeEntryAction}>
                             <input type="hidden" name="id" value={e.id} />
                             <input type="hidden" name="redirectTo" value="/timesheets" />
-                            <button type="submit" className="text-xs text-[var(--primary)] hover:underline">Submit</button>
+                            <button type="submit" className="text-xs text-[var(--primary)] hover:underline">{dict.timesheets.submit}</button>
                           </form>
                           <form action={deleteTimeEntryAction}>
                             <input type="hidden" name="id" value={e.id} />
                             <input type="hidden" name="redirectTo" value="/timesheets" />
-                            <button type="submit" className="text-xs text-[var(--destructive)] hover:underline">Delete</button>
+                            <button type="submit" className="text-xs text-[var(--destructive)] hover:underline">{dict.common.delete}</button>
                           </form>
                         </div>
                       ) : (

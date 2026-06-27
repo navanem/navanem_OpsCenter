@@ -5,61 +5,62 @@ import { listUsers } from "@/lib/users/queries";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { getDictionary } from "@/lib/i18n/server";
 import { setUserStatusAction, resendInviteAction, revokeInviteAction } from "./actions";
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, label }: { status: string; label: string }) {
   const styles: Record<string, string> = {
     ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
     INVITED: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
     EXPIRED: "bg-[var(--muted)] text-[var(--muted-foreground)]",
     SUSPENDED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   };
-  const labels: Record<string, string> = {
-    ACTIVE: "Active",
-    INVITED: "Invited",
-    EXPIRED: "Invite expired",
-    SUSPENDED: "Suspended",
-  };
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] ?? "bg-[var(--muted)] text-[var(--muted-foreground)]"}`}
     >
-      {labels[status] ?? status}
+      {label}
     </span>
   );
 }
 
 export default async function UsersPage() {
   const user = await requirePermission("users.read");
-  const users = await listUsers();
+  const [users, dict] = await Promise.all([listUsers(), getDictionary()]);
   const canManage = can(user, "users.manage");
+  const statusLabel: Record<string, string> = {
+    ACTIVE: dict.users.statusActive,
+    INVITED: dict.users.statusInvited,
+    EXPIRED: dict.users.statusExpired,
+    SUSPENDED: dict.users.statusSuspended,
+  };
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Users" }]} />
+      <Breadcrumbs items={[{ label: dict.settings.title, href: "/settings" }, { label: dict.settings.users }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.settings.users}</h1>
         {canManage ? (
           <Link href="/settings/users/new">
-            <Button>Invite user</Button>
+            <Button>{dict.users.invite}</Button>
           </Link>
         ) : null}
       </div>
 
       <Card>
         {users.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No users.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.users.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-6 py-3 font-medium">Name</th>
-                <th scope="col" className="px-6 py-3 font-medium">Email</th>
-                <th scope="col" className="px-6 py-3 font-medium">Role</th>
-                <th scope="col" className="px-6 py-3 font-medium">Status</th>
+                <th scope="col" className="px-6 py-3 font-medium">{dict.common.name}</th>
+                <th scope="col" className="px-6 py-3 font-medium">{dict.common.email}</th>
+                <th scope="col" className="px-6 py-3 font-medium">{dict.common.role}</th>
+                <th scope="col" className="px-6 py-3 font-medium">{dict.common.status}</th>
                 {canManage ? (
                   <th scope="col" className="px-6 py-3 font-medium">
-                    <span className="sr-only">Actions</span>
+                    <span className="sr-only">{dict.common.actions}</span>
                   </th>
                 ) : null}
               </tr>
@@ -68,7 +69,7 @@ export default async function UsersPage() {
               {users.map((row) => {
                 const isSelf = user.id === row.id;
                 const toggleStatus = row.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
-                const toggleLabel = row.status === "ACTIVE" ? "Suspend" : "Reactivate";
+                const toggleLabel = row.status === "ACTIVE" ? dict.users.suspend : dict.users.reactivate;
                 const invite = row.invitations[0];
                 const inviteExpired =
                   row.status === "INVITED" && invite && invite.status === "PENDING" && new Date(invite.expiresAt) < new Date();
@@ -93,7 +94,7 @@ export default async function UsersPage() {
                     <td className="px-6 py-3 text-[var(--muted-foreground)]">{row.email}</td>
                     <td className="px-6 py-3 text-[var(--muted-foreground)]">{row.role.name}</td>
                     <td className="px-6 py-3">
-                      <StatusBadge status={displayStatus} />
+                      <StatusBadge status={displayStatus} label={statusLabel[displayStatus] ?? displayStatus} />
                     </td>
                     {canManage ? (
                       <td className="px-6 py-3">
@@ -102,13 +103,13 @@ export default async function UsersPage() {
                             <form action={resendInviteAction}>
                               <input type="hidden" name="id" value={row.id} />
                               <button type="submit" className="text-sm text-[var(--primary)] hover:underline">
-                                Resend
+                                {dict.users.resend}
                               </button>
                             </form>
                             <form action={revokeInviteAction}>
                               <input type="hidden" name="id" value={row.id} />
                               <button type="submit" className="text-sm text-[var(--muted-foreground)] hover:text-[var(--destructive)] hover:underline">
-                                Revoke
+                                {dict.users.revoke}
                               </button>
                             </form>
                           </div>

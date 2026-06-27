@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.50.0] - 2026-06-27
+
+### Changed
+- Completed French / English coverage of the main pages: Timesheets, Users and Roles (titles, buttons, KPIs, table headers, status labels and filters) now follow the chosen language.
+
 ## [0.49.0] - 2026-06-27
 
 ### Added
