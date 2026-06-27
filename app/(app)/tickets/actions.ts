@@ -48,6 +48,8 @@ export async function createTicketAction(
   const due = parsed.data.dueAt ? new Date(parsed.data.dueAt) : null;
   const dueAt = due && !isNaN(due.getTime()) ? due : null;
   const tagIds = formData.getAll("tags").filter((t): t is string => typeof t === "string" && t.length > 0);
+  const ticketTypeRaw = formData.get("ticketTypeId");
+  const ticketTypeId = typeof ticketTypeRaw === "string" && ticketTypeRaw.length > 0 ? ticketTypeRaw : null;
   // Optional device link (e.g. when opening a ticket from a device); must belong to the ticket's client.
   const deviceRaw = formData.get("deviceId");
   let deviceId: string | null = null;
@@ -65,6 +67,7 @@ export async function createTicketAction(
       assigneeId,
       dueAt,
       deviceId,
+      ticketTypeId,
       createdById: user.id,
       tags: tagIds.length > 0 ? { connect: tagIds.map((id) => ({ id })) } : undefined,
       activities: { create: { type: "CREATED", actorId: user.id } },
@@ -185,6 +188,18 @@ export async function updateTicketDeviceAction(formData: FormData): Promise<void
       if (device && device.clientId === ticket.clientId) deviceId = device.id;
     }
     await prisma.ticket.update({ where: { id }, data: { deviceId } });
+    revalidatePath(`/tickets/${id}`);
+  }
+  redirect(`/tickets/${typeof id === "string" ? id : ""}`);
+}
+
+export async function updateTicketTypeAction(formData: FormData): Promise<void> {
+  await requirePermission("tickets.manage");
+  const id = formData.get("id");
+  const typeRaw = formData.get("ticketTypeId");
+  if (typeof id === "string" && id.length > 0) {
+    const ticketTypeId = typeof typeRaw === "string" && typeRaw.length > 0 ? typeRaw : null;
+    await prisma.ticket.update({ where: { id }, data: { ticketTypeId } });
     revalidatePath(`/tickets/${id}`);
   }
   redirect(`/tickets/${typeof id === "string" ? id : ""}`);

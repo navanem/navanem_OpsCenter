@@ -5,7 +5,7 @@ import { requirePermission } from "@/lib/auth/guard";
 import { can } from "@/lib/rbac/can";
 import { getTicket } from "@/lib/tickets/queries";
 import { listTechnicians } from "@/lib/users/queries";
-import { listTicketPriorities, listTicketTags } from "@/lib/taxonomies/queries";
+import { listTicketPriorities, listTicketTags, listTicketTypes } from "@/lib/taxonomies/queries";
 import { isDevicesEnabled } from "@/lib/settings/service";
 import { listClientDevices } from "@/lib/devices/queries";
 import { formatDeviceReference } from "@/lib/devices/meta";
@@ -29,6 +29,7 @@ import {
   updateDueDateAction,
   updateTicketTagsAction,
   updateTicketDeviceAction,
+  updateTicketTypeAction,
 } from "../actions";
 
 function toLocalDateTime(d: Date | string | null | undefined): string {
@@ -101,11 +102,12 @@ export default async function TicketDetailPage({
 }) {
   const user = await requirePermission("tickets.read");
   const { id } = await params;
-  const [ticket, technicians, priorities, allTags, dict] = await Promise.all([
+  const [ticket, technicians, priorities, allTags, ticketTypes, dict] = await Promise.all([
     getTicket(id),
     listTechnicians(),
     listTicketPriorities({ activeOnly: true }),
     listTicketTags({ activeOnly: true }),
+    listTicketTypes({ activeOnly: true }),
     getDictionary(),
   ]);
   if (!ticket) notFound();
@@ -269,6 +271,25 @@ export default async function TicketDetailPage({
                     />
                   ) : (
                     <PriorityBadge name={ticket.priority.name} color={ticket.priority.color} />
+                  )}
+                </Field>
+
+                <Field label={dict.common.type}>
+                  {canManage ? (
+                    <InlineSelect
+                      action={updateTicketTypeAction}
+                      name="ticketTypeId"
+                      hidden={hidden}
+                      defaultValue={ticket.ticketTypeId ?? ""}
+                      emptyLabel={dict.common.none}
+                      options={ticketTypes.map((ty) => ({ value: ty.id, label: ty.name }))}
+                    />
+                  ) : ticket.ticketType ? (
+                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${ticket.ticketType.color}22`, color: ticket.ticketType.color }}>
+                      {ticket.ticketType.name}
+                    </span>
+                  ) : (
+                    <span className="text-[var(--muted-foreground)]">{dict.common.none}</span>
                   )}
                 </Field>
 

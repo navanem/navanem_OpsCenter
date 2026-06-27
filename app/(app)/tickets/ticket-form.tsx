@@ -13,12 +13,13 @@ export interface TicketFormProps {
   technicians: { id: string; firstName: string; lastName: string }[];
   categories: { id: string; name: string }[];
   priorities: { id: string; name: string }[];
+  types: { id: string; name: string }[];
   tags: { id: string; name: string; color: string }[];
   defaultClientId?: string;
   deviceId?: string;
 }
 
-export function TicketForm({ clients, technicians, categories, priorities, tags, defaultClientId, deviceId }: TicketFormProps) {
+export function TicketForm({ clients, technicians, categories, priorities, types, tags, defaultClientId, deviceId }: TicketFormProps) {
   const [state, formAction, pending] = useActionState<TicketFormState, FormData>(
     createTicketAction,
     {},
@@ -83,6 +84,18 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
               <option key={t.id} value={t.id}>
                 {t.firstName} {t.lastName}
               </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="ticketTypeId" className="text-sm text-[var(--muted-foreground)]">
+            {t.common.type}
+          </label>
+          <select id="ticketTypeId" name="ticketTypeId" defaultValue="" className={inputClass}>
+            <option value="">{t.common.none}</option>
+            {types.map((ty) => (
+              <option key={ty.id} value={ty.id}>{ty.name}</option>
             ))}
           </select>
         </div>

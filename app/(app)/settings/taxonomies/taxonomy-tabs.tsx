@@ -7,6 +7,7 @@ import { ContractTypeManager } from "../contract-types/contract-type-manager";
 type Item = { id: string; name: string; color?: string | null; sortOrder: number; isActive: boolean };
 
 const TABS = [
+  { key: "ticket-type", label: "Ticket types" },
   { key: "category", label: "Ticket categories" },
   { key: "priority", label: "Ticket priorities" },
   { key: "industry", label: "Client industries" },
@@ -40,6 +41,7 @@ export function TaxonomyTabs({
   deviceStatuses,
   subscriptionTypes,
   subscriptionStatuses,
+  ticketTypes,
 }: {
   categories: Item[];
   priorities: Item[];
@@ -55,6 +57,7 @@ export function TaxonomyTabs({
   deviceStatuses: Item[];
   subscriptionTypes: Item[];
   subscriptionStatuses: Item[];
+  ticketTypes: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
@@ -76,6 +79,9 @@ export function TaxonomyTabs({
           </button>
         ))}
       </div>
+      {tab === "ticket-type" ? (
+        <TaxonomyManager kind="ticket-type" title="Ticket types" items={ticketTypes} />
+      ) : null}
       {tab === "category" ? (
         <TaxonomyManager kind="category" title="Ticket categories" items={categories} />
       ) : null}

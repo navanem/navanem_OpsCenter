@@ -9,6 +9,7 @@ export function listTickets(filters: TicketFilters) {
       assignee: { select: { id: true, firstName: true, lastName: true } },
       category: { select: { id: true, name: true, color: true } },
       priority: { select: { id: true, name: true, color: true } },
+      ticketType: { select: { id: true, name: true, color: true } },
       tags: { select: { id: true, name: true, color: true } },
       _count: { select: { comments: true } },
     },
@@ -49,6 +50,7 @@ export function getTicket(id: string) {
       createdByContact: { select: { id: true, firstName: true, lastName: true } },
       category: { select: { id: true, name: true, color: true } },
       priority: { select: { id: true, name: true, color: true } },
+      ticketType: { select: { id: true, name: true, color: true } },
       tags: { select: { id: true, name: true, color: true } },
       device: { select: { id: true, name: true, number: true } },
       comments: {

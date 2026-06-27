@@ -200,6 +200,8 @@ model Ticket {
   tags        TicketTag[]
   deviceId    String?
   device      Device?          @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  ticketTypeId String?
+  ticketType   TicketType?     @relation(fields: [ticketTypeId], references: [id], onDelete: SetNull)
   dueAt       DateTime?
   closedAt    DateTime?
   createdAt   DateTime         @default(now())
@@ -210,6 +212,17 @@ model TicketTag {
   id        String   @id @default(cuid())
   name      String   @unique
   color     String   @default("#6b7280")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TicketType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#6366f1")
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
   tickets   Ticket[]

@@ -1,3 +1,3 @@
 // Single source of truth for the displayed app version. Bump alongside package.json on each release.
-export const APP_VERSION = "0.51.0";
+export const APP_VERSION = "0.52.0";
 export const SUNITECH_URL = "https://sunitech.ch";
