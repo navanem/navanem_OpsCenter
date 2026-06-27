@@ -1,6 +1,6 @@
 import { TIME_ENTRY_STATUS_META } from "@/lib/timesheets/meta";
 
-export function TimeEntryStatusBadge({ status }: { status: keyof typeof TIME_ENTRY_STATUS_META }) {
+export function TimeEntryStatusBadge({ status, label }: { status: keyof typeof TIME_ENTRY_STATUS_META; label?: string }) {
   const m = TIME_ENTRY_STATUS_META[status];
   return (
     <span
@@ -8,7 +8,7 @@ export function TimeEntryStatusBadge({ status }: { status: keyof typeof TIME_ENT
       style={{ backgroundColor: `${m.color}22`, color: m.color }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: m.color }} />
-      {m.label}
+      {label ?? m.label}
     </span>
   );
 }
