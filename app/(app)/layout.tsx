@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { Footer } from "@/components/layout/footer";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getAppSettings } from "@/lib/settings/service";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
@@ -44,6 +45,7 @@ export default async function AppLayout({
             dict={dict}
           />
           <main className="flex-1 p-8">{children}</main>
+          <Footer />
         </div>
       </div>
     </I18nProvider>

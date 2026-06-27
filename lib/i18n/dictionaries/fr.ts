@@ -53,6 +53,8 @@ export const fr: Dictionary = {
     renewal: "Renouvellement",
     serial: "N° série",
     warranty: "Garantie",
+    updated: "Mis à jour",
+    lead: "Responsable",
     allClients: "Tous les clients",
     allStatuses: "Tous les statuts",
     allTypes: "Tous les types",
@@ -60,6 +62,7 @@ export const fr: Dictionary = {
     allPriorities: "Toutes les priorités",
     allCategories: "Toutes les catégories",
     allTags: "Toutes les étiquettes",
+    allLeads: "Tous les responsables",
   },
   nav: {
     dashboard: "Tableau de bord",
@@ -241,6 +244,26 @@ export const fr: Dictionary = {
   planning: {
     new: "Nouvelle visite",
     recurring: "Visites récurrentes",
+  },
+  knowledge: {
+    new: "Nouvel article",
+    noneFound: "Aucun article trouvé.",
+    searchPlaceholder: "Rechercher des articles…",
+    kpiArticles: "Articles",
+    kpiPublished: "Publiés",
+    kpiDrafts: "Brouillons",
+    kpiCategories: "Catégories",
+    draft: "Brouillon",
+  },
+  projects: {
+    new: "Nouveau projet",
+    noneFound: "Aucun projet trouvé.",
+    searchPlaceholder: "Rechercher des projets…",
+    kpiTotal: "Total des projets",
+    kpiTasks: "Tâches",
+    kpiNoLead: "Sans responsable",
+    kpiOverdue: "En retard",
+    colTasks: "Tâches",
   },
   ticketStatus: {
     OPEN: "Ouvert",

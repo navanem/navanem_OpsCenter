@@ -309,7 +309,7 @@ export default async function DashboardPage() {
                                 className="h-2.5 w-2.5 rounded-full"
                                 style={{ backgroundColor: meta.color }}
                               />
-                              {meta.label}
+                              {dict.ticketStatus[key]}
                             </span>
                             <span className="tabular-nums text-[var(--muted-foreground)]">
                               {count}

@@ -6,12 +6,12 @@ import { formatTicketReference, TICKET_STATUS_META, type TicketStatusKey } from 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-function StatusPill({ status }: { status: TicketStatusKey }) {
+function StatusPill({ status, label }: { status: TicketStatusKey; label: string }) {
   const m = TICKET_STATUS_META[status];
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${m.color}22`, color: m.color }}>
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: m.color }} />
-      {m.label}
+      {label}
     </span>
   );
 }
@@ -59,7 +59,7 @@ export default async function PortalHome() {
                       {t.priority.name}
                     </span>
                   </td>
-                  <td className="px-4 py-3"><StatusPill status={t.status as TicketStatusKey} /></td>
+                  <td className="px-4 py-3"><StatusPill status={t.status as TicketStatusKey} label={dict.ticketStatus[t.status as TicketStatusKey]} /></td>
                 </tr>
               ))}
             </tbody>

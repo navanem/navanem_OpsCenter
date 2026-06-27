@@ -110,7 +110,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
                   </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">{t.client.companyName}</td>
                   <td className="px-6 py-3"><PriorityBadge name={t.priority.name} color={t.priority.color} /></td>
-                  <td className="px-6 py-3"><StatusBadge status={t.status as TicketStatusKey} /></td>
+                  <td className="px-6 py-3"><StatusBadge status={t.status as TicketStatusKey} label={dict.ticketStatus[t.status as TicketStatusKey]} /></td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">
                     {t.dueAt ? (
                       <span className={isTicketOverdue(t.dueAt, t.status) ? "font-medium text-[#ef4444]" : ""}>

@@ -11,13 +11,14 @@ import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge } from "@/components/projects/badges";
+import { getDictionary } from "@/lib/i18n/server";
 import { ProjectsFilters } from "./projects-filters";
 
 type SP = { search?: string; statusId?: string; clientId?: string; leadId?: string };
 
 export default async function ProjectsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("projects.read");
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
 
   const [projects, statuses, clients, technicians, stats] = await Promise.all([
     listProjects({
@@ -33,20 +34,20 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   ]);
 
   const kpis = [
-    { label: "Total projects", value: stats.total, color: "#6d5efc" },
-    { label: "Tasks", value: stats.taskCount, color: "#3b82f6" },
-    { label: "No lead", value: stats.withoutLead, color: "#f59e0b" },
-    { label: "Overdue", value: stats.overdue, color: "#ef4444" },
+    { label: dict.projects.kpiTotal, value: stats.total, color: "#6d5efc" },
+    { label: dict.projects.kpiTasks, value: stats.taskCount, color: "#3b82f6" },
+    { label: dict.projects.kpiNoLead, value: stats.withoutLead, color: "#f59e0b" },
+    { label: dict.projects.kpiOverdue, value: stats.overdue, color: "#ef4444" },
   ];
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Projects" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.projects }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.projects}</h1>
         {can(user, "projects.manage") ? (
           <Link href="/projects/new">
-            <Button>New project</Button>
+            <Button>{dict.projects.new}</Button>
           </Link>
         ) : null}
       </div>
@@ -65,17 +66,17 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
       <Card>
         {projects.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No projects found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.projects.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Name</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Lead</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Tasks</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.ref}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.name}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.client}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.lead}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.status}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.projects.colTasks}</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +94,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
                   </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">{p.client?.companyName ?? "—"}</td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">
-                    {p.lead ? `${p.lead.firstName} ${p.lead.lastName}` : "Unassigned"}
+                    {p.lead ? `${p.lead.firstName} ${p.lead.lastName}` : dict.common.unassigned}
                   </td>
                   <td className="px-6 py-3">
                     <StatusBadge name={p.status.name} color={p.status.color} />
