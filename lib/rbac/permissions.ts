@@ -32,6 +32,8 @@ export const PERMISSIONS = {
   "changes.approve": { label: "Approve changes", group: "Changes" },
   "cmdb.read": { label: "View CMDB", group: "CMDB" },
   "cmdb.manage": { label: "Manage CMDB", group: "CMDB" },
+  "crm.read": { label: "View CRM", group: "CRM" },
+  "crm.manage": { label: "Manage CRM", group: "CRM" },
   "audit.read": { label: "View audit log", group: "Settings" },
 } as const;
 

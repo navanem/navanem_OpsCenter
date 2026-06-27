@@ -126,3 +126,15 @@ export function listConfigItemTypes(opts?: { activeOnly?: boolean }) {
 export function listConfigItemStatuses(opts?: { activeOnly?: boolean }) {
   return prisma.configItemStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
 }
+
+export function listLeadSources(opts?: { activeOnly?: boolean }) {
+  return prisma.leadSource.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listLeadStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.leadStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listOpportunityStages(opts?: { activeOnly?: boolean }) {
+  return prisma.opportunityStage.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}

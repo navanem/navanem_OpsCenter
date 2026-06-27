@@ -26,6 +26,9 @@ const TABS = [
   { key: "change-status", label: "Change statuses" },
   { key: "ci-type", label: "CI types" },
   { key: "ci-status", label: "CI statuses" },
+  { key: "opportunity-stage", label: "Opportunity stages" },
+  { key: "lead-source", label: "Lead sources" },
+  { key: "lead-status", label: "Lead statuses" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -50,6 +53,9 @@ export function TaxonomyTabs({
   changeStatuses,
   ciTypes,
   ciStatuses,
+  opportunityStages,
+  leadSources,
+  leadStatuses,
 }: {
   categories: Item[];
   priorities: Item[];
@@ -70,6 +76,9 @@ export function TaxonomyTabs({
   changeStatuses: Item[];
   ciTypes: Item[];
   ciStatuses: Item[];
+  opportunityStages: Item[];
+  leadSources: Item[];
+  leadStatuses: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
@@ -147,6 +156,15 @@ export function TaxonomyTabs({
       ) : null}
       {tab === "ci-status" ? (
         <TaxonomyManager kind="ci-status" title="CI statuses" items={ciStatuses} />
+      ) : null}
+      {tab === "opportunity-stage" ? (
+        <TaxonomyManager kind="opportunity-stage" title="Opportunity stages" items={opportunityStages} />
+      ) : null}
+      {tab === "lead-source" ? (
+        <TaxonomyManager kind="lead-source" title="Lead sources" items={leadSources} />
+      ) : null}
+      {tab === "lead-status" ? (
+        <TaxonomyManager kind="lead-status" title="Lead statuses" items={leadStatuses} />
       ) : null}
     </div>
   );

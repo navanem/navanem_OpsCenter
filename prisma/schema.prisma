@@ -70,6 +70,8 @@ model User {
   auditLogs                AuditLog[]       @relation("AuditActor")
   assignedChanges          Change[]         @relation("ChangeAssignee")
   approvedChanges          Change[]         @relation("ChangeApprover")
+  ownedLeads               Lead[]           @relation("LeadOwner")
+  ownedOpportunities       Opportunity[]    @relation("OpportunityOwner")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -127,6 +129,8 @@ model Client {
   subscriptions        Subscription[]
   changes              Change[]
   configItems          ConfigItem[]
+  opportunities        Opportunity[]
+  convertedLeads       Lead[]       @relation("LeadConvertedClient")
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -181,6 +185,7 @@ model AppSetting {
   subscriptionsEnabled Boolean @default(false)
   changesEnabled      Boolean @default(false)
   cmdbEnabled         Boolean @default(false)
+  crmEnabled          Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -821,4 +826,86 @@ model ConfigItemStatus {
   sortOrder Int          @default(0)
   isActive  Boolean      @default(true)
   items     ConfigItem[]
+}
+
+enum OpportunityOutcome {
+  OPEN
+  WON
+  LOST
+}
+
+model Lead {
+  id                 String       @id @default(cuid())
+  number             Int          @unique @default(autoincrement())
+  companyName        String
+  contactName        String?
+  email              String?
+  phone              String?
+  sourceId           String?
+  source             LeadSource?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  statusId           String?
+  status             LeadStatus?  @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  ownerId            String?
+  owner              User?        @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  estimatedValueCents Int?
+  notes              String?
+  convertedClientId  String?
+  convertedClient    Client?      @relation("LeadConvertedClient", fields: [convertedClientId], references: [id], onDelete: SetNull)
+  convertedAt        DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([statusId])
+  @@index([ownerId])
+}
+
+model LeadSource {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  color     String  @default("#6d5efc")
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+  leads     Lead[]
+}
+
+model LeadStatus {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  color     String  @default("#3b82f6")
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+  leads     Lead[]
+}
+
+model Opportunity {
+  id              String             @id @default(cuid())
+  number          Int                @unique @default(autoincrement())
+  name            String
+  clientId        String?
+  client          Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  stageId         String?
+  stage           OpportunityStage?  @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  ownerId         String?
+  owner           User?              @relation("OpportunityOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  valueCents      Int?
+  probability     Int?
+  outcome         OpportunityOutcome @default(OPEN)
+  expectedCloseAt DateTime?
+  closedAt        DateTime?
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([stageId])
+  @@index([clientId])
+  @@index([ownerId])
+}
+
+model OpportunityStage {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  color         String        @default("#06b6d4")
+  sortOrder     Int           @default(0)
+  isActive      Boolean       @default(true)
+  opportunities Opportunity[]
 }

@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.57.0] - 2026-06-27
+
+### Added
+- CRM / sales pipeline module (toggle in Settings → CRM): manage **leads** (LEAD-####) with source, status, owner, contact details and estimated value, and **opportunities** (OPP-####) through a configurable pipeline with stages, monetary value, win probability, owner, expected close date and won/lost outcome. One-click **convert a qualified lead into a client** (carrying over company and contact details). Tabbed CRM view (Pipeline / Leads) with KPIs (open deals, pipeline value, won deals, active leads) and filters. Pipeline stages, lead sources and lead statuses are managed in Settings → Taxonomies. Actions recorded in the audit log. Gated by dedicated "View CRM" / "Manage CRM" permissions. Bilingual EN/FR.
+
 ## [0.56.0] - 2026-06-27
 
 ### Added

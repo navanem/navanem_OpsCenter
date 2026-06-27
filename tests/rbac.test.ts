@@ -50,6 +50,8 @@ describe("permission catalog", () => {
     expect(PERMISSION_KEYS).toContain("changes.approve");
     expect(PERMISSION_KEYS).toContain("cmdb.read");
     expect(PERMISSION_KEYS).toContain("cmdb.manage");
-    expect(PERMISSION_KEYS.length).toBe(34);
+    expect(PERMISSION_KEYS).toContain("crm.read");
+    expect(PERMISSION_KEYS).toContain("crm.manage");
+    expect(PERMISSION_KEYS.length).toBe(36);
   });
 });
