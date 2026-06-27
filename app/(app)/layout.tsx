@@ -36,6 +36,8 @@ export default async function AppLayout({
           changesEnabled={settings.changesEnabled}
           cmdbEnabled={settings.cmdbEnabled}
           crmEnabled={settings.crmEnabled}
+          problemsEnabled={settings.problemsEnabled}
+          releasesEnabled={settings.releasesEnabled}
           nav={dict.nav}
           navGroups={dict.navGroups}
         />

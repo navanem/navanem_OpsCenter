@@ -10,7 +10,7 @@ export interface TaxonomyState {
   ok?: boolean;
 }
 
-type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status" | "subscription-type" | "subscription-status" | "ticket-type" | "change-type" | "change-status" | "ci-type" | "ci-status" | "lead-source" | "lead-status" | "opportunity-stage";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status" | "subscription-type" | "subscription-status" | "ticket-type" | "change-type" | "change-status" | "ci-type" | "ci-status" | "lead-source" | "lead-status" | "opportunity-stage" | "problem-type" | "problem-status" | "release-type" | "release-status";
 
 function isKind(v: FormDataEntryValue | null): v is Kind {
   return (
@@ -34,7 +34,11 @@ function isKind(v: FormDataEntryValue | null): v is Kind {
     v === "ci-status" ||
     v === "lead-source" ||
     v === "lead-status" ||
-    v === "opportunity-stage"
+    v === "opportunity-stage" ||
+    v === "problem-type" ||
+    v === "problem-status" ||
+    v === "release-type" ||
+    v === "release-status"
   );
 }
 
@@ -135,6 +139,18 @@ export async function saveTaxonomyAction(
     } else if (kind === "opportunity-stage") {
       if (editing) await prisma.opportunityStage.update({ where: { id: id as string }, data });
       else await prisma.opportunityStage.create({ data });
+    } else if (kind === "problem-type") {
+      if (editing) await prisma.problemType.update({ where: { id: id as string }, data });
+      else await prisma.problemType.create({ data });
+    } else if (kind === "problem-status") {
+      if (editing) await prisma.problemStatus.update({ where: { id: id as string }, data });
+      else await prisma.problemStatus.create({ data });
+    } else if (kind === "release-type") {
+      if (editing) await prisma.releaseType.update({ where: { id: id as string }, data });
+      else await prisma.releaseType.create({ data });
+    } else if (kind === "release-status") {
+      if (editing) await prisma.releaseStatus.update({ where: { id: id as string }, data });
+      else await prisma.releaseStatus.create({ data });
     } else {
       if (editing) await prisma.projectTaskStatus.update({ where: { id: id as string }, data });
       else await prisma.projectTaskStatus.create({ data });
@@ -173,6 +189,10 @@ export async function deleteTaxonomyAction(formData: FormData): Promise<void> {
       else if (kind === "lead-source") await prisma.leadSource.delete({ where: { id } });
       else if (kind === "lead-status") await prisma.leadStatus.delete({ where: { id } });
       else if (kind === "opportunity-stage") await prisma.opportunityStage.delete({ where: { id } });
+      else if (kind === "problem-type") await prisma.problemType.delete({ where: { id } });
+      else if (kind === "problem-status") await prisma.problemStatus.delete({ where: { id } });
+      else if (kind === "release-type") await prisma.releaseType.delete({ where: { id } });
+      else if (kind === "release-status") await prisma.releaseStatus.delete({ where: { id } });
       else await prisma.clientIndustry.delete({ where: { id } });
     } catch {
       // A taxonomy item still referenced by tickets/projects cannot be deleted (FK RESTRICT).

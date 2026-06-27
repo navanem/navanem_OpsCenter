@@ -34,6 +34,10 @@ export const PERMISSIONS = {
   "cmdb.manage": { label: "Manage CMDB", group: "CMDB" },
   "crm.read": { label: "View CRM", group: "CRM" },
   "crm.manage": { label: "Manage CRM", group: "CRM" },
+  "problems.read": { label: "View problems", group: "Problems" },
+  "problems.manage": { label: "Manage problems", group: "Problems" },
+  "releases.read": { label: "View releases", group: "Releases" },
+  "releases.manage": { label: "Manage releases", group: "Releases" },
   "audit.read": { label: "View audit log", group: "Settings" },
 } as const;
 

@@ -6,10 +6,12 @@ import { SidebarNav, type IconName } from "./sidebar-nav";
 type NavKey = keyof Dictionary["nav"];
 type GroupKey = "overview" | "operations" | "customers" | "system";
 
-const items: { href: string; key: NavKey; icon: IconName; group: GroupKey; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" | "subscriptions" | "changes" | "cmdb" | "crm" }[] = [
+const items: { href: string; key: NavKey; icon: IconName; group: GroupKey; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" | "subscriptions" | "changes" | "cmdb" | "crm" | "problems" | "releases" }[] = [
   { href: "/dashboard", key: "dashboard", icon: "dashboard", group: "overview" },
   { href: "/tickets", key: "tickets", icon: "tickets", group: "operations", permission: "tickets.read" },
   { href: "/changes", key: "changes", icon: "contracts", group: "operations", permission: "changes.read", flag: "changes" },
+  { href: "/problems", key: "problems", icon: "tickets", group: "operations", permission: "problems.read", flag: "problems" },
+  { href: "/releases", key: "releases", icon: "projects", group: "operations", permission: "releases.read", flag: "releases" },
   { href: "/projects", key: "projects", icon: "projects", group: "operations", permission: "projects.read" },
   { href: "/planning", key: "planning", icon: "planning", group: "operations", permission: "visits.read" },
   { href: "/timesheets", key: "timesheets", icon: "timesheets", group: "operations", permission: "timesheets.read", flag: "timesheeting" },
@@ -36,13 +38,15 @@ interface SidebarProps {
   changesEnabled: boolean;
   cmdbEnabled: boolean;
   crmEnabled: boolean;
+  problemsEnabled: boolean;
+  releasesEnabled: boolean;
   nav: Dictionary["nav"];
   navGroups: Dictionary["navGroups"];
 }
 
-export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled, subscriptionsEnabled, changesEnabled, cmdbEnabled, crmEnabled, nav, navGroups }: SidebarProps) {
+export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled, subscriptionsEnabled, changesEnabled, cmdbEnabled, crmEnabled, problemsEnabled, releasesEnabled, nav, navGroups }: SidebarProps) {
   const user = { id: "", email: "", permissions };
-  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled, subscriptions: subscriptionsEnabled, changes: changesEnabled, cmdb: cmdbEnabled, crm: crmEnabled };
+  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled, subscriptions: subscriptionsEnabled, changes: changesEnabled, cmdb: cmdbEnabled, crm: crmEnabled, problems: problemsEnabled, releases: releasesEnabled };
   const visible = items.filter(
     (i) =>
       (!i.permission || can(user, i.permission)) &&

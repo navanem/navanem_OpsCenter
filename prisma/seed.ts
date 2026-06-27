@@ -345,6 +345,47 @@ async function main() {
     for (const s of leadStatuses) {
       await prisma.leadStatus.upsert({ where: { name: s.name }, update: {}, create: s });
     }
+
+    // 21. Default problem types & statuses
+    const problemTypes = [
+      { name: "Incident-driven", color: "#ef4444", sortOrder: 1 },
+      { name: "Proactive", color: "#3b82f6", sortOrder: 2 },
+      { name: "Recurring", color: "#f59e0b", sortOrder: 3 },
+    ];
+    for (const t of problemTypes) {
+      await prisma.problemType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
+    const problemStatuses = [
+      { name: "New", color: "#3b82f6", sortOrder: 1 },
+      { name: "Investigating", color: "#f59e0b", sortOrder: 2 },
+      { name: "Known error", color: "#ef4444", sortOrder: 3 },
+      { name: "Resolved", color: "#10b981", sortOrder: 4 },
+      { name: "Closed", color: "#6b7280", sortOrder: 5 },
+    ];
+    for (const s of problemStatuses) {
+      await prisma.problemStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
+
+    // 22. Default release types & statuses
+    const releaseTypes = [
+      { name: "Major", color: "#6366f1", sortOrder: 1 },
+      { name: "Minor", color: "#3b82f6", sortOrder: 2 },
+      { name: "Patch", color: "#06b6d4", sortOrder: 3 },
+      { name: "Emergency", color: "#ef4444", sortOrder: 4 },
+    ];
+    for (const t of releaseTypes) {
+      await prisma.releaseType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
+    const releaseStatuses = [
+      { name: "Planned", color: "#3b82f6", sortOrder: 1 },
+      { name: "In progress", color: "#f59e0b", sortOrder: 2 },
+      { name: "Testing", color: "#8b5cf6", sortOrder: 3 },
+      { name: "Deployed", color: "#10b981", sortOrder: 4 },
+      { name: "Rolled back", color: "#ef4444", sortOrder: 5 },
+    ];
+    for (const s of releaseStatuses) {
+      await prisma.releaseStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }

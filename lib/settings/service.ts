@@ -45,4 +45,14 @@ export async function isCrmEnabled(): Promise<boolean> {
   return settings.crmEnabled;
 }
 
+export async function isProblemsEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.problemsEnabled;
+}
+
+export async function isReleasesEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.releasesEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;
