@@ -5,7 +5,7 @@ import { saveTaxonomyAction, deleteTaxonomyAction } from "./actions";
 import type { TaxonomyState } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status" | "subscription-type" | "subscription-status" | "ticket-type";
+type Kind = "category" | "priority" | "industry" | "project-status" | "task-status" | "visit-type" | "contract-status" | "tag" | "knowledge-category" | "device-type" | "device-status" | "subscription-type" | "subscription-status" | "ticket-type" | "change-type" | "change-status";
 
 interface TaxonomyItem {
   id: string;

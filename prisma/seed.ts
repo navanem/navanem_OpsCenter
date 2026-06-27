@@ -268,6 +268,29 @@ async function main() {
     for (const t of ticketTypes) {
       await prisma.ticketType.upsert({ where: { name: t.name }, update: {}, create: t });
     }
+
+    // 18. Default change types & statuses (ITSM change management)
+    const changeTypes = [
+      { name: "Standard", color: "#10b981", sortOrder: 1 },
+      { name: "Normal", color: "#3b82f6", sortOrder: 2 },
+      { name: "Emergency", color: "#ef4444", sortOrder: 3 },
+    ];
+    for (const t of changeTypes) {
+      await prisma.changeType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
+    const changeStatuses = [
+      { name: "Draft", color: "#6b7280", sortOrder: 1 },
+      { name: "Pending approval", color: "#f59e0b", sortOrder: 2 },
+      { name: "Approved", color: "#3b82f6", sortOrder: 3 },
+      { name: "Scheduled", color: "#8b5cf6", sortOrder: 4 },
+      { name: "In progress", color: "#06b6d4", sortOrder: 5 },
+      { name: "Completed", color: "#10b981", sortOrder: 6 },
+      { name: "Rejected", color: "#ef4444", sortOrder: 7 },
+      { name: "Cancelled", color: "#6b7280", sortOrder: 8 },
+    ];
+    for (const s of changeStatuses) {
+      await prisma.changeStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }

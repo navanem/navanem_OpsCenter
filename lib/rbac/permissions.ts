@@ -27,6 +27,9 @@ export const PERMISSIONS = {
   "devices.manage": { label: "Manage devices", group: "Devices" },
   "subscriptions.read": { label: "View subscriptions", group: "Subscriptions" },
   "subscriptions.manage": { label: "Manage subscriptions", group: "Subscriptions" },
+  "changes.read": { label: "View changes", group: "Changes" },
+  "changes.manage": { label: "Manage changes", group: "Changes" },
+  "changes.approve": { label: "Approve changes", group: "Changes" },
   "audit.read": { label: "View audit log", group: "Settings" },
 } as const;
 

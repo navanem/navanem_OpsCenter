@@ -33,6 +33,7 @@ export default async function AppLayout({
           contractsEnabled={settings.contractsEnabled}
           devicesEnabled={settings.devicesEnabled}
           subscriptionsEnabled={settings.subscriptionsEnabled}
+          changesEnabled={settings.changesEnabled}
           nav={dict.nav}
           navGroups={dict.navGroups}
         />

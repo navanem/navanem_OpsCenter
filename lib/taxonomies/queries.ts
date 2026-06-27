@@ -110,3 +110,11 @@ export function listSubscriptionStatuses(opts?: { activeOnly?: boolean }) {
 export function listTicketTypes(opts?: { activeOnly?: boolean }) {
   return prisma.ticketType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
 }
+
+export function listChangeTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.changeType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listChangeStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.changeStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
