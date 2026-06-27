@@ -2,10 +2,12 @@ import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guard";
 import { isCrmEnabled } from "@/lib/settings/service";
 import { getOpportunity } from "@/lib/crm/queries";
+import { listOpportunityActivities } from "@/lib/crm/activity";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
 import { listOpportunityStages } from "@/lib/taxonomies/queries";
 import { formatOpportunityReference } from "@/lib/crm/meta";
+import { OpportunityTimeline } from "../../opportunity-timeline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -17,8 +19,9 @@ export default async function EditOpportunityPage({ params }: { params: Promise<
   await requirePermission("crm.manage");
   if (!(await isCrmEnabled())) notFound();
   const { id } = await params;
-  const [opp, clients, owners, stages, dict] = await Promise.all([
+  const [opp, activities, clients, owners, stages, dict] = await Promise.all([
     getOpportunity(id),
+    listOpportunityActivities(id),
     listClients({}),
     listTechnicians(),
     listOpportunityStages({ activeOnly: true }),
@@ -53,6 +56,22 @@ export default async function EditOpportunityPage({ params }: { params: Promise<
               expectedCloseAt: opp.expectedCloseAt,
               notes: opp.notes,
             }}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>{dict.crm.activity}</CardTitle></CardHeader>
+        <CardContent>
+          <OpportunityTimeline
+            opportunityId={opp.id}
+            entries={activities.map((a) => ({
+              id: a.id,
+              type: a.type,
+              body: a.body,
+              authorName: a.author ? `${a.author.firstName} ${a.author.lastName}` : null,
+              createdAt: a.createdAt.toISOString(),
+            }))}
           />
         </CardContent>
       </Card>
