@@ -48,6 +48,8 @@ describe("permission catalog", () => {
     expect(PERMISSION_KEYS).toContain("audit.read");
     expect(PERMISSION_KEYS).toContain("changes.read");
     expect(PERMISSION_KEYS).toContain("changes.approve");
-    expect(PERMISSION_KEYS.length).toBe(32);
+    expect(PERMISSION_KEYS).toContain("cmdb.read");
+    expect(PERMISSION_KEYS).toContain("cmdb.manage");
+    expect(PERMISSION_KEYS.length).toBe(34);
   });
 });

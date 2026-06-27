@@ -6,7 +6,7 @@ import { SidebarNav, type IconName } from "./sidebar-nav";
 type NavKey = keyof Dictionary["nav"];
 type GroupKey = "overview" | "operations" | "customers" | "system";
 
-const items: { href: string; key: NavKey; icon: IconName; group: GroupKey; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" | "subscriptions" | "changes" }[] = [
+const items: { href: string; key: NavKey; icon: IconName; group: GroupKey; permission?: PermissionKey; flag?: "timesheeting" | "contracts" | "devices" | "subscriptions" | "changes" | "cmdb" }[] = [
   { href: "/dashboard", key: "dashboard", icon: "dashboard", group: "overview" },
   { href: "/tickets", key: "tickets", icon: "tickets", group: "operations", permission: "tickets.read" },
   { href: "/changes", key: "changes", icon: "contracts", group: "operations", permission: "changes.read", flag: "changes" },
@@ -18,6 +18,7 @@ const items: { href: string; key: NavKey; icon: IconName; group: GroupKey; permi
   { href: "/contracts", key: "contracts", icon: "contracts", group: "customers", permission: "contracts.read", flag: "contracts" },
   { href: "/subscriptions", key: "subscriptions", icon: "contracts", group: "customers", permission: "subscriptions.read", flag: "subscriptions" },
   { href: "/devices", key: "devices", icon: "devices", group: "customers", permission: "devices.read", flag: "devices" },
+  { href: "/cmdb", key: "cmdb", icon: "devices", group: "customers", permission: "cmdb.read", flag: "cmdb" },
   { href: "/settings", key: "settings", icon: "settings", group: "system", permission: "settings.manage" },
 ];
 
@@ -32,13 +33,14 @@ interface SidebarProps {
   devicesEnabled: boolean;
   subscriptionsEnabled: boolean;
   changesEnabled: boolean;
+  cmdbEnabled: boolean;
   nav: Dictionary["nav"];
   navGroups: Dictionary["navGroups"];
 }
 
-export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled, subscriptionsEnabled, changesEnabled, nav, navGroups }: SidebarProps) {
+export function Sidebar({ permissions, brandName, hasLogo, timesheetingEnabled, contractsEnabled, devicesEnabled, subscriptionsEnabled, changesEnabled, cmdbEnabled, nav, navGroups }: SidebarProps) {
   const user = { id: "", email: "", permissions };
-  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled, subscriptions: subscriptionsEnabled, changes: changesEnabled };
+  const flagOn = { timesheeting: timesheetingEnabled, contracts: contractsEnabled, devices: devicesEnabled, subscriptions: subscriptionsEnabled, changes: changesEnabled, cmdb: cmdbEnabled };
   const visible = items.filter(
     (i) =>
       (!i.permission || can(user, i.permission)) &&

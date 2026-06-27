@@ -35,4 +35,9 @@ export async function isChangesEnabled(): Promise<boolean> {
   return settings.changesEnabled;
 }
 
+export async function isCmdbEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.cmdbEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;

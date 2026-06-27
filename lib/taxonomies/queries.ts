@@ -118,3 +118,11 @@ export function listChangeTypes(opts?: { activeOnly?: boolean }) {
 export function listChangeStatuses(opts?: { activeOnly?: boolean }) {
   return prisma.changeStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
 }
+
+export function listConfigItemTypes(opts?: { activeOnly?: boolean }) {
+  return prisma.configItemType.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}
+
+export function listConfigItemStatuses(opts?: { activeOnly?: boolean }) {
+  return prisma.configItemStatus.findMany({ where: opts?.activeOnly ? { isActive: true } : undefined, orderBy: order });
+}

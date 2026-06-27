@@ -24,6 +24,8 @@ const TABS = [
   { key: "subscription-status", label: "Subscription statuses" },
   { key: "change-type", label: "Change types" },
   { key: "change-status", label: "Change statuses" },
+  { key: "ci-type", label: "CI types" },
+  { key: "ci-status", label: "CI statuses" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -46,6 +48,8 @@ export function TaxonomyTabs({
   ticketTypes,
   changeTypes,
   changeStatuses,
+  ciTypes,
+  ciStatuses,
 }: {
   categories: Item[];
   priorities: Item[];
@@ -64,6 +68,8 @@ export function TaxonomyTabs({
   ticketTypes: Item[];
   changeTypes: Item[];
   changeStatuses: Item[];
+  ciTypes: Item[];
+  ciStatuses: Item[];
 }) {
   const [tab, setTab] = useState<TabKey>("category");
   return (
@@ -135,6 +141,12 @@ export function TaxonomyTabs({
       ) : null}
       {tab === "change-status" ? (
         <TaxonomyManager kind="change-status" title="Change statuses" items={changeStatuses} />
+      ) : null}
+      {tab === "ci-type" ? (
+        <TaxonomyManager kind="ci-type" title="CI types" items={ciTypes} />
+      ) : null}
+      {tab === "ci-status" ? (
+        <TaxonomyManager kind="ci-status" title="CI statuses" items={ciStatuses} />
       ) : null}
     </div>
   );
