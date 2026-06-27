@@ -300,6 +300,8 @@ export const en = {
   crm: {
     pipeline: "Pipeline",
     leads: "Leads",
+    board: "Board",
+    list: "List",
     newOpportunity: "New opportunity",
     newLead: "New lead",
     noOpportunities: "No opportunities found.",

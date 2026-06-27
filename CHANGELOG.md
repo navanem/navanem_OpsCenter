@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.58.0] - 2026-06-27
+
+### Added
+- CRM pipeline board: the CRM → Pipeline tab now offers a **drag-and-drop Kanban board** grouping opportunities into columns by stage (plus an Unassigned column), with per-column deal counts and total value. Drag a card to move the opportunity to another stage (recorded in the audit log). A **Board / List** toggle switches between the board and the existing table while preserving active filters. Bilingual EN/FR.
+
 ## [0.57.0] - 2026-06-27
 
 ### Added

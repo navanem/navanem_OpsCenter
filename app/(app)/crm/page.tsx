@@ -14,8 +14,9 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { getDictionary } from "@/lib/i18n/server";
 import { CrmTabs } from "./crm-tabs";
 import { CrmFilters } from "./crm-filters";
+import { PipelineBoard } from "./pipeline-board";
 
-type SP = { search?: string; clientId?: string; stageId?: string; outcome?: string };
+type SP = { search?: string; clientId?: string; stageId?: string; outcome?: string; view?: string };
 
 function Badge({ name, color }: { name: string; color: string }) {
   return (
@@ -45,6 +46,22 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
     listOpportunityStages({ activeOnly: true }),
   ]);
 
+  const view = sp.view === "list" ? "list" : "board";
+  // Preserve active filters when switching between board and list.
+  const baseParams = new URLSearchParams();
+  if (sp.search) baseParams.set("search", sp.search);
+  if (sp.clientId) baseParams.set("clientId", sp.clientId);
+  if (sp.stageId) baseParams.set("stageId", sp.stageId);
+  if (sp.outcome) baseParams.set("outcome", sp.outcome);
+  const toView = (v: string) => {
+    const p = new URLSearchParams(baseParams);
+    p.set("view", v);
+    return `/crm?${p.toString()}`;
+  };
+  const toggleClass = (active: boolean) =>
+    "rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium transition " +
+    (active ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]");
+
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: dict.nav.crm }]} />
@@ -62,11 +79,33 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
 
       <CrmTabs />
 
-      <CrmFilters
-        clients={clients.map((c) => ({ id: c.id, companyName: c.companyName }))}
-        stages={stages.map((s) => ({ id: s.id, name: s.name }))}
-      />
+      <div className="flex items-center justify-between gap-3">
+        <CrmFilters
+          clients={clients.map((c) => ({ id: c.id, companyName: c.companyName }))}
+          stages={stages.map((s) => ({ id: s.id, name: s.name }))}
+        />
+        <div className="flex shrink-0 items-center gap-1 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] p-1">
+          <Link href={toView("board")} className={toggleClass(view === "board")}>{dict.crm.board}</Link>
+          <Link href={toView("list")} className={toggleClass(view === "list")}>{dict.crm.list}</Link>
+        </div>
+      </div>
 
+      {view === "board" ? (
+        <PipelineBoard
+          canManage={can(user, "crm.manage")}
+          stages={stages.map((s) => ({ id: s.id, name: s.name, color: s.color }))}
+          initial={opportunities.map((o) => ({
+            id: o.id,
+            number: o.number,
+            name: o.name,
+            stageId: o.stageId,
+            clientName: o.client?.companyName ?? null,
+            ownerName: o.owner ? `${o.owner.firstName} ${o.owner.lastName}` : null,
+            valueCents: o.valueCents,
+            outcome: o.outcome,
+          }))}
+        />
+      ) : (
       <Card>
         {opportunities.length === 0 ? (
           <p className="p-6 text-[var(--muted-foreground)]">{dict.crm.noOpportunities}</p>
@@ -101,6 +140,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
           </table>
         )}
       </Card>
+      )}
     </div>
   );
 }

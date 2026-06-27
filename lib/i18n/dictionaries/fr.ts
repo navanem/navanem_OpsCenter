@@ -302,6 +302,8 @@ export const fr: Dictionary = {
   crm: {
     pipeline: "Pipeline",
     leads: "Prospects",
+    board: "Tableau",
+    list: "Liste",
     newOpportunity: "Nouvelle opportunité",
     newLead: "Nouveau prospect",
     noOpportunities: "Aucune opportunité trouvée.",
