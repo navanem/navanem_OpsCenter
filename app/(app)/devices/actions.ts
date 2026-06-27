@@ -82,3 +82,26 @@ export async function deleteDeviceAction(formData: FormData): Promise<void> {
   }
   redirect("/devices");
 }
+
+export async function generateDeviceTokenAction(formData: FormData): Promise<void> {
+  await requireDevices();
+  const id = formData.get("id");
+  if (typeof id === "string" && id.length > 0) {
+    const token = `agt_${crypto.randomUUID().replace(/-/g, "")}`;
+    await prisma.device.update({ where: { id }, data: { agentToken: token } });
+    await recordAudit({ action: "updated", entityType: "device", entityId: id, summary: "Generated a monitoring agent token" });
+    revalidatePath(`/devices/${id}`);
+  }
+  redirect(`/devices/${typeof id === "string" ? id : ""}`);
+}
+
+export async function revokeDeviceTokenAction(formData: FormData): Promise<void> {
+  await requireDevices();
+  const id = formData.get("id");
+  if (typeof id === "string" && id.length > 0) {
+    await prisma.device.update({ where: { id }, data: { agentToken: null } });
+    await recordAudit({ action: "updated", entityType: "device", entityId: id, summary: "Revoked the monitoring agent token" });
+    revalidatePath(`/devices/${id}`);
+  }
+  redirect(`/devices/${typeof id === "string" ? id : ""}`);
+}

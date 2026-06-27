@@ -74,11 +74,11 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
               {devices.map((d) => (
                 <tr key={d.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--muted)]/40">
                   <td className="px-4 py-3">
-                    <Link href={`/devices/${d.id}/edit`} className="inline-flex rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-xs hover:underline">
+                    <Link href={`/devices/${d.id}`} className="inline-flex rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-xs hover:underline">
                       {formatDeviceReference(d.number)}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 font-medium">{d.name}</td>
+                  <td className="px-4 py-3 font-medium"><Link href={`/devices/${d.id}`} className="hover:underline">{d.name}</Link></td>
                   <td className="px-4 py-3"><DeviceBadge name={d.type.name} color={d.type.color} /></td>
                   <td className="px-4 py-3"><DeviceBadge name={d.status.name} color={d.status.color} /></td>
                   <td className="px-4 py-3 text-[var(--muted-foreground)]">{d.client?.companyName ?? "—"}</td>
