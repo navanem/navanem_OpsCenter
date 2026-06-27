@@ -19,8 +19,10 @@ OpsCenter is a single-tenant SaaS that runs the day-to-day of an MSP: handle sup
 - 🎫 **Ticketing** with a Kanban board, SLA/due dates, tags, threaded conversations and an automatic activity log
 - 🛠️ **ITSM practices** — incident, service request and change ticket types
 - 🔄 **Change management** with risk/impact, planned windows, implementation/rollback plans and an approval workflow
+- 🐞 **Problem management** with root cause, workaround, known-error flag and resolution
+- 🚀 **Release management** with versions, planned/actual dates, release notes and rollback plans
 - 🧱 **CMDB** — configuration items with types, relationships and device links
-- 💼 **CRM** — leads and an opportunity pipeline with one-click lead-to-client conversion
+- 💼 **CRM** — leads and an opportunity pipeline (board + analytics), per-deal activity timeline and email
 - 🗓️ **Planning** on a full month calendar with one-off and recurring visits
 - 👥 **Clients & contacts** with a customer-facing **portal**
 - 📄 **Contracts & subscriptions** with renewals, warranties and support tracking
@@ -48,11 +50,17 @@ Tickets are linked to clients with status, priority, configurable category, tags
 
 ![Kanban board](docs/screenshots/tickets-board.png)
 
-### ITSM & change management
-Classify tickets by **type** (incident, service request, change) to align with ITSM practice. The dedicated **Change Management** module _(optional)_ plans and tracks IT changes (`CHG-####`) with configurable type and status, **risk/impact**, a **planned window**, **implementation and rollback plans**, an assignee and client, plus an **approve / reject** workflow gated by its own permission — with KPIs (pending approval, upcoming, approved) and filters.
+### ITSM: change, problem & release management
+Classify tickets by **type** (incident, service request, change) to align with ITSM practice, backed by three dedicated _(optional)_ modules:
+
+- **Change Management** (`CHG-####`) — configurable type and status, **risk/impact**, a **planned window**, **implementation and rollback plans**, assignee and client, plus an **approve / reject** workflow gated by its own permission. KPIs for pending approval, upcoming and approved.
+- **Problem Management** (`PRB-####`) — track the problems behind recurring incidents with **priority** (low → critical), **impact**, **root cause**, **workaround**, a **known-error** flag and a **resolution** (which marks the problem resolved). KPIs for open, known errors and resolved.
+- **Release Management** (`REL-####`) — plan and track releases with a **version**, type and status, owner, client, **planned and actual release dates**, **release notes** and a **rollback plan**. KPIs for planned, upcoming and released.
 
 ### CRM & sales pipeline _(optional module)_
-Capture **leads** (`LEAD-####`) with source, status, owner, contact details and estimated value, and drive **opportunities** (`OPP-####`) through a **configurable pipeline** with stages, monetary value, win probability, owner, expected close date and a won/lost outcome. Convert a qualified lead into a client in **one click**, carrying over its company and contact details. A tabbed view (Pipeline / Leads) surfaces KPIs — open deals, pipeline value, won deals and active leads.
+Capture **leads** (`LEAD-####`) with source, status, owner, contact details and estimated value, and drive **opportunities** (`OPP-####`) through a **configurable pipeline** with stages, monetary value, win probability, owner, expected close date and a won/lost outcome. Convert a qualified lead into a client in **one click**, carrying over its company and contact details.
+
+The pipeline is a **drag-and-drop Kanban board** (with per-stage deal counts and value) or a list, with overdue deals flagged. A tabbed view (Pipeline / Leads / Analytics) surfaces KPIs — open deals, pipeline value, **weighted forecast**, won deals and active leads — plus an **Analytics** tab with win rate, average deal size, average sales cycle and pipeline-by-stage. Each opportunity has an **activity timeline** (notes plus an automatic history of stage/outcome changes), and you can **email** an opportunity's client contact or a lead directly from the record when SMTP is configured. CRM KPIs and deals closing soon also surface on the dashboard.
 
 ### CMDB / configuration management _(optional module)_
 Map your IT estate as **configuration items** (`CI-####`) — servers, applications, services and network gear — with configurable type and status, owner, environment, location, client, an optional **linked monitored device** and **CI-to-CI relationships**, all filterable with KPIs.
