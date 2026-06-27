@@ -46,6 +46,8 @@ describe("permission catalog", () => {
     expect(PERMISSION_KEYS).toContain("subscriptions.read");
     expect(PERMISSION_KEYS).toContain("subscriptions.manage");
     expect(PERMISSION_KEYS).toContain("audit.read");
-    expect(PERMISSION_KEYS.length).toBe(29);
+    expect(PERMISSION_KEYS).toContain("changes.read");
+    expect(PERMISSION_KEYS).toContain("changes.approve");
+    expect(PERMISSION_KEYS.length).toBe(32);
   });
 });

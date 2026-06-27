@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.55.0] - 2026-06-27
+
+### Added
+- ITSM Change Management module (toggle in Settings → Changes): plan and track IT changes (CHG-####) with configurable type and status, risk/impact, planned window, implementation and rollback plans, assignee and client, plus an approve/reject workflow gated by a dedicated permission. Includes a list with KPIs and filters. Bilingual EN/FR.
+
 ## [0.54.0] - 2026-06-27
 
 ### Added

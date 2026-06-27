@@ -30,4 +30,9 @@ export async function isSubscriptionsEnabled(): Promise<boolean> {
   return settings.subscriptionsEnabled;
 }
 
+export async function isChangesEnabled(): Promise<boolean> {
+  const settings = await getAppSettings();
+  return settings.changesEnabled;
+}
+
 export const APP_SETTING_ID = SINGLETON_ID;

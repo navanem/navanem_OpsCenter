@@ -68,6 +68,8 @@ model User {
   passwordResets           PasswordResetToken[]
   knowledgeArticles        KnowledgeArticle[] @relation("KnowledgeAuthor")
   auditLogs                AuditLog[]       @relation("AuditActor")
+  assignedChanges          Change[]         @relation("ChangeAssignee")
+  approvedChanges          Change[]         @relation("ChangeApprover")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -123,6 +125,7 @@ model Client {
   contracts            Contract[]
   devices              Device[]
   subscriptions        Subscription[]
+  changes              Change[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -175,6 +178,7 @@ model AppSetting {
   enforce2fa          Boolean @default(false)
   defaultLocale       String  @default("en")
   subscriptionsEnabled Boolean @default(false)
+  changesEnabled      Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -724,4 +728,51 @@ model SubscriptionStatus {
   sortOrder     Int            @default(0)
   isActive      Boolean        @default(true)
   subscriptions Subscription[]
+}
+
+model Change {
+  id                 String       @id @default(cuid())
+  number             Int          @unique @default(autoincrement())
+  title              String
+  description        String?
+  typeId             String?
+  type               ChangeType?  @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  statusId           String
+  status             ChangeStatus @relation(fields: [statusId], references: [id])
+  clientId           String?
+  client             Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  assigneeId         String?
+  assignee           User?        @relation("ChangeAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  risk               String?
+  impact             String?
+  plannedStart       DateTime?
+  plannedEnd         DateTime?
+  implementationPlan String?
+  rollbackPlan       String?
+  approvedById       String?
+  approvedBy         User?        @relation("ChangeApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt         DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([clientId])
+  @@index([statusId])
+}
+
+model ChangeType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#8b5cf6")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  changes   Change[]
+}
+
+model ChangeStatus {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#6b7280")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  changes   Change[]
 }
