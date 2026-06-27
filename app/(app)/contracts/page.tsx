@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ContractBadge } from "@/components/contracts/badges";
+import { getDictionary } from "@/lib/i18n/server";
 import { ContractsFilters } from "./contracts-filters";
 
 type SP = { clientId?: string; typeId?: string; statusId?: string };
@@ -20,7 +21,7 @@ type SP = { clientId?: string; typeId?: string; statusId?: string };
 export default async function ContractsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("contracts.read");
   if (!(await isContractsEnabled())) notFound();
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
 
   const [contracts, stats, clients, types, statuses] = await Promise.all([
     listContracts({ clientId: sp.clientId, typeId: sp.typeId, statusId: sp.statusId }),
@@ -31,21 +32,21 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
   ]);
 
   const kpis = [
-    { label: "Contracts", value: String(stats.total), color: "#6d5efc" },
-    { label: "Monthly recurring", value: formatMoneyCents(stats.monthlyRecurringCents), color: "#10b981" },
-    { label: "Total value", value: formatMoneyCents(stats.totalValueCents), color: "#3b82f6" },
-    { label: "Expiring (30d)", value: String(stats.expiringSoon), color: "#f59e0b" },
+    { label: dict.contracts.kpiCount, value: String(stats.total), color: "#6d5efc" },
+    { label: dict.contracts.kpiMrr, value: formatMoneyCents(stats.monthlyRecurringCents), color: "#10b981" },
+    { label: dict.contracts.kpiValue, value: formatMoneyCents(stats.totalValueCents), color: "#3b82f6" },
+    { label: dict.contracts.kpiExpiring, value: String(stats.expiringSoon), color: "#f59e0b" },
   ];
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Contracts" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.contracts }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Contracts</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.contracts}</h1>
         <div className="flex items-center gap-2">
-          <a href="/api/export?type=contracts" download><Button variant="outline">Export CSV</Button></a>
+          <a href="/api/export?type=contracts" download><Button variant="outline">{dict.common.exportCsv}</Button></a>
           {can(user, "contracts.manage") ? (
-            <Link href="/contracts/new"><Button>New contract</Button></Link>
+            <Link href="/contracts/new"><Button>{dict.contracts.new}</Button></Link>
           ) : null}
         </div>
       </div>
@@ -64,18 +65,18 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
 
       <Card>
         {contracts.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No contracts found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.contracts.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Type</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Value</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Quota</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Period</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.ref}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.client}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.type}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.status}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.contracts.colValue}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.contracts.colQuota}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.contracts.colPeriod}</th>
               </tr>
             </thead>
             <tbody>

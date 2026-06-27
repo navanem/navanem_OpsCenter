@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { DeviceBadge } from "@/components/devices/badges";
+import { getDictionary } from "@/lib/i18n/server";
 import { DevicesFilters } from "./devices-filters";
 
 type SP = { search?: string; clientId?: string; typeId?: string; statusId?: string };
@@ -19,7 +20,7 @@ type SP = { search?: string; clientId?: string; typeId?: string; statusId?: stri
 export default async function DevicesPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("devices.read");
   if (!(await isDevicesEnabled())) notFound();
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
 
   const [devices, stats, clients, types, statuses] = await Promise.all([
     listDevices({ search: sp.search, clientId: sp.clientId, typeId: sp.typeId, statusId: sp.statusId }),
@@ -31,20 +32,20 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Devices" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.devices }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Devices</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.devices}</h1>
         <div className="flex items-center gap-2">
-          <a href="/api/export?type=devices" download><Button variant="outline">Export CSV</Button></a>
-          {can(user, "devices.manage") ? <Link href="/devices/new"><Button>New device</Button></Link> : null}
+          <a href="/api/export?type=devices" download><Button variant="outline">{dict.common.exportCsv}</Button></a>
+          {can(user, "devices.manage") ? <Link href="/devices/new"><Button>{dict.devices.new}</Button></Link> : null}
         </div>
       </div>
 
       <StatGrid>
-        <StatCard label="Devices" value={stats.total} color="#6d5efc" />
-        <StatCard label="Assigned" value={stats.assigned} color="#10b981" />
-        <StatCard label="Unassigned" value={stats.unassigned} color="#3b82f6" />
-        <StatCard label="Warranty < 60d" value={stats.warrantySoon} color="#f59e0b" />
+        <StatCard label={dict.devices.kpiTotal} value={stats.total} color="#6d5efc" />
+        <StatCard label={dict.devices.kpiAssigned} value={stats.assigned} color="#10b981" />
+        <StatCard label={dict.devices.kpiUnassigned} value={stats.unassigned} color="#3b82f6" />
+        <StatCard label={dict.devices.kpiWarranty} value={stats.warrantySoon} color="#f59e0b" />
       </StatGrid>
 
       <DevicesFilters
@@ -55,18 +56,18 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
 
       <Card>
         {devices.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No devices found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.devices.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Name</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Type</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Serial</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Warranty</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.ref}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.name}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.type}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.status}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.client}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.serial}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.warranty}</th>
               </tr>
             </thead>
             <tbody>

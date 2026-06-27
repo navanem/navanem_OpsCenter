@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { getDictionary } from "@/lib/i18n/server";
 import { ClientsFilters } from "./clients-filters";
 
 const AVATAR_COLORS = ["#6d5efc", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4", "#ec4899", "#14b8a6"];
@@ -54,7 +55,7 @@ export default async function ClientsPage({
   searchParams: Promise<{ search?: string; status?: string; technicianId?: string }>;
 }) {
   const user = await requirePermission("clients.read");
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
   const status = sp.status === "ACTIVE" || sp.status === "INACTIVE" ? sp.status : undefined;
 
   const canReadTickets = can(user, "tickets.read");
@@ -74,20 +75,20 @@ export default async function ClientsPage({
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Clients" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.clients }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.clients}</h1>
         <div className="flex items-center gap-2">
           <a href="/api/export?type=clients" download>
-            <Button variant="outline">Export CSV</Button>
+            <Button variant="outline">{dict.common.exportCsv}</Button>
           </a>
           {can(user, "clients.manage") ? (
             <>
               <Link href="/clients/import">
-                <Button variant="outline">Import CSV</Button>
+                <Button variant="outline">{dict.common.importCsv}</Button>
               </Link>
               <Link href="/clients/new">
-                <Button>New client</Button>
+                <Button>{dict.clients.new}</Button>
               </Link>
             </>
           ) : null}
@@ -95,33 +96,33 @@ export default async function ClientsPage({
       </div>
 
       <StatGrid>
-        <StatCard label="Clients" value={stats.total} color="#6d5efc" />
-        <StatCard label="Active" value={stats.active} color="#10b981" />
-        <StatCard label="Unassigned" value={stats.unassigned} color="#f59e0b" />
+        <StatCard label={dict.clients.kpiClients} value={stats.total} color="#6d5efc" />
+        <StatCard label={dict.clients.kpiActive} value={stats.active} color="#10b981" />
+        <StatCard label={dict.clients.kpiUnassigned} value={stats.unassigned} color="#f59e0b" />
         {canReadTickets ? (
-          <StatCard label="Open tickets" value={Object.values(openCounts).reduce((a, b) => a + b, 0)} color="#3b82f6" />
+          <StatCard label={dict.clients.kpiOpenTickets} value={Object.values(openCounts).reduce((a, b) => a + b, 0)} color="#3b82f6" />
         ) : (
-          <StatCard label="Inactive" value={stats.total - stats.active} color="#6b7280" />
+          <StatCard label={dict.clients.kpiInactive} value={stats.total - stats.active} color="#6b7280" />
         )}
-        {showMrr ? <StatCard label="MRR" value={formatMoneyCents(totalMrrCents)} color="#8b5cf6" /> : null}
+        {showMrr ? <StatCard label={dict.clients.kpiMrr} value={formatMoneyCents(totalMrrCents)} color="#8b5cf6" /> : null}
       </StatGrid>
 
       <ClientsFilters technicians={technicians} />
 
       <Card className="overflow-hidden p-0">
         {clients.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No clients found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.clients.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--muted)]/40 text-left text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
-                <th scope="col" className="px-6 py-3 font-semibold">Client</th>
-                <th scope="col" className="px-4 py-3 font-semibold">Technician</th>
-                {canReadTickets ? <th scope="col" className="px-4 py-3 font-semibold">Tickets</th> : null}
-                {showDevices ? <th scope="col" className="px-4 py-3 font-semibold">Devices</th> : null}
-                {showMrr ? <th scope="col" className="px-4 py-3 text-right font-semibold">MRR</th> : null}
-                <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-                <th scope="col" className="px-6 py-3 text-right font-semibold">Actions</th>
+                <th scope="col" className="px-6 py-3 font-semibold">{dict.common.client}</th>
+                <th scope="col" className="px-4 py-3 font-semibold">{dict.common.technician}</th>
+                {canReadTickets ? <th scope="col" className="px-4 py-3 font-semibold">{dict.clients.colTickets}</th> : null}
+                {showDevices ? <th scope="col" className="px-4 py-3 font-semibold">{dict.nav.devices}</th> : null}
+                {showMrr ? <th scope="col" className="px-4 py-3 text-right font-semibold">{dict.clients.kpiMrr}</th> : null}
+                <th scope="col" className="px-4 py-3 font-semibold">{dict.common.status}</th>
+                <th scope="col" className="px-6 py-3 text-right font-semibold">{dict.common.actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -145,7 +146,7 @@ export default async function ClientsPage({
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-[var(--muted-foreground)]">
-                      {c.assignedTechnician ? `${c.assignedTechnician.firstName} ${c.assignedTechnician.lastName}` : "Unassigned"}
+                      {c.assignedTechnician ? `${c.assignedTechnician.firstName} ${c.assignedTechnician.lastName}` : dict.common.unassigned}
                     </td>
                     {canReadTickets ? (
                       <td className="px-4 py-3">
@@ -180,7 +181,7 @@ export default async function ClientsPage({
                         }
                       >
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: active ? "#10b981" : "var(--muted-foreground)" }} />
-                        {active ? "Active" : "Inactive"}
+                        {active ? dict.common.active : dict.common.inactive}
                       </span>
                     </td>
                     <td className="px-6 py-3">

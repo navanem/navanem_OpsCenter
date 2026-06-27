@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.48.0] - 2026-06-27
+
+### Changed
+- Extended the French / English translation to the module pages: Tickets, Clients, Planning, Contracts, Subscriptions and Devices — their titles, buttons, KPIs, table headers, empty states and filters now follow the chosen language.
+
 ## [0.47.0] - 2026-06-27
 
 ### Changed
