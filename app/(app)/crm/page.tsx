@@ -72,7 +72,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
 
       <StatGrid>
         <StatCard label={dict.crm.kpiOpen} value={stats.openCount} color="#3b82f6" />
-        <StatCard label={dict.crm.kpiPipelineValue} value={formatMoneyCents(stats.openValueCents)} color="#6d5efc" />
+        <StatCard label={dict.crm.kpiPipelineValue} value={formatMoneyCents(stats.openValueCents)} color="#6d5efc" hint={`${dict.crm.weightedForecast}: ${formatMoneyCents(stats.weightedForecastCents)}`} />
         <StatCard label={dict.crm.kpiWon} value={stats.wonCount} color="#10b981" />
         <StatCard label={dict.crm.kpiLeads} value={stats.leadCount} color="#f59e0b" />
       </StatGrid>

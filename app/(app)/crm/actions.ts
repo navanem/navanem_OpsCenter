@@ -69,6 +69,20 @@ export async function moveOpportunityAction(id: string, stageId: string): Promis
   revalidatePath("/crm");
 }
 
+// Mark an opportunity won/lost (or reopen) inline from the pipeline board.
+export async function markOutcomeAction(id: string, outcome: string): Promise<void> {
+  await requireCrm();
+  if (!id || (outcome !== "OPEN" && outcome !== "WON" && outcome !== "LOST")) return;
+  const opp = await prisma.opportunity.findUnique({ where: { id }, select: { number: true, outcome: true } });
+  if (!opp || opp.outcome === outcome) return;
+  await prisma.opportunity.update({
+    where: { id },
+    data: { outcome: outcome as "OPEN" | "WON" | "LOST", closedAt: outcome === "OPEN" ? null : new Date() },
+  });
+  await recordAudit({ action: "outcome_changed", entityType: "opportunity", entityId: id, entityLabel: formatOpportunityReference(opp.number), summary: `Marked opportunity ${formatOpportunityReference(opp.number)} as ${outcome.toLowerCase()}` });
+  revalidatePath("/crm");
+}
+
 export async function deleteOpportunityAction(formData: FormData): Promise<void> {
   await requireCrm();
   const id = formData.get("id");

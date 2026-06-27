@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useT } from "@/lib/i18n/provider";
 import { formatOpportunityReference, formatMoneyCents } from "@/lib/crm/meta";
-import { moveOpportunityAction } from "./actions";
+import { moveOpportunityAction, markOutcomeAction } from "./actions";
 
 export interface BoardOpportunity {
   id: string;
@@ -62,6 +62,15 @@ export function PipelineBoard({
     });
   }
 
+  function setOutcome(id: string, outcome: string) {
+    if (!canManage) return;
+    setOpps((prev) => prev.map((o) => (o.id === id ? { ...o, outcome } : o))); // optimistic
+    startTransition(async () => {
+      await markOutcomeAction(id, outcome);
+      router.refresh();
+    });
+  }
+
   function columnOpps(columnId: string) {
     return columnId === UNASSIGNED
       ? opps.filter((o) => !o.stageId)
@@ -114,6 +123,41 @@ export function PipelineBoard({
                   <Link href={`/crm/${o.id}/edit`} className="font-medium hover:underline">{o.name}</Link>
                   <div className="mt-1 text-xs text-[var(--muted-foreground)]">{o.clientName ?? "—"}</div>
                   <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">{o.ownerName ?? dict.common.unassigned}</div>
+                  {canManage ? (
+                    <div className="mt-2 flex items-center gap-1.5 border-t border-[var(--border)] pt-2">
+                      {o.outcome === "OPEN" ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setOutcome(o.id, "WON")}
+                            className="rounded-[var(--radius-sm)] bg-[#10b98115] px-2 py-1 text-[11px] font-medium text-[#10b981] transition hover:bg-[#10b98125]"
+                          >
+                            {dict.crm.markWon}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setOutcome(o.id, "LOST")}
+                            className="rounded-[var(--radius-sm)] bg-[#ef444415] px-2 py-1 text-[11px] font-medium text-[#ef4444] transition hover:bg-[#ef444425]"
+                          >
+                            {dict.crm.markLost}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-[11px] font-medium" style={{ color: o.outcome === "WON" ? "#10b981" : "#ef4444" }}>
+                            {o.outcome === "WON" ? dict.crm.outcomeWon : dict.crm.outcomeLost}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setOutcome(o.id, "OPEN")}
+                            className="ml-auto rounded-[var(--radius-sm)] px-2 py-1 text-[11px] font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                          >
+                            {dict.crm.reopen}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               ))}
               {column.length === 0 ? <p className="px-1 py-2 text-xs text-[var(--muted-foreground)]">{dict.crm.noOpportunities}</p> : null}
