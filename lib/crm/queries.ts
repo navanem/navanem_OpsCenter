@@ -77,6 +77,62 @@ export function getLead(id: string) {
   return prisma.lead.findUnique({ where: { id }, include: leadInclude });
 }
 
+// Sales analytics: win rate, average deal size & sales cycle, and the open
+// pipeline distribution across stages.
+export async function getCrmAnalytics() {
+  const [wonDeals, lostCount, openDeals, stages] = await Promise.all([
+    prisma.opportunity.findMany({ where: { outcome: "WON" }, select: { valueCents: true, createdAt: true, closedAt: true } }),
+    prisma.opportunity.count({ where: { outcome: "LOST" } }),
+    prisma.opportunity.findMany({ where: { outcome: "OPEN" }, select: { stageId: true, valueCents: true } }),
+    prisma.opportunityStage.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true, name: true, color: true } }),
+  ]);
+
+  const wonCount = wonDeals.length;
+  const closedCount = wonCount + lostCount;
+  const winRate = closedCount > 0 ? wonCount / closedCount : 0;
+
+  const wonWithValue = wonDeals.filter((d) => d.valueCents != null);
+  const wonValueCents = wonWithValue.reduce((s, d) => s + (d.valueCents ?? 0), 0);
+  const avgWonDealCents = wonWithValue.length > 0 ? Math.round(wonValueCents / wonWithValue.length) : 0;
+
+  const cycles = wonDeals
+    .filter((d) => d.closedAt != null)
+    .map((d) => (new Date(d.closedAt as Date).getTime() - new Date(d.createdAt).getTime()) / 86_400_000);
+  const avgSalesCycleDays = cycles.length > 0 ? Math.round(cycles.reduce((s, c) => s + c, 0) / cycles.length) : 0;
+
+  const byStage = stages.map((st) => {
+    const deals = openDeals.filter((d) => d.stageId === st.id);
+    return {
+      id: st.id,
+      name: st.name,
+      color: st.color,
+      count: deals.length,
+      valueCents: deals.reduce((s, d) => s + (d.valueCents ?? 0), 0),
+    };
+  });
+  const unstaged = openDeals.filter((d) => !d.stageId);
+  if (unstaged.length > 0) {
+    byStage.push({
+      id: "__unstaged__",
+      name: "",
+      color: "#6b7280",
+      count: unstaged.length,
+      valueCents: unstaged.reduce((s, d) => s + (d.valueCents ?? 0), 0),
+    });
+  }
+
+  return {
+    wonCount,
+    lostCount,
+    openCount: openDeals.length,
+    winRate,
+    avgWonDealCents,
+    avgSalesCycleDays,
+    wonValueCents,
+    byStage,
+  };
+}
+
 // Lightweight CRM summary for the dashboard: open pipeline value and the open
 // deals that need attention (overdue or closing within the next 14 days).
 export async function getCrmDashboard() {
