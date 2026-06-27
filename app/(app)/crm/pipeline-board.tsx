@@ -16,6 +16,7 @@ export interface BoardOpportunity {
   ownerName: string | null;
   valueCents: number | null;
   outcome: string;
+  overdue: boolean;
 }
 
 export interface BoardStage {
@@ -121,6 +122,11 @@ export function PipelineBoard({
                     </span>
                   </div>
                   <Link href={`/crm/${o.id}/edit`} className="font-medium hover:underline">{o.name}</Link>
+                  {o.overdue && o.outcome === "OPEN" ? (
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#ef444415] px-2 py-0.5 text-[10px] font-medium text-[#ef4444]">
+                      <span className="h-1 w-1 rounded-full bg-[#ef4444]" /> {dict.crm.overdue}
+                    </span>
+                  ) : null}
                   <div className="mt-1 text-xs text-[var(--muted-foreground)]">{o.clientName ?? "—"}</div>
                   <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">{o.ownerName ?? dict.common.unassigned}</div>
                   {canManage ? (

@@ -47,6 +47,8 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
   ]);
 
   const view = sp.view === "list" ? "list" : "board";
+  const now = Date.now();
+  const isOverdue = (d: Date | null) => d != null && new Date(d).getTime() < now;
   // Preserve active filters when switching between board and list.
   const baseParams = new URLSearchParams();
   if (sp.search) baseParams.set("search", sp.search);
@@ -71,7 +73,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
       </div>
 
       <StatGrid>
-        <StatCard label={dict.crm.kpiOpen} value={stats.openCount} color="#3b82f6" />
+        <StatCard label={dict.crm.kpiOpen} value={stats.openCount} color="#3b82f6" hint={stats.overdueCount > 0 ? `${stats.overdueCount} ${dict.crm.overdue.toLowerCase()}` : undefined} />
         <StatCard label={dict.crm.kpiPipelineValue} value={formatMoneyCents(stats.openValueCents)} color="#6d5efc" hint={`${dict.crm.weightedForecast}: ${formatMoneyCents(stats.weightedForecastCents)}`} />
         <StatCard label={dict.crm.kpiWon} value={stats.wonCount} color="#10b981" />
         <StatCard label={dict.crm.kpiLeads} value={stats.leadCount} color="#f59e0b" />
@@ -103,6 +105,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
             ownerName: o.owner ? `${o.owner.firstName} ${o.owner.lastName}` : null,
             valueCents: o.valueCents,
             outcome: o.outcome,
+            overdue: isOverdue(o.expectedCloseAt),
           }))}
         />
       ) : (
@@ -133,7 +136,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
                   <td className="px-4 py-3">{o.stage ? <Badge name={o.stage.name} color={o.stage.color} /> : <span className="text-[var(--muted-foreground)]">—</span>}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{formatMoneyCents(o.valueCents)}</td>
                   <td className="px-4 py-3"><OutcomePill outcome={o.outcome} dict={dict} /></td>
-                  <td className="px-4 py-3 whitespace-nowrap text-[var(--muted-foreground)]">{o.expectedCloseAt ? new Date(o.expectedCloseAt).toLocaleDateString() : "—"}</td>
+                  <td className={"px-4 py-3 whitespace-nowrap " + (isOverdue(o.expectedCloseAt) && o.outcome === "OPEN" ? "font-medium text-[#ef4444]" : "text-[var(--muted-foreground)]")}>{o.expectedCloseAt ? new Date(o.expectedCloseAt).toLocaleDateString() : "—"}</td>
                 </tr>
               ))}
             </tbody>

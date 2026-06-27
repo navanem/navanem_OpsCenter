@@ -306,6 +306,7 @@ export const en = {
     markLost: "Lost",
     reopen: "Reopen",
     weightedForecast: "Weighted forecast",
+    overdue: "Overdue",
     newOpportunity: "New opportunity",
     newLead: "New lead",
     noOpportunities: "No opportunities found.",

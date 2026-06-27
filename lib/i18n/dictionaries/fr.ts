@@ -308,6 +308,7 @@ export const fr: Dictionary = {
     markLost: "Perdue",
     reopen: "Rouvrir",
     weightedForecast: "Prévision pondérée",
+    overdue: "En retard",
     newOpportunity: "Nouvelle opportunité",
     newLead: "Nouveau prospect",
     noOpportunities: "Aucune opportunité trouvée.",
