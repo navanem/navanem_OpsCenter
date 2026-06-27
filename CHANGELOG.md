@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.53.0] - 2026-06-27
+
+### Added
+- Audit log (Settings → Audit log): a chronological record of who did what and when across the app, with entity/action filters and search. The framework records actions best-effort and currently covers clients, devices, subscriptions, contracts, knowledge articles, ticket create/status/assignment and user suspension; more actions are being instrumented over time. Gated by a new "View audit log" permission.
+
 ## [0.52.0] - 2026-06-27
 
 ### Added

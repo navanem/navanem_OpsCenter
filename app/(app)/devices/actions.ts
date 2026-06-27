@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { isDevicesEnabled } from "@/lib/settings/service";
 import { deviceSchema, normalizeDeviceInput } from "@/lib/validation/device";
+import { recordAudit } from "@/lib/audit/log";
+import { formatDeviceReference } from "@/lib/devices/meta";
 
 export interface DeviceFormState {
   error?: string;
@@ -50,6 +52,7 @@ export async function createDeviceAction(_prev: DeviceFormState, formData: FormD
   const refError = await validateRefs(parsed.data.typeId, parsed.data.statusId);
   if (refError) return { error: refError };
   const device = await prisma.device.create({ data: normalizeDeviceInput(parsed.data) });
+  await recordAudit({ action: "created", entityType: "device", entityId: device.id, entityLabel: formatDeviceReference(device.number), summary: `Created device "${device.name}"` });
   revalidatePath("/devices");
   redirect(`/devices/${device.id}/edit`);
 }
@@ -63,6 +66,7 @@ export async function updateDeviceAction(_prev: DeviceFormState, formData: FormD
   const refError = await validateRefs(parsed.data.typeId, parsed.data.statusId);
   if (refError) return { error: refError };
   await prisma.device.update({ where: { id }, data: normalizeDeviceInput(parsed.data) });
+  await recordAudit({ action: "updated", entityType: "device", entityId: id, entityLabel: parsed.data.name, summary: `Updated device "${parsed.data.name}"` });
   revalidatePath("/devices");
   redirect("/devices");
 }
@@ -71,7 +75,9 @@ export async function deleteDeviceAction(formData: FormData): Promise<void> {
   await requireDevices();
   const id = formData.get("id");
   if (typeof id === "string" && id.length > 0) {
+    const existing = await prisma.device.findUnique({ where: { id }, select: { name: true, number: true } });
     await prisma.device.delete({ where: { id } });
+    await recordAudit({ action: "deleted", entityType: "device", entityId: id, entityLabel: existing ? formatDeviceReference(existing.number) : undefined, summary: `Deleted device "${existing?.name ?? id}"` });
     revalidatePath("/devices");
   }
   redirect("/devices");

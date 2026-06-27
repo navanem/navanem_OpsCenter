@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { isSubscriptionsEnabled } from "@/lib/settings/service";
 import { subscriptionSchema, normalizeSubscriptionInput } from "@/lib/validation/subscription";
+import { recordAudit } from "@/lib/audit/log";
+import { formatSubscriptionReference } from "@/lib/subscriptions/meta";
 
 export interface SubscriptionFormState {
   error?: string;
@@ -54,6 +56,7 @@ export async function createSubscriptionAction(_prev: SubscriptionFormState, for
   const refError = await validateRefs(parsed.data.typeId, parsed.data.statusId);
   if (refError) return { error: refError };
   const sub = await prisma.subscription.create({ data: normalizeSubscriptionInput(parsed.data) });
+  await recordAudit({ action: "created", entityType: "subscription", entityId: sub.id, entityLabel: formatSubscriptionReference(sub.number), summary: `Created subscription "${sub.name}"` });
   revalidatePath("/subscriptions");
   redirect(`/subscriptions/${sub.id}/edit`);
 }
@@ -67,6 +70,7 @@ export async function updateSubscriptionAction(_prev: SubscriptionFormState, for
   const refError = await validateRefs(parsed.data.typeId, parsed.data.statusId);
   if (refError) return { error: refError };
   await prisma.subscription.update({ where: { id }, data: normalizeSubscriptionInput(parsed.data) });
+  await recordAudit({ action: "updated", entityType: "subscription", entityId: id, entityLabel: parsed.data.name, summary: `Updated subscription "${parsed.data.name}"` });
   revalidatePath("/subscriptions");
   redirect("/subscriptions");
 }
@@ -75,7 +79,9 @@ export async function deleteSubscriptionAction(formData: FormData): Promise<void
   await requireSubscriptions();
   const id = formData.get("id");
   if (typeof id === "string" && id.length > 0) {
+    const existing = await prisma.subscription.findUnique({ where: { id }, select: { name: true, number: true } });
     await prisma.subscription.delete({ where: { id } });
+    await recordAudit({ action: "deleted", entityType: "subscription", entityId: id, entityLabel: existing ? formatSubscriptionReference(existing.number) : undefined, summary: `Deleted subscription "${existing?.name ?? id}"` });
     revalidatePath("/subscriptions");
   }
   redirect("/subscriptions");

@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { ticketSchema, commentSchema } from "@/lib/validation/ticket";
 import { notifyTicketEvent } from "@/lib/tickets/notify";
+import { recordAudit } from "@/lib/audit/log";
+import { formatTicketReference } from "@/lib/tickets/meta";
 
 type TicketStatus = "OPEN" | "IN_PROGRESS" | "PENDING" | "RESOLVED" | "CLOSED";
 const STATUSES: TicketStatus[] = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
@@ -73,6 +75,7 @@ export async function createTicketAction(
       activities: { create: { type: "CREATED", actorId: user.id } },
     },
   });
+  await recordAudit({ action: "created", entityType: "ticket", entityId: ticket.id, entityLabel: formatTicketReference(ticket.number), summary: `Created ticket "${ticket.subject}"` });
   revalidatePath("/tickets");
   redirect(`/tickets/${ticket.id}`);
 }
@@ -104,6 +107,7 @@ export async function moveTicketAction(
     }),
   ]);
   await notifyTicketEvent({ ticketId, event: "status_changed", actorId: user.id, toStatus: status });
+  await recordAudit({ action: "status_changed", entityType: "ticket", entityId: ticketId, entityLabel: formatTicketReference(ticket.number), summary: `Ticket ${formatTicketReference(ticket.number)} status ${ticket.status} → ${status}`, metadata: { from: ticket.status, to: status } });
   revalidatePath("/tickets");
   revalidatePath(`/tickets/${ticketId}`);
 }
@@ -246,6 +250,7 @@ export async function assignTicketAction(formData: FormData): Promise<void> {
       if (assigneeId) {
         await notifyTicketEvent({ ticketId: id, event: "assigned", actorId: user.id });
       }
+      await recordAudit({ action: assigneeId ? "assigned" : "updated", entityType: "ticket", entityId: id, entityLabel: formatTicketReference(ticket.number), summary: assigneeId ? `Assigned ticket ${formatTicketReference(ticket.number)}` : `Unassigned ticket ${formatTicketReference(ticket.number)}` });
     }
   }
   redirect(`/tickets/${typeof id === "string" ? id : ""}`);
