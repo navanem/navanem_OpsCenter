@@ -3,6 +3,7 @@ import { requireContact } from "@/lib/portal/current-contact";
 import { getAppSettings } from "@/lib/settings/service";
 import { getDictionary } from "@/lib/i18n/server";
 import { LanguageSelect } from "@/app/(app)/settings/language/language-select";
+import { Footer } from "@/components/layout/footer";
 import { portalSignOutAction, updatePortalLocaleAction } from "./actions";
 
 export default async function PortalDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +35,7 @@ export default async function PortalDashboardLayout({ children }: { children: Re
         </nav>
       </header>
       <main className="mx-auto max-w-4xl space-y-6 p-6">{children}</main>
+      <Footer />
     </div>
   );
 }

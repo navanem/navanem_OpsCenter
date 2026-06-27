@@ -16,6 +16,7 @@ import {
   isTicketOverdue,
 } from "@/lib/tickets/meta";
 import { StatusBadge, PriorityBadge, CategoryBadge } from "@/components/tickets/badges";
+import { getDictionary } from "@/lib/i18n/server";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TimeLogSection } from "@/components/timesheets/time-log-section";
@@ -100,13 +101,15 @@ export default async function TicketDetailPage({
 }) {
   const user = await requirePermission("tickets.read");
   const { id } = await params;
-  const [ticket, technicians, priorities, allTags] = await Promise.all([
+  const [ticket, technicians, priorities, allTags, dict] = await Promise.all([
     getTicket(id),
     listTechnicians(),
     listTicketPriorities({ activeOnly: true }),
     listTicketTags({ activeOnly: true }),
+    getDictionary(),
   ]);
   if (!ticket) notFound();
+  const ticketStatusLabel = (s: keyof typeof TICKET_STATUS_META) => dict.ticketStatus[s];
 
   const canManage = can(user, "tickets.manage");
   const canAssign = can(user, "tickets.assign");
@@ -130,7 +133,7 @@ export default async function TicketDetailPage({
             {ticket.subject}
           </h1>
           <div className="flex items-center gap-2 shrink-0">
-            <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} />
+            <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} label={ticketStatusLabel(ticket.status as keyof typeof TICKET_STATUS_META)} />
             <PriorityBadge name={ticket.priority.name} color={ticket.priority.color} />
             {overdue ? (
               <span className="rounded-full bg-[#ef444422] px-2 py-0.5 text-xs font-medium text-[#ef4444]">Overdue</span>
@@ -248,10 +251,10 @@ export default async function TicketDetailPage({
                       name="status"
                       hidden={hidden}
                       defaultValue={ticket.status}
-                      options={TICKET_STATUSES.map((s) => ({ value: s, label: TICKET_STATUS_META[s].label }))}
+                      options={TICKET_STATUSES.map((s) => ({ value: s, label: ticketStatusLabel(s) }))}
                     />
                   ) : (
-                    <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} />
+                    <StatusBadge status={ticket.status as keyof typeof TICKET_STATUS_META} label={ticketStatusLabel(ticket.status as keyof typeof TICKET_STATUS_META)} />
                   )}
                 </Field>
 

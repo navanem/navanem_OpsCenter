@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TICKET_STATUS_META, TICKET_STATUSES, formatTicketReference } from "@/lib/tickets/meta";
 import { PriorityBadge } from "@/components/tickets/badges";
+import { useT } from "@/lib/i18n/provider";
 import { moveTicketAction } from "../actions";
 
 export interface BoardTicket {
@@ -23,6 +24,7 @@ export function TicketBoard({ initial, canManage }: { initial: BoardTicket[]; ca
   const [dragId, setDragId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const router = useRouter();
+  const dict = useT();
 
   function onDrop(status: string) {
     if (!dragId || !canManage) return;
@@ -49,7 +51,7 @@ export function TicketBoard({ initial, canManage }: { initial: BoardTicket[]; ca
           >
             <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
-              <span className="text-sm font-bold">{meta.label}</span>
+              <span className="text-sm font-bold">{dict.ticketStatus[status]}</span>
               <span className="ml-auto text-xs text-[var(--muted-foreground)]">{column.length}</span>
             </div>
             <div className="flex min-h-24 flex-col gap-2 p-3">
@@ -66,10 +68,10 @@ export function TicketBoard({ initial, canManage }: { initial: BoardTicket[]; ca
                   </div>
                   <Link href={`/tickets/${t.id}`} className="font-medium hover:underline">{t.subject}</Link>
                   <div className="mt-1 text-xs text-[var(--muted-foreground)]">{t.clientName}</div>
-                  <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">{t.assigneeName ?? "Unassigned"}</div>
+                  <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">{t.assigneeName ?? dict.common.unassigned}</div>
                 </div>
               ))}
-              {column.length === 0 ? <p className="px-1 py-2 text-xs text-[var(--muted-foreground)]">No tickets</p> : null}
+              {column.length === 0 ? <p className="px-1 py-2 text-xs text-[var(--muted-foreground)]">{dict.tickets.noneFound}</p> : null}
             </div>
           </div>
         );

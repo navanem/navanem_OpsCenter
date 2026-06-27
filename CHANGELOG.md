@@ -3,6 +3,14 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.49.0] - 2026-06-27
+
+### Added
+- App footer: "Navanem OpsCenter by Sunitech", version, a link to sunitech.ch and the copyright, shown across the app and the client portal.
+
+### Changed
+- More French / English coverage: ticket statuses (list, board, detail, dashboard, portal) plus the Projects and Knowledge base pages and filters now follow the chosen language.
+
 ## [0.48.0] - 2026-06-27
 
 ### Changed

@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { getDictionary } from "@/lib/i18n/server";
 import { KnowledgeFilters } from "./knowledge-filters";
 
 type SP = { search?: string; categoryId?: string; status?: string };
 
 export default async function KnowledgePage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("knowledge.read");
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
   const canManage = can(user, "knowledge.manage");
 
   // Non-managers only ever see published articles.
@@ -31,18 +32,18 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Knowledge" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.knowledge }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Knowledge base</h1>
-        {canManage ? <Link href="/knowledge/new"><Button>New article</Button></Link> : null}
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.knowledge}</h1>
+        {canManage ? <Link href="/knowledge/new"><Button>{dict.knowledge.new}</Button></Link> : null}
       </div>
 
       {canManage ? (
         <StatGrid>
-          <StatCard label="Articles" value={stats.total} color="#6d5efc" />
-          <StatCard label="Published" value={stats.published} color="#10b981" />
-          <StatCard label="Drafts" value={stats.drafts} color="#f59e0b" />
-          <StatCard label="Categories" value={categories.length} color="#3b82f6" />
+          <StatCard label={dict.knowledge.kpiArticles} value={stats.total} color="#6d5efc" />
+          <StatCard label={dict.knowledge.kpiPublished} value={stats.published} color="#10b981" />
+          <StatCard label={dict.knowledge.kpiDrafts} value={stats.drafts} color="#f59e0b" />
+          <StatCard label={dict.knowledge.kpiCategories} value={categories.length} color="#3b82f6" />
         </StatGrid>
       ) : null}
 
@@ -50,7 +51,7 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
 
       {articles.length === 0 ? (
         <Card>
-          <p className="p-6 text-[var(--muted-foreground)]">No articles found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.knowledge.noneFound}</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -64,7 +65,7 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
                   {a.excerpt ? <p className="mt-1 text-sm text-[var(--muted-foreground)]">{a.excerpt}</p> : null}
                   <p className="mt-2 text-xs text-[var(--muted-foreground)]">
                     {a.author ? `${a.author.firstName} ${a.author.lastName} · ` : ""}
-                    Updated {new Date(a.updatedAt).toLocaleDateString()}
+                    {dict.common.updated} {new Date(a.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1.5">
@@ -74,7 +75,7 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
                     </span>
                   ) : null}
                   {a.status === "DRAFT" ? (
-                    <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]">Draft</span>
+                    <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]">{dict.knowledge.draft}</span>
                   ) : null}
                 </div>
               </div>

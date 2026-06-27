@@ -51,6 +51,8 @@ export const en = {
     renewal: "Renewal",
     serial: "Serial",
     warranty: "Warranty",
+    updated: "Updated",
+    lead: "Lead",
     allClients: "All clients",
     allStatuses: "All statuses",
     allTypes: "All types",
@@ -58,6 +60,7 @@ export const en = {
     allPriorities: "All priorities",
     allCategories: "All categories",
     allTags: "All tags",
+    allLeads: "All leads",
   },
   nav: {
     dashboard: "Dashboard",
@@ -239,6 +242,26 @@ export const en = {
   planning: {
     new: "New visit",
     recurring: "Recurring visits",
+  },
+  knowledge: {
+    new: "New article",
+    noneFound: "No articles found.",
+    searchPlaceholder: "Search articles…",
+    kpiArticles: "Articles",
+    kpiPublished: "Published",
+    kpiDrafts: "Drafts",
+    kpiCategories: "Categories",
+    draft: "Draft",
+  },
+  projects: {
+    new: "New project",
+    noneFound: "No projects found.",
+    searchPlaceholder: "Search projects…",
+    kpiTotal: "Total projects",
+    kpiTasks: "Tasks",
+    kpiNoLead: "No lead",
+    kpiOverdue: "Overdue",
+    colTasks: "Tasks",
   },
   ticketStatus: {
     OPEN: "Open",
