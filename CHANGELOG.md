@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.51.0] - 2026-06-27
+
+### Changed
+- The Ticket, Subscription, Device and Knowledge base create/edit forms (field labels, options, hints and buttons) now follow the chosen French / English language.
+
 ## [0.50.0] - 2026-06-27
 
 ### Changed

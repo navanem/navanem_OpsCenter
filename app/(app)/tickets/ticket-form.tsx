@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/provider";
 import { createTicketAction, type TicketFormState } from "./actions";
 
 const inputClass =
@@ -22,6 +23,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
     createTicketAction,
     {},
   );
+  const t = useT();
 
   const defaultPriorityId =
     priorities.find((p) => p.name === "Medium")?.id ?? priorities[0]?.id ?? "";
@@ -32,7 +34,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
       {deviceId ? <input type="hidden" name="deviceId" value={deviceId} /> : null}
       <div className="flex flex-col gap-1">
         <label htmlFor="subject" className="text-sm text-[var(--muted-foreground)]">
-          Subject *
+          {t.common.subject} *
         </label>
         <input
           id="subject"
@@ -45,7 +47,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
 
       <div className="flex flex-col gap-1">
         <label htmlFor="description" className="text-sm text-[var(--muted-foreground)]">
-          Description *
+          {t.common.description} *
         </label>
         <textarea
           id="description"
@@ -59,10 +61,10 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="clientId" className="text-sm text-[var(--muted-foreground)]">
-            Client *
+            {t.common.client} *
           </label>
           <select id="clientId" name="clientId" required defaultValue={defaultClientId ?? ""} className={inputClass}>
-            <option value="">Select a client</option>
+            <option value="">{t.form.selectClient}</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.companyName}
@@ -73,10 +75,10 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
 
         <div className="flex flex-col gap-1">
           <label htmlFor="assigneeId" className="text-sm text-[var(--muted-foreground)]">
-            Assignee
+            {t.common.assignee}
           </label>
           <select id="assigneeId" name="assigneeId" className={inputClass}>
-            <option value="">Unassigned</option>
+            <option value="">{t.common.unassigned}</option>
             {technicians.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.firstName} {t.lastName}
@@ -87,7 +89,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
 
         <div className="flex flex-col gap-1">
           <label htmlFor="priorityId" className="text-sm text-[var(--muted-foreground)]">
-            Priority
+            {t.common.priority}
           </label>
           <select id="priorityId" name="priorityId" defaultValue={defaultPriorityId} className={inputClass}>
             {priorities.map((p) => (
@@ -100,7 +102,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
 
         <div className="flex flex-col gap-1">
           <label htmlFor="categoryId" className="text-sm text-[var(--muted-foreground)]">
-            Category
+            {t.common.category}
           </label>
           <select id="categoryId" name="categoryId" defaultValue={defaultCategoryId} className={inputClass}>
             {categories.map((c) => (
@@ -113,7 +115,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
 
         <div className="flex flex-col gap-1">
           <label htmlFor="dueAt" className="text-sm text-[var(--muted-foreground)]">
-            Due date
+            {t.form.dueDate}
           </label>
           <input id="dueAt" name="dueAt" type="datetime-local" className={inputClass} />
         </div>
@@ -121,7 +123,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
 
       {tags.length > 0 ? (
         <div className="flex flex-col gap-2">
-          <span className="text-sm text-[var(--muted-foreground)]">Tags</span>
+          <span className="text-sm text-[var(--muted-foreground)]">{t.form.tags}</span>
           <div className="flex flex-wrap gap-3">
             {tags.map((t) => (
               <label key={t.id} className="flex items-center gap-1.5 text-sm">
@@ -141,7 +143,7 @@ export function TicketForm({ clients, technicians, categories, priorities, tags,
       ) : null}
 
       <Button type="submit" disabled={pending}>
-        {pending ? "Creating…" : "Create ticket"}
+        {pending ? t.common.creating : t.common.create}
       </Button>
     </form>
   );
