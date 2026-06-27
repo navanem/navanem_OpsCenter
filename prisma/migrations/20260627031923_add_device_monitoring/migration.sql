@@ -1,0 +1,16 @@
+-- AlterTable
+ALTER TABLE "Device" ADD COLUMN     "agentToken" TEXT,
+ADD COLUMN     "agentVersion" TEXT,
+ADD COLUMN     "cpuFreqMhz" INTEGER,
+ADD COLUMN     "cpuLogical" INTEGER,
+ADD COLUMN     "cpuModel" TEXT,
+ADD COLUMN     "cpuPhysical" INTEGER,
+ADD COLUMN     "cpuUsagePct" DOUBLE PRECISION,
+ADD COLUMN     "diskTotalMb" INTEGER,
+ADD COLUMN     "diskUsedMb" INTEGER,
+ADD COLUMN     "ipAddress" TEXT,
+ADD COLUMN     "lastSeenAt" TIMESTAMP(3),
+ADD COLUMN     "osName" TEXT,
+ADD COLUMN     "osVersion" TEXT,
+ADD COLUMN     "ramTotalMb" INTEGER,
+ADD COLUMN     "ramUsedMb" INTEGER;

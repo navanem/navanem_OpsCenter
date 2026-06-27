@@ -5,6 +5,11 @@ import { verifyPortalSession, PORTAL_COOKIE_NAME } from "@/lib/portal/session-to
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // The monitoring agent endpoint authenticates with a per-device token, not a staff session.
+  if (pathname.startsWith("/api/agent/")) {
+    return NextResponse.next();
+  }
+
   // Client portal routes authenticate with a separate session.
   if (pathname.startsWith("/portal")) {
     if (pathname === "/portal/login" || pathname.startsWith("/portal/set-password")) {

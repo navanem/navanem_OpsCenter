@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.54.0] - 2026-06-27
+
+### Added
+- Device monitoring agent: each device now has a detail page showing live system metrics (online/offline status, OS, CPU, memory, disk, IP, last seen) with usage gauges. Generate a per-device token and deploy the provided PowerShell (Windows) or bash (Linux/macOS) agent on the workstation; it reports metrics to a token-authenticated API endpoint.
+
 ## [0.53.0] - 2026-06-27
 
 ### Added

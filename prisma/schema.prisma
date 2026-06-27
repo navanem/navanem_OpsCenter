@@ -656,6 +656,22 @@ model Device {
   warrantyExpiry DateTime?
   notes          String?
   tickets        Ticket[]
+  // Monitoring agent
+  agentToken     String?
+  agentVersion   String?
+  lastSeenAt     DateTime?
+  ipAddress      String?
+  osName         String?
+  osVersion      String?
+  cpuModel       String?
+  cpuPhysical    Int?
+  cpuLogical     Int?
+  cpuFreqMhz     Int?
+  cpuUsagePct    Float?
+  ramTotalMb     Int?
+  ramUsedMb      Int?
+  diskTotalMb    Int?
+  diskUsedMb     Int?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
