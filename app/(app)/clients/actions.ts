@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { clientSchema, normalizeClientInput } from "@/lib/validation/client";
 import { parseClientsCsv } from "@/lib/clients/import";
+import { recordAudit } from "@/lib/audit/log";
 
 export interface ClientFormState {
   error?: string;
@@ -68,6 +69,7 @@ export async function createClientAction(
   const created = await prisma.client.create({
     data: normalizeClientInput(parsed.data),
   });
+  await recordAudit({ action: "created", entityType: "client", entityId: created.id, entityLabel: created.companyName, summary: `Created client "${created.companyName}"` });
   revalidatePath("/clients");
   redirect(`/clients/${created.id}`);
 }
@@ -89,6 +91,7 @@ export async function updateClientAction(
     where: { id },
     data: normalizeClientInput(parsed.data),
   });
+  await recordAudit({ action: "updated", entityType: "client", entityId: id, entityLabel: parsed.data.companyName, summary: `Updated client "${parsed.data.companyName}"` });
   revalidatePath("/clients");
   revalidatePath(`/clients/${id}`);
   redirect(`/clients/${id}`);
@@ -98,7 +101,9 @@ export async function deleteClientAction(formData: FormData): Promise<void> {
   await requirePermission("clients.manage");
   const id = formData.get("id");
   if (typeof id === "string" && id.length > 0) {
+    const existing = await prisma.client.findUnique({ where: { id }, select: { companyName: true } });
     await prisma.client.delete({ where: { id } });
+    await recordAudit({ action: "deleted", entityType: "client", entityId: id, entityLabel: existing?.companyName, summary: `Deleted client "${existing?.companyName ?? id}"` });
   }
   revalidatePath("/clients");
   redirect("/clients");

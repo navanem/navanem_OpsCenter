@@ -162,6 +162,8 @@ export const fr: Dictionary = {
     usersDesc: "Inviter et gérer les membres de l'équipe.",
     roles: "Rôles",
     rolesDesc: "Permissions de chaque rôle.",
+    audit: "Journal d'audit",
+    auditDesc: "Chaque changement et action enregistré dans l'application.",
     contracts: "Contrats",
     contractsDesc: "Activer le module contrats.",
     devices: "Appareils",

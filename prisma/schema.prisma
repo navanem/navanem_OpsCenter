@@ -67,8 +67,28 @@ model User {
   timeTimer                TimeTimer?       @relation("TimeTimerUser")
   passwordResets           PasswordResetToken[]
   knowledgeArticles        KnowledgeArticle[] @relation("KnowledgeAuthor")
+  auditLogs                AuditLog[]       @relation("AuditActor")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?
+  actor       User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorName   String
+  action      String
+  entityType  String
+  entityId    String?
+  entityLabel String?
+  summary     String
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([actorId])
 }
 
 enum ClientStatus {

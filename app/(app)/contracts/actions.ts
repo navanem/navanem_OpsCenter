@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/guard";
 import { isContractsEnabled } from "@/lib/settings/service";
 import { contractSchema, normalizeContractInput } from "@/lib/validation/contract";
+import { recordAudit } from "@/lib/audit/log";
+import { formatContractReference } from "@/lib/contracts/meta";
 
 export interface ContractFormState {
   error?: string;
@@ -52,6 +54,7 @@ export async function createContractAction(
   const refError = await validateRefs(parsed.data.typeId, parsed.data.statusId);
   if (refError) return { error: refError };
   const contract = await prisma.contract.create({ data: normalizeContractInput(parsed.data) });
+  await recordAudit({ action: "created", entityType: "contract", entityId: contract.id, entityLabel: formatContractReference(contract.number), summary: `Created contract ${formatContractReference(contract.number)}` });
   revalidatePath("/contracts");
   redirect(`/contracts/${contract.id}/edit`);
 }
@@ -68,6 +71,7 @@ export async function updateContractAction(
   const refError = await validateRefs(parsed.data.typeId, parsed.data.statusId);
   if (refError) return { error: refError };
   await prisma.contract.update({ where: { id }, data: normalizeContractInput(parsed.data) });
+  await recordAudit({ action: "updated", entityType: "contract", entityId: id, summary: `Updated a contract` });
   revalidatePath("/contracts");
   redirect("/contracts");
 }
@@ -76,7 +80,9 @@ export async function deleteContractAction(formData: FormData): Promise<void> {
   await requireContracts();
   const id = formData.get("id");
   if (typeof id === "string" && id.length > 0) {
+    const existing = await prisma.contract.findUnique({ where: { id }, select: { number: true } });
     await prisma.contract.delete({ where: { id } });
+    await recordAudit({ action: "deleted", entityType: "contract", entityId: id, entityLabel: existing ? formatContractReference(existing.number) : undefined, summary: `Deleted contract ${existing ? formatContractReference(existing.number) : id}` });
     revalidatePath("/contracts");
   }
   redirect("/contracts");

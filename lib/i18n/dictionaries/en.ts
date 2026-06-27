@@ -160,6 +160,8 @@ export const en = {
     usersDesc: "Invite and manage team members.",
     roles: "Roles",
     rolesDesc: "Permissions for each role.",
+    audit: "Audit log",
+    auditDesc: "Every change and action recorded across the app.",
     contracts: "Contracts",
     contractsDesc: "Enable the contracts module.",
     devices: "Devices",

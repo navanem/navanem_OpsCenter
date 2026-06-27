@@ -11,6 +11,7 @@ import { countActiveAdmins } from "@/lib/users/queries";
 import { wouldLockOutLastAdmin } from "@/lib/users/admin-guard";
 import { isSmtpConfigured, sendMail, invitationEmail } from "@/lib/mailer";
 import { getAppSettings } from "@/lib/settings/service";
+import { recordAudit } from "@/lib/audit/log";
 
 export interface InviteState {
   error?: string;
@@ -206,6 +207,7 @@ export async function setUserStatusAction(formData: FormData): Promise<void> {
       });
     if (!locked) {
       await prisma.user.update({ where: { id }, data: { status } });
+      await recordAudit({ action: "status_changed", entityType: "user", entityId: id, entityLabel: target.email, summary: `${status === "SUSPENDED" ? "Suspended" : "Reactivated"} user ${target.firstName} ${target.lastName}`, metadata: { status } });
     }
   }
   revalidatePath("/settings/users");

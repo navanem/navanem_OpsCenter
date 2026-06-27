@@ -21,6 +21,7 @@ export default async function SettingsPage() {
     { title: t.subscriptions, description: t.subscriptionsDesc, href: "/settings/subscriptions", permission: "settings.manage" },
     { title: t.users, description: t.usersDesc, href: "/settings/users", permission: "users.read" },
     { title: t.roles, description: t.rolesDesc, href: "/settings/roles", permission: "roles.read" },
+    { title: t.audit, description: t.auditDesc, href: "/settings/audit", permission: "audit.read" },
   ];
 
   const visible = sections.filter((s) => can(user, s.permission));
