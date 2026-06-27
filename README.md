@@ -4,7 +4,7 @@
 
 **The all-in-one operations platform for Managed Service Providers.**
 
-Tickets · Planning · Clients · Contracts · Subscriptions · Devices · Knowledge base · Timesheets — in one premium, bilingual workspace.
+Tickets · ITSM · CRM · CMDB · Planning · Clients · Contracts · Subscriptions · Devices · Knowledge base · Timesheets — in one premium, bilingual workspace.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
@@ -12,17 +12,22 @@ Tickets · Planning · Clients · Contracts · Subscriptions · Devices · Knowl
 
 ---
 
-OpsCenter is a single-tenant SaaS that runs the day-to-day of an MSP: handle support tickets, schedule field visits, track client assets and subscriptions, log billable time, and give clients their own portal — all behind a granular role-based permission system, in English or French, with a light or dark theme.
+OpsCenter is a single-tenant SaaS that runs the day-to-day of an MSP: handle support tickets with ITSM practices, drive sales through a CRM pipeline, map your estate in a CMDB, schedule field visits, monitor devices with a deployable agent, track client assets and subscriptions, log billable time, and give clients their own portal — all behind a granular role-based permission system, with a full audit trail, in English or French, with a light or dark theme.
 
 ## ✨ Highlights
 
 - 🎫 **Ticketing** with a Kanban board, SLA/due dates, tags, threaded conversations and an automatic activity log
+- 🛠️ **ITSM practices** — incident, service request and change ticket types
+- 🔄 **Change management** with risk/impact, planned windows, implementation/rollback plans and an approval workflow
+- 🧱 **CMDB** — configuration items with types, relationships and device links
+- 💼 **CRM** — leads and an opportunity pipeline with one-click lead-to-client conversion
 - 🗓️ **Planning** on a full month calendar with one-off and recurring visits
 - 👥 **Clients & contacts** with a customer-facing **portal**
 - 📄 **Contracts & subscriptions** with renewals, warranties and support tracking
-- 🖥️ **Device / asset** management
+- 🖥️ **Device / asset** management with a **deployable monitoring agent** (live CPU/RAM/disk/OS metrics)
 - 📚 **Knowledge base** (Markdown), publishable to the client portal
 - ⏱️ **Timesheets & billing** with approval workflow and per-client PDF reports
+- 🧾 **Audit log** recording who did what and when across the app
 - 🔐 **Roles & permissions**, 2FA, and a self-service password reset
 - 🌍 **Bilingual (EN/FR)** per user · 🌗 **light / dark** theme
 - 🧩 **Toggleable modules** and **configurable taxonomies** everywhere
@@ -43,6 +48,15 @@ Tickets are linked to clients with status, priority, configurable category, tags
 
 ![Kanban board](docs/screenshots/tickets-board.png)
 
+### ITSM & change management
+Classify tickets by **type** (incident, service request, change) to align with ITSM practice. The dedicated **Change Management** module _(optional)_ plans and tracks IT changes (`CHG-####`) with configurable type and status, **risk/impact**, a **planned window**, **implementation and rollback plans**, an assignee and client, plus an **approve / reject** workflow gated by its own permission — with KPIs (pending approval, upcoming, approved) and filters.
+
+### CRM & sales pipeline _(optional module)_
+Capture **leads** (`LEAD-####`) with source, status, owner, contact details and estimated value, and drive **opportunities** (`OPP-####`) through a **configurable pipeline** with stages, monetary value, win probability, owner, expected close date and a won/lost outcome. Convert a qualified lead into a client in **one click**, carrying over its company and contact details. A tabbed view (Pipeline / Leads) surfaces KPIs — open deals, pipeline value, won deals and active leads.
+
+### CMDB / configuration management _(optional module)_
+Map your IT estate as **configuration items** (`CI-####`) — servers, applications, services and network gear — with configurable type and status, owner, environment, location, client, an optional **linked monitored device** and **CI-to-CI relationships**, all filterable with KPIs.
+
 ### Planning
 Schedule one-off and **recurring** visits for technicians on a **month calendar** with localized month/weekday names, colored chips per visit type, today highlighting and month navigation. Recurring templates (daily / weekly / monthly) generate dated occurrences you can reschedule, complete or cancel individually.
 
@@ -58,8 +72,8 @@ Track **contracts** (type with a default hourly rate, status, value, billing cyc
 
 ![Subscriptions](docs/screenshots/subscriptions.png)
 
-### Devices & assets
-Inventory client and internal devices with configurable type and status, serial / manufacturer / model, hostname, purchase and warranty dates, and client assignment — with warranty-expiring alerts and links to related tickets.
+### Devices & assets, with a monitoring agent
+Inventory client and internal devices with configurable type and status, serial / manufacturer / model, hostname, purchase and warranty dates, and client assignment — with warranty-expiring alerts and links to related tickets. Each device has a **detail page with live system metrics** (online/offline status, OS, CPU, memory, disk, IP, last seen) shown as usage gauges. Generate a per-device token and deploy the provided **PowerShell (Windows)** or **bash (Linux/macOS)** agent on the workstation; it reports metrics to a token-authenticated endpoint.
 
 ### Knowledge base
 Write internal articles in **Markdown** (how-tos, troubleshooting, tips, policies) with configurable categories, draft / published status and search. Publish selected articles to the **client portal** so customers can self-serve.
@@ -82,6 +96,9 @@ Categories, priorities, statuses, types and tags across every module are **datab
 
 ### Bilingual & theming
 Every user picks their own **language (English / French)** and **light / dark theme** from the avatar menu in the top bar; the choice is remembered and applied instantly across the app and the client portal.
+
+### Audit log
+A chronological record of **who did what and when** across the app, with entity/action filters and search. Actions are recorded best-effort across clients, devices, subscriptions, contracts, knowledge articles, tickets, changes, configuration items and CRM records. Gated by a dedicated "View audit log" permission.
 
 ### Security
 Email/password sign-in with signed-cookie sessions and route protection, self-service **password reset** (emailed, time-limited, single-use hashed tokens), optional **two-factor authentication** (TOTP authenticator app with backup codes) and an organization-wide enforce-2FA policy.
