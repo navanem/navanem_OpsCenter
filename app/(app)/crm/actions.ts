@@ -55,6 +55,20 @@ export async function updateOpportunityAction(_prev: OpportunityFormState, formD
   redirect("/crm");
 }
 
+// Move an opportunity to another pipeline stage (drag-and-drop on the board).
+// stageId === "" clears the stage (moves it to the Unassigned column).
+export async function moveOpportunityAction(id: string, stageId: string): Promise<void> {
+  await requireCrm();
+  if (!id) return;
+  const opp = await prisma.opportunity.findUnique({ where: { id }, select: { number: true, stageId: true } });
+  if (!opp) return;
+  const nextStageId = stageId.length > 0 ? stageId : null;
+  if (opp.stageId === nextStageId) return;
+  await prisma.opportunity.update({ where: { id }, data: { stageId: nextStageId } });
+  await recordAudit({ action: "stage_changed", entityType: "opportunity", entityId: id, entityLabel: formatOpportunityReference(opp.number), summary: `Moved opportunity ${formatOpportunityReference(opp.number)} to a new stage` });
+  revalidatePath("/crm");
+}
+
 export async function deleteOpportunityAction(formData: FormData): Promise<void> {
   await requireCrm();
   const id = formData.get("id");
