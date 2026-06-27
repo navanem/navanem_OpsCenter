@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StatusBadge, PriorityBadge } from "@/components/tickets/badges";
+import { getDictionary } from "@/lib/i18n/server";
 import { TicketsFilters } from "./tickets-filters";
 
 type SP = { search?: string; status?: string; priorityId?: string; categoryId?: string; clientId?: string; assigneeId?: string; tagId?: string };
@@ -19,7 +20,7 @@ const STATUSES = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
 
 export default async function TicketsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("tickets.read");
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
   const status = STATUSES.includes(sp.status ?? "") ? (sp.status as never) : undefined;
 
   const [tickets, clients, technicians, priorities, categories, tags, ticketStats] = await Promise.all([
@@ -41,21 +42,21 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
   ]);
 
   const kpis = [
-    { label: "Open", value: ticketStats.open, color: "#3b82f6" },
-    { label: "Overdue", value: ticketStats.overdue, color: "#ef4444" },
-    { label: "Unassigned (open)", value: ticketStats.unassignedOpen, color: "#f59e0b" },
-    { label: "Total tickets", value: ticketStats.total, color: "#6d5efc" },
+    { label: dict.tickets.kpiOpen, value: ticketStats.open, color: "#3b82f6" },
+    { label: dict.tickets.kpiOverdue, value: ticketStats.overdue, color: "#ef4444" },
+    { label: dict.tickets.kpiUnassignedOpen, value: ticketStats.unassignedOpen, color: "#f59e0b" },
+    { label: dict.tickets.kpiTotal, value: ticketStats.total, color: "#6d5efc" },
   ];
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Tickets" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.tickets }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.tickets}</h1>
         <div className="flex gap-2">
-          <a href="/api/export?type=tickets" download><Button variant="outline">Export CSV</Button></a>
-          <Link href="/tickets/board"><Button variant="outline">Board view</Button></Link>
-          {can(user, "tickets.manage") ? <Link href="/tickets/new"><Button>New ticket</Button></Link> : null}
+          <a href="/api/export?type=tickets" download><Button variant="outline">{dict.common.exportCsv}</Button></a>
+          <Link href="/tickets/board"><Button variant="outline">{dict.tickets.boardView}</Button></Link>
+          {can(user, "tickets.manage") ? <Link href="/tickets/new"><Button>{dict.tickets.new}</Button></Link> : null}
         </div>
       </div>
 
@@ -75,18 +76,18 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
 
       <Card>
         {tickets.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No tickets found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.tickets.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Subject</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Priority</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Due</th>
-                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">Assignee</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.ref}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.subject}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.client}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.priority}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.status}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.due}</th>
+                <th scope="col" className="px-6 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.assignee}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,7 +121,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Prom
                     )}
                   </td>
                   <td className="px-6 py-3 text-[var(--muted-foreground)]">
-                    {t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : "Unassigned"}
+                    {t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : dict.common.unassigned}
                   </td>
                 </tr>
               ))}

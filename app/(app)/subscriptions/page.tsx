@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { getDictionary } from "@/lib/i18n/server";
 import { SubscriptionsFilters } from "./subscriptions-filters";
 
 type SP = { search?: string; clientId?: string; typeId?: string; statusId?: string };
@@ -27,7 +28,7 @@ function Badge({ name, color }: { name: string; color: string }) {
 export default async function SubscriptionsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("subscriptions.read");
   if (!(await isSubscriptionsEnabled())) notFound();
-  const sp = await searchParams;
+  const [sp, dict] = await Promise.all([searchParams, getDictionary()]);
 
   const [subs, stats, clients, types, statuses] = await Promise.all([
     listSubscriptions({ search: sp.search, clientId: sp.clientId, typeId: sp.typeId, statusId: sp.statusId }),
@@ -39,17 +40,17 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Subscriptions" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.subscriptions }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Subscriptions</h1>
-        {can(user, "subscriptions.manage") ? <Link href="/subscriptions/new"><Button>New subscription</Button></Link> : null}
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.subscriptions}</h1>
+        {can(user, "subscriptions.manage") ? <Link href="/subscriptions/new"><Button>{dict.subscriptions.new}</Button></Link> : null}
       </div>
 
       <StatGrid>
-        <StatCard label="Subscriptions" value={stats.total} color="#6d5efc" />
-        <StatCard label="Monthly recurring" value={formatMoneyCents(stats.monthlyRecurringCents)} color="#10b981" />
-        <StatCard label="Renewing < 30d" value={stats.renewingSoon} color="#f59e0b" />
-        <StatCard label="Assigned" value={stats.assigned} color="#3b82f6" />
+        <StatCard label={dict.subscriptions.kpiCount} value={stats.total} color="#6d5efc" />
+        <StatCard label={dict.subscriptions.kpiMrr} value={formatMoneyCents(stats.monthlyRecurringCents)} color="#10b981" />
+        <StatCard label={dict.subscriptions.kpiRenewing} value={stats.renewingSoon} color="#f59e0b" />
+        <StatCard label={dict.subscriptions.kpiAssigned} value={stats.assigned} color="#3b82f6" />
       </StatGrid>
 
       <SubscriptionsFilters
@@ -60,18 +61,18 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
 
       <Card>
         {subs.length === 0 ? (
-          <p className="p-6 text-[var(--muted-foreground)]">No subscriptions found.</p>
+          <p className="p-6 text-[var(--muted-foreground)]">{dict.subscriptions.noneFound}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)]">
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Ref</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Name</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Type</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Status</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Client</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Cost</th>
-                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">Renewal</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.ref}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.name}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.type}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.status}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.client}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.cost}</th>
+                <th scope="col" className="px-4 py-3 text-xs font-medium uppercase tracking-wide">{dict.common.renewal}</th>
               </tr>
             </thead>
             <tbody>

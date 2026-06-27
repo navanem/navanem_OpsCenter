@@ -4,7 +4,7 @@ import { can } from "@/lib/rbac/can";
 import { listVisitsInRange } from "@/lib/planning/queries";
 import { listVisitTypes } from "@/lib/taxonomies/queries";
 import { listTechnicians } from "@/lib/users/queries";
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, getDictionary } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { PlanningFilters } from "./planning-filters";
@@ -27,7 +27,7 @@ function mondayOf(d: Date): Date {
 
 export default async function PlanningPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requirePermission("visits.read");
-  const [sp, locale] = await Promise.all([searchParams, getLocale()]);
+  const [sp, locale, dict] = await Promise.all([searchParams, getLocale(), getDictionary()]);
   const tag = locale === "fr" ? "fr-FR" : "en-US";
 
   const now = new Date();
@@ -74,13 +74,13 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: "Planning" }]} />
+      <Breadcrumbs items={[{ label: dict.nav.planning }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Planning</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{dict.nav.planning}</h1>
         {canManage ? (
           <div className="flex gap-2">
-            <Link href="/planning/recurring"><Button variant="outline">Recurring visits</Button></Link>
-            <Link href="/planning/visits/new"><Button>New visit</Button></Link>
+            <Link href="/planning/recurring"><Button variant="outline">{dict.planning.recurring}</Button></Link>
+            <Link href="/planning/visits/new"><Button>{dict.planning.new}</Button></Link>
           </div>
         ) : null}
       </div>
