@@ -8,9 +8,11 @@ export function CrmTabs() {
   const pathname = usePathname();
   const t = useT();
   const onLeads = pathname.startsWith("/crm/leads");
+  const onAnalytics = pathname.startsWith("/crm/analytics");
   const tabs = [
-    { href: "/crm", label: t.crm.pipeline, active: !onLeads },
+    { href: "/crm", label: t.crm.pipeline, active: !onLeads && !onAnalytics },
     { href: "/crm/leads", label: t.crm.leads, active: onLeads },
+    { href: "/crm/analytics", label: t.crm.analytics, active: onAnalytics },
   ];
   return (
     <div className="flex gap-1 border-b border-[var(--border)]">

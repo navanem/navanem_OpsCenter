@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.62.0] - 2026-06-27
+
+### Added
+- CRM analytics view (new **Analytics** tab): **win rate** (won vs lost), **average deal size**, **average sales cycle** (days from creation to close on won deals) and **won revenue** KPIs, plus an **open pipeline by stage** distribution chart showing deal count and value per stage. Bilingual EN/FR.
+
 ## [0.61.0] - 2026-06-27
 
 ### Added
