@@ -8,12 +8,14 @@ export function TicketsFilters({
   technicians,
   priorities,
   categories,
+  types,
   tags,
 }: {
   clients: { id: string; companyName: string }[];
   technicians: { id: string; firstName: string; lastName: string }[];
   priorities: { id: string; name: string }[];
   categories: { id: string; name: string }[];
+  types: { id: string; name: string }[];
   tags: { id: string; name: string }[];
 }) {
   const router = useRouter();
@@ -58,6 +60,12 @@ export function TicketsFilters({
         <option value="">{t.common.allCategories}</option>
         {categories.map((c) => (
           <option key={c.id} value={c.id}>{c.name}</option>
+        ))}
+      </select>
+      <select defaultValue={params.get("ticketTypeId") ?? ""} onChange={(e) => update("ticketTypeId", e.target.value)} className={selectCls}>
+        <option value="">{t.common.allTypes}</option>
+        {types.map((ty) => (
+          <option key={ty.id} value={ty.id}>{ty.name}</option>
         ))}
       </select>
       <select defaultValue={params.get("clientId") ?? ""} onChange={(e) => update("clientId", e.target.value)} className={selectCls}>

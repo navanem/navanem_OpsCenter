@@ -1,7 +1,7 @@
 import { requirePermission } from "@/lib/auth/guard";
 import { listClients } from "@/lib/clients/queries";
 import { listTechnicians } from "@/lib/users/queries";
-import { listTicketCategories, listTicketPriorities, listTicketTags } from "@/lib/taxonomies/queries";
+import { listTicketCategories, listTicketPriorities, listTicketTags, listTicketTypes } from "@/lib/taxonomies/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TicketForm } from "../ticket-form";
@@ -13,12 +13,13 @@ export default async function NewTicketPage({
 }) {
   await requirePermission("tickets.manage");
   const sp = await searchParams;
-  const [clients, technicians, categories, priorities, tags] = await Promise.all([
+  const [clients, technicians, categories, priorities, tags, types] = await Promise.all([
     listClients({}),
     listTechnicians(),
     listTicketCategories({ activeOnly: true }),
     listTicketPriorities({ activeOnly: true }),
     listTicketTags({ activeOnly: true }),
+    listTicketTypes({ activeOnly: true }),
   ]);
 
   return (
@@ -35,6 +36,7 @@ export default async function NewTicketPage({
             technicians={technicians}
             categories={categories}
             priorities={priorities}
+            types={types.map((t) => ({ id: t.id, name: t.name }))}
             tags={tags.map((t) => ({ id: t.id, name: t.name, color: t.color }))}
             defaultClientId={sp.clientId}
             deviceId={sp.deviceId}

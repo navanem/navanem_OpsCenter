@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.52.0] - 2026-06-27
+
+### Added
+- ITSM ticket types: classify tickets as Incident, Service request, Change (configurable in Settings → Taxonomies → Ticket types). The type shows on the ticket list and detail, can be filtered, and is set on creation or inline on the ticket.
+
 ## [0.51.0] - 2026-06-27
 
 ### Changed

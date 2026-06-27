@@ -258,6 +258,16 @@ async function main() {
         await prisma.subscriptionStatus.create({ data: s });
       }
     }
+
+    // 17. Default ticket types (ITSM: incident vs service request)
+    const ticketTypes = [
+      { name: "Incident", color: "#ef4444", sortOrder: 1 },
+      { name: "Service request", color: "#3b82f6", sortOrder: 2 },
+      { name: "Change", color: "#8b5cf6", sortOrder: 3 },
+    ];
+    for (const t of ticketTypes) {
+      await prisma.ticketType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
   } finally {
     await prisma.$disconnect();
   }

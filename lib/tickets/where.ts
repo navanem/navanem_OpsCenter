@@ -8,6 +8,7 @@ export interface TicketFilters {
   clientId?: string;
   assigneeId?: string;
   tagId?: string;
+  ticketTypeId?: string;
 }
 
 export function buildTicketWhere(filters: TicketFilters): Prisma.TicketWhereInput {
@@ -15,6 +16,7 @@ export function buildTicketWhere(filters: TicketFilters): Prisma.TicketWhereInpu
   if (filters.status) where.status = filters.status;
   if (filters.priorityId) where.priorityId = filters.priorityId;
   if (filters.categoryId) where.categoryId = filters.categoryId;
+  if (filters.ticketTypeId) where.ticketTypeId = filters.ticketTypeId;
   if (filters.clientId) where.clientId = filters.clientId;
   if (filters.assigneeId) where.assigneeId = filters.assigneeId;
   if (filters.tagId) where.tags = { some: { id: filters.tagId } };
