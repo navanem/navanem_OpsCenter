@@ -126,6 +126,7 @@ model Client {
   devices              Device[]
   subscriptions        Subscription[]
   changes              Change[]
+  configItems          ConfigItem[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 }
@@ -179,6 +180,7 @@ model AppSetting {
   defaultLocale       String  @default("en")
   subscriptionsEnabled Boolean @default(false)
   changesEnabled      Boolean @default(false)
+  cmdbEnabled         Boolean @default(false)
   updatedAt       DateTime @updatedAt
 }
 
@@ -660,6 +662,7 @@ model Device {
   warrantyExpiry DateTime?
   notes          String?
   tickets        Ticket[]
+  configItems    ConfigItem[]
   // Monitoring agent
   agentToken     String?
   agentVersion   String?
@@ -775,4 +778,47 @@ model ChangeStatus {
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
   changes   Change[]
+}
+
+model ConfigItem {
+  id          String             @id @default(cuid())
+  number      Int                @unique @default(autoincrement())
+  name        String
+  typeId      String?
+  type        ConfigItemType?    @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  statusId    String?
+  status      ConfigItemStatus?  @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  clientId    String?
+  client      Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  deviceId    String?
+  device      Device?            @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  environment String?
+  location    String?
+  owner       String?
+  description String?
+  relatedTo   ConfigItem[]       @relation("CIRelations")
+  relatedFrom ConfigItem[]       @relation("CIRelations")
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([clientId])
+  @@index([typeId])
+}
+
+model ConfigItemType {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  color     String       @default("#06b6d4")
+  sortOrder Int          @default(0)
+  isActive  Boolean      @default(true)
+  items     ConfigItem[]
+}
+
+model ConfigItemStatus {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  color     String       @default("#6b7280")
+  sortOrder Int          @default(0)
+  isActive  Boolean      @default(true)
+  items     ConfigItem[]
 }

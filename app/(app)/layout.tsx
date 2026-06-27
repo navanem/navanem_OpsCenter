@@ -34,6 +34,7 @@ export default async function AppLayout({
           devicesEnabled={settings.devicesEnabled}
           subscriptionsEnabled={settings.subscriptionsEnabled}
           changesEnabled={settings.changesEnabled}
+          cmdbEnabled={settings.cmdbEnabled}
           nav={dict.nav}
           navGroups={dict.navGroups}
         />

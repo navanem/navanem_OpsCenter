@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.56.0] - 2026-06-27
+
+### Added
+- CMDB / Configuration Management module (toggle in Settings → CMDB): track configuration items (CI-####) — servers, applications, services, network gear — with configurable type and status, owner, environment, location, client, an optional linked monitored device, and CI-to-CI relationships. Includes a list with KPIs and filters, plus CI types/statuses managed in Settings → Taxonomies. Actions recorded in the audit log. Gated by dedicated "View CMDB" / "Manage CMDB" permissions. Bilingual EN/FR.
+
 ## [0.55.0] - 2026-06-27
 
 ### Added

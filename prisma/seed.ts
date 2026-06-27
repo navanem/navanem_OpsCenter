@@ -291,6 +291,29 @@ async function main() {
     for (const s of changeStatuses) {
       await prisma.changeStatus.upsert({ where: { name: s.name }, update: {}, create: s });
     }
+
+    // 19. Default CMDB configuration-item types & statuses
+    const ciTypes = [
+      { name: "Server", color: "#6366f1", sortOrder: 1 },
+      { name: "Application", color: "#3b82f6", sortOrder: 2 },
+      { name: "Service", color: "#06b6d4", sortOrder: 3 },
+      { name: "Database", color: "#8b5cf6", sortOrder: 4 },
+      { name: "Network device", color: "#f59e0b", sortOrder: 5 },
+      { name: "Workstation", color: "#10b981", sortOrder: 6 },
+      { name: "Cloud resource", color: "#ec4899", sortOrder: 7 },
+    ];
+    for (const t of ciTypes) {
+      await prisma.configItemType.upsert({ where: { name: t.name }, update: {}, create: t });
+    }
+    const ciStatuses = [
+      { name: "Operational", color: "#10b981", sortOrder: 1 },
+      { name: "Degraded", color: "#f59e0b", sortOrder: 2 },
+      { name: "Maintenance", color: "#3b82f6", sortOrder: 3 },
+      { name: "Retired", color: "#6b7280", sortOrder: 4 },
+    ];
+    for (const s of ciStatuses) {
+      await prisma.configItemStatus.upsert({ where: { name: s.name }, update: {}, create: s });
+    }
   } finally {
     await prisma.$disconnect();
   }
