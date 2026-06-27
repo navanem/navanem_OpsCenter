@@ -7,6 +7,8 @@ import { formatMoneyCents, formatContractReference } from "@/lib/contracts/meta"
 import { formatDeviceReference } from "@/lib/devices/meta";
 import { listSubscriptionsRenewingSoon } from "@/lib/subscriptions/queries";
 import { formatSubscriptionReference } from "@/lib/subscriptions/meta";
+import { getCrmDashboard } from "@/lib/crm/queries";
+import { formatOpportunityReference } from "@/lib/crm/meta";
 import { TICKET_STATUS_META, formatTicketReference } from "@/lib/tickets/meta";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -27,11 +29,15 @@ export default async function DashboardPage() {
   const showContracts = can(user, "contracts.read") && settings.contractsEnabled;
   const showDevices = can(user, "devices.read") && settings.devicesEnabled;
   const showSubs = can(user, "subscriptions.read") && settings.subscriptionsEnabled;
+  const showCrm = can(user, "crm.read") && settings.crmEnabled;
   const expiring = showContracts || showDevices ? await getExpiringSoon() : { contracts: [], devices: [] };
   const expiringContracts = showContracts ? expiring.contracts : [];
   const expiringDevices = showDevices ? expiring.devices : [];
   const renewingSubs = showSubs ? await listSubscriptionsRenewingSoon() : [];
-  const hasAttention = expiringContracts.length + expiringDevices.length + renewingSubs.length > 0;
+  const crm = showCrm ? await getCrmDashboard() : { openValueCents: 0, attention: [] };
+  const crmAttention = crm.attention;
+  const nowMs = Date.now();
+  const hasAttention = expiringContracts.length + expiringDevices.length + renewingSubs.length + crmAttention.length > 0;
   const dateFmt = (d: Date) => new Date(d).toLocaleDateString();
 
   const moduleCards: { label: string; value: string | number; color: string }[] = [];
@@ -40,6 +46,7 @@ export default async function DashboardPage() {
   if (can(user, "contracts.read") && settings.contractsEnabled) moduleCards.push({ label: td.monthlyRecurring, value: formatMoneyCents(moduleCounts.contractsMrrCents), color: "#10b981" });
   if (can(user, "devices.read") && settings.devicesEnabled) moduleCards.push({ label: td.devices, value: moduleCounts.devices, color: "#f59e0b" });
   if (can(user, "knowledge.read")) moduleCards.push({ label: td.kbArticles, value: moduleCounts.kbPublished, color: "#6d5efc" });
+  if (showCrm) moduleCards.push({ label: td.pipelineValue, value: formatMoneyCents(crm.openValueCents), color: "#06b6d4" });
   const hasMyWork = myWork.myTickets.length + myWork.myTasks.length + myWork.myVisits.length > 0;
   const timeFmt: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
 
@@ -261,6 +268,34 @@ export default async function DashboardPage() {
                           {s.renewalDate ? <span className="shrink-0 text-xs font-medium text-[#f59e0b]">{dateFmt(s.renewalDate)}</span> : null}
                         </li>
                       ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {showCrm ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{td.opportunitiesClosing} ({crmAttention.length})</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  {crmAttention.length === 0 ? (
+                    <p className="text-[var(--muted-foreground)]">{td.noOpportunitiesClosing}</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {crmAttention.map((o) => {
+                        const overdue = o.expectedCloseAt != null && new Date(o.expectedCloseAt).getTime() < nowMs;
+                        return (
+                          <li key={o.id} className="flex items-center justify-between gap-2">
+                            <Link href={`/crm/${o.id}/edit`} className="min-w-0 flex items-center gap-2 hover:underline">
+                              <span className="font-mono text-xs text-[var(--muted-foreground)] shrink-0">{formatOpportunityReference(o.number)}</span>
+                              <span className="truncate">{o.name}{o.client ? ` · ${o.client.companyName}` : ""}</span>
+                            </Link>
+                            {o.expectedCloseAt ? <span className={"shrink-0 text-xs font-medium " + (overdue ? "text-[#ef4444]" : "text-[#f59e0b]")}>{dateFmt(o.expectedCloseAt)}</span> : null}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </CardContent>

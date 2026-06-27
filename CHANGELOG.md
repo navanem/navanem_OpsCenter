@@ -3,6 +3,11 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and semantic versioning.
 
+## [0.61.0] - 2026-06-27
+
+### Added
+- CRM on the dashboard: when the CRM module is enabled, the dashboard now shows a **Pipeline value** KPI card and an **Opportunities closing soon** panel in the "Attention needed" section — listing open deals due within 14 days (or already overdue, shown in red), linking straight to each opportunity. Bilingual EN/FR.
+
 ## [0.60.0] - 2026-06-27
 
 ### Added
